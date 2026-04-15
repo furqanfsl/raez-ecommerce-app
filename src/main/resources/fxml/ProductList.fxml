@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.ProductListController"
+      style="-fx-background-color: white; -fx-padding: 24 32 24 32;"
+      spacing="16"
+      HBox.hgrow="ALWAYS">
+
+    <!-- Breadcrumb -->
+    <HBox spacing="6" alignment="CENTER_LEFT">
+        <Label text="Shop"   style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+        <Label text="/"      style="-fx-font-size: 13; -fx-text-fill: #9ca3af;" />
+        <Label text="Robots" style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+    </HBox>
+
+    <!-- Title + sort -->
+    <HBox alignment="CENTER_LEFT">
+        <VBox spacing="2">
+            <Label text="Robots"
+                   style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+            <Label fx:id="itemCountLabel" text="0 items"
+                   style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <HBox alignment="CENTER_RIGHT" spacing="8">
+            <Label text="Sort by:" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+            <MenuButton text="Recommended"
+                        style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                               -fx-border-radius: 6; -fx-background-radius: 6;
+                               -fx-font-size: 13; -fx-padding: 6 12 6 12;">
+                <items>
+                    <MenuItem text="Recommended" />
+                    <MenuItem text="Price: Low to High" />
+                    <MenuItem text="Price: High to Low" />
+                    <MenuItem text="Best Rated" />
+                </items>
+            </MenuButton>
+        </HBox>
+    </HBox>
+
+    <!-- Product rows built dynamically in ProductListController -->
+    <VBox fx:id="productContainer" spacing="0" />
+
+</VBox>

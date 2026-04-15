@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.ProductCardController"
+      onMouseClicked="#handleCardClick"
+      style="-fx-background-color: white; -fx-cursor: hand;"
+      spacing="0"
+      prefWidth="240">
+
+    <!-- Image area -->
+    <StackPane style="-fx-background-color: #f9fafb; -fx-background-radius: 8;">
+
+        <ImageView fx:id="productImage"
+                   fitWidth="240" fitHeight="320"
+                   preserveRatio="false" />
+
+        <!-- Discount badge -->
+        <Label fx:id="discountBadge" text="-25%"
+               visible="false" managed="false"
+               StackPane.alignment="TOP_LEFT"
+               style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 11; -fx-font-weight: bold; -fx-padding: 3 7 3 7; -fx-background-radius: 4; -fx-translate-x: 8; -fx-translate-y: 8;" />
+
+        <!-- Favourite button -->
+        <Button fx:id="favouriteBtn" text="♡"
+                onAction="#handleToggleFavourite"
+                StackPane.alignment="TOP_RIGHT"
+                style="-fx-background-color: white; -fx-background-radius: 50; -fx-border-color: transparent; -fx-font-size: 14; -fx-cursor: hand; -fx-min-width: 30; -fx-min-height: 30; -fx-translate-x: -8; -fx-translate-y: 8;" />
+    </StackPane>
+
+    <!-- Product info -->
+    <VBox spacing="6" style="-fx-padding: 10 4 6 4;">
+
+        <Label fx:id="productName" text="Product Name"
+               wrapText="true" maxWidth="220"
+               style="-fx-font-size: 13; -fx-text-fill: #111827;" />
+
+        <!-- Rating row -->
+        <HBox spacing="4" alignment="CENTER_LEFT">
+            <Label text="★" style="-fx-text-fill: #facc15; -fx-font-size: 12;" />
+            <Label fx:id="ratingLabel"  text="4.8" style="-fx-font-size: 12; -fx-text-fill: #4b5563;" />
+            <Label fx:id="reviewsLabel" text="(342)" style="-fx-font-size: 12; -fx-text-fill: #9ca3af;" />
+        </HBox>
+
+        <!-- Price row -->
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Label fx:id="priceLabel"         text="£299.99"
+                   style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+            <Label fx:id="originalPriceLabel" text="£399.99"
+                   visible="false" managed="false"
+                   style="-fx-font-size: 13; -fx-text-fill: #9ca3af; -fx-strikethrough: true;" />
+        </HBox>
+
+    </VBox>
+</VBox>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.AdminDashboardController"
+      style="-fx-background-color: #f9fafb;">
+
+    <!-- Back to Home bar -->
+    <HBox style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                 -fx-border-width: 0 0 1 0; -fx-padding: 12 40 12 40;">
+        <Button text="&#8592; Back to Home" onAction="#handleBackToHome"
+                style="-fx-background-color: transparent; -fx-border-color: transparent;
+                       -fx-font-size: 13; -fx-text-fill: #374151; -fx-cursor: hand;" />
+    </HBox>
+
+    <!-- Top header -->
+    <VBox style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                 -fx-border-width: 0 0 1 0; -fx-padding: 28 40 28 40;">
+        <HBox alignment="CENTER_LEFT">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Product Management"
+                       style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+                <Label text="Manage your Raez product catalog - Add, edit, and organize futuristic robots"
+                       style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+            </VBox>
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Import" onAction="#handleImport"
+                        style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                               -fx-border-radius: 6; -fx-background-radius: 6;
+                               -fx-font-size: 13; -fx-padding: 8 16 8 16; -fx-cursor: hand;" />
+                <Button text="Export" onAction="#handleExport"
+                        style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                               -fx-border-radius: 6; -fx-background-radius: 6;
+                               -fx-font-size: 13; -fx-padding: 8 16 8 16; -fx-cursor: hand;" />
+                <Button text="+ Add Product" onAction="#handleAddProduct"
+                        style="-fx-background-color: #111827; -fx-text-fill: white;
+                               -fx-border-radius: 6; -fx-background-radius: 6;
+                               -fx-font-size: 13; -fx-font-weight: bold;
+                               -fx-padding: 8 16 8 16; -fx-cursor: hand;" />
+            </HBox>
+        </HBox>
+    </VBox>
+
+    <!-- Main content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: #f9fafb; -fx-border-color: transparent;">
+        <content>
+            <HBox style="-fx-padding: 32 40 32 40;" spacing="24" alignment="TOP_LEFT">
+
+                <!-- Left sidebar -->
+                <VBox spacing="16" prefWidth="280" minWidth="280">
+                    <fx:include fx:id="productFilters" source="ProductFilters.fxml" />
+
+                    <!-- Stats -->
+                    <VBox style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                                 -fx-border-radius: 8; -fx-background-radius: 8;
+                                 -fx-padding: 20;" spacing="12">
+                        <Label text="Statistics"
+                               style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Total Products" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="statTotal" text="0"
+                                   style="-fx-font-size: 13; -fx-font-weight: bold;" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Active" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="statActive" text="0"
+                                   style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #16a34a;" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Inactive" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="statInactive" text="0"
+                                   style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #6b7280;" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Out of Stock" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label fx:id="statOutOfStock" text="0"
+                                   style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #dc2626;" />
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- Right: toolbar + table -->
+                <VBox spacing="16" HBox.hgrow="ALWAYS">
+                    <HBox style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                                 -fx-border-radius: 8; -fx-background-radius: 8;
+                                 -fx-padding: 14 16 14 16;" alignment="CENTER_LEFT">
+                        <Label fx:id="showingLabel" text="Showing 0 of 0 products"
+                               style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <HBox spacing="8" alignment="CENTER_RIGHT">
+                            <Label text="Sort by:" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+                            <MenuButton fx:id="sortMenuBtn" text="Recently Updated"
+                                        style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                                               -fx-border-radius: 6; -fx-background-radius: 6;
+                                               -fx-font-size: 13; -fx-padding: 6 12 6 12;">
+                                <items>
+                                    <MenuItem text="Recently Updated"  onAction="#handleSortUpdated"  />
+                                    <MenuItem text="Name (A-Z)"        onAction="#handleSortNameAsc"  />
+                                    <MenuItem text="Name (Z-A)"        onAction="#handleSortNameDesc" />
+                                    <MenuItem text="Price Low to High" onAction="#handleSortPriceAsc" />
+                                    <MenuItem text="Price High to Low" onAction="#handleSortPriceDesc"/>
+                                    <MenuItem text="Stock Low to High" onAction="#handleSortStockAsc" />
+                                </items>
+                            </MenuButton>
+                        </HBox>
+                    </HBox>
+
+                    <fx:include fx:id="productTable" source="ProductTable.fxml" />
+                </VBox>
+            </HBox>
+        </content>
+    </ScrollPane>
+</VBox>

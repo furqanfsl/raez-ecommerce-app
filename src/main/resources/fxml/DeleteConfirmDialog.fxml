@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.DeleteConfirmDialogController"
+      prefWidth="440"
+      style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+             -fx-border-radius: 8; -fx-background-radius: 8;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0.2, 0, 4);"
+      spacing="0">
+
+    <!-- Header -->
+    <VBox style="-fx-padding: 24 24 16 24;" spacing="8">
+        <Label text="Delete Product"
+               style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+        <Label fx:id="descriptionLabel"
+               text="Are you sure you want to delete this product? This action cannot be undone."
+               wrapText="true" maxWidth="392"
+               style="-fx-font-size: 13; -fx-text-fill: #6b7280; -fx-line-spacing: 3;" />
+    </VBox>
+
+    <!-- Footer buttons -->
+    <HBox style="-fx-padding: 16 24 24 24;" spacing="12" alignment="CENTER_RIGHT">
+        <Button text="Cancel" onAction="#handleCancel"
+                style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+                       -fx-border-radius: 6; -fx-background-radius: 6;
+                       -fx-font-size: 13; -fx-padding: 9 20 9 20; -fx-cursor: hand;" />
+        <Button text="Delete Product" onAction="#handleConfirm"
+                style="-fx-background-color: #dc2626; -fx-text-fill: white;
+                       -fx-border-radius: 6; -fx-background-radius: 6;
+                       -fx-font-size: 13; -fx-font-weight: bold;
+                       -fx-padding: 9 20 9 20; -fx-cursor: hand;" />
+    </HBox>
+</VBox>
