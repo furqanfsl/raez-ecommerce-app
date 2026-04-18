@@ -5,7 +5,7 @@ import com.reaz.db.DBConnection;
 import java.sql.*;
 
 /**
- * Handles stock levels in inventory_record.
+ * Handles stock levels in warehouse_inventory.
  * Uses a single default warehouse for the product component.
  */
 public class InventoryDAO {
@@ -41,7 +41,7 @@ public class InventoryDAO {
 
     /** Get stock quantity for a product (sum across all warehouses) */
     public int getStock(int productId) {
-        String sql = "SELECT COALESCE(SUM(quantity), 0) FROM inventory_record WHERE product_id = ?";
+        String sql = "SELECT quantityOnHand FROM warehouse_inventory WHERE productID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ResultSet rs = ps.executeQuery();
@@ -58,11 +58,11 @@ public class InventoryDAO {
         if (warehouseId < 0) return;
 
         String sql = """
-            INSERT INTO inventory_record (product_id, warehouse_id, quantity, min_stock)
+            INSERT INTO warehouse_inventory (productID, warehouseID, quantityOnHand, minStockThreshold)
             VALUES (?, ?, ?, 0)
-            ON CONFLICT(product_id, warehouse_id)
-            DO UPDATE SET quantity = excluded.quantity,
-                          last_updated = CURRENT_TIMESTAMP
+            ON CONFLICT(productID, warehouseID)
+            DO UPDATE SET quantityOnHand = excluded.quantityOnHand,
+                          lastRestockDate = CURRENT_TIMESTAMP
             """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
@@ -76,7 +76,7 @@ public class InventoryDAO {
 
     /** Delete stock record when product is deleted */
     public void deleteForProduct(int productId) {
-        String sql = "DELETE FROM inventory_record WHERE product_id = ?";
+        String sql = "DELETE FROM warehouse_inventory WHERE productID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.executeUpdate();
