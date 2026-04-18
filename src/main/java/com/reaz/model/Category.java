@@ -1,26 +1,27 @@
 package com.reaz.model;
 
 /**
- * Matches the 'category' table.
+ * Matches the unified {@code categories} table.
  */
 public class Category {
 
-    public int    id;
-    public String name;
+    public int    categoryID;
+    public String categoryName;
     public String description;
-    public int    parentId;
-    public String status;
+    public int    parentID;
+    /** 1 = active listing, 0 = inactive */
+    public int    isActive;
 
     public Category() {}
 
-    public Category(String name, String description, String status) {
-        this.name        = name;
-        this.description = description;
-        this.status      = status;
+    public Category(String categoryName, String description, int isActive) {
+        this.categoryName = categoryName;
+        this.description  = description;
+        this.isActive      = isActive;
     }
 
     @Override
     public String toString() {
-        return name;
+        return categoryName;
     }
 }

@@ -54,7 +54,7 @@ public class ProductService {
 
         int id = productDAO.insert(p);
         if (id < 0) throw new Exception("Failed to insert product.");
-        p.id = id;
+        p.productID = id;
 
         saveCategories(id, categoryNames);
         saveImages(id, imageUrls);
@@ -73,17 +73,17 @@ public class ProductService {
         if (!productDAO.update(p))
             throw new Exception("Failed to update product.");
 
-        categoryDAO.unlinkAllForProduct(p.id);
-        saveCategories(p.id, categoryNames);
+        categoryDAO.unlinkAllForProduct(p.productID);
+        saveCategories(p.productID, categoryNames);
 
-        imageDAO.deleteAllForProduct(p.id);
-        saveImages(p.id, imageUrls);
-        inventoryDAO.setStock(p.id, p.stock);
+        imageDAO.deleteAllForProduct(p.productID);
+        saveImages(p.productID, imageUrls);
+        inventoryDAO.setStock(p.productID, p.stock);
 
         // Auto-deactivate if stock is 0, re-activate if stock restored
-        autoCheckStatus(p.id, p.stock, p.name);
+        autoCheckStatus(p.productID, p.stock, p.name);
 
-        return getById(p.id);
+        return getById(p.productID);
     }
 
     public boolean delete(int id) {
@@ -122,8 +122,8 @@ public class ProductService {
         ensureCategory("Industrial",      "Industrial and professional robots");
 
         for (Product p : productDAO.getAll()) {
-            inventoryDAO.deleteForProduct(p.id);
-            productDAO.delete(p.id);
+            inventoryDAO.deleteForProduct(p.productID);
+            productDAO.delete(p.productID);
         }
 
         // {sku, name, description, price, stock, category, imageUrl}
@@ -160,7 +160,7 @@ public class ProductService {
             try {
                 Product p = new Product(
                     (String) s[0], (String) s[1], (String) s[2],
-                    (double) s[3], "ACTIVE"
+                    (double) s[3], 0.0, "active", null
                 );
                 p.stock = (int) s[4];
                 add(p, List.of((String) s[5]), List.of((String) s[6]));
@@ -175,9 +175,9 @@ public class ProductService {
 
     private void attachDetails(List<Product> products) {
         for (Product p : products) {
-            p.categories = categoryDAO.getByProduct(p.id);
-            p.images     = imageDAO.getByProduct(p.id);
-            p.stock      = inventoryDAO.getStock(p.id);
+            p.categories = categoryDAO.getByProduct(p.productID);
+            p.images     = imageDAO.getByProduct(p.productID);
+            p.stock      = inventoryDAO.getStock(p.productID);
         }
     }
 
@@ -187,10 +187,10 @@ public class ProductService {
             if (name == null || name.trim().isEmpty()) continue;
             Category cat = categoryDAO.findByName(name);
             if (cat == null) {
-                int catId = categoryDAO.insert(new Category(name, "", "ACTIVE"));
+                int catId = categoryDAO.insert(new Category(name, "", 1));
                 categoryDAO.linkProductCategory(productId, catId);
             } else {
-                categoryDAO.linkProductCategory(productId, cat.id);
+                categoryDAO.linkProductCategory(productId, cat.categoryID);
             }
         }
     }
@@ -200,13 +200,13 @@ public class ProductService {
         for (int i = 0; i < imageUrls.size(); i++) {
             String url = imageUrls.get(i);
             if (url == null || url.trim().isEmpty()) continue;
-            imageDAO.insert(new ProductImage(productId, url, i == 0));
+            imageDAO.insert(new ProductImage(productId, url, i == 0 ? 1 : 0));
         }
     }
 
     private void ensureCategory(String name, String description) {
         if (categoryDAO.findByName(name) == null)
-            categoryDAO.insert(new Category(name, description, "ACTIVE"));
+            categoryDAO.insert(new Category(name, description, 1));
     }
 
     private void validate(Product p) throws Exception {

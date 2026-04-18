@@ -27,7 +27,7 @@ public class MainApp extends Application {
     private void showHomePage() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/fxml/homepage.fxml")
+                getClass().getResource("/fxml/ProductHomepage.fxml")
             );
             root.setCenter(loader.load());
 
@@ -39,7 +39,7 @@ public class MainApp extends Application {
     public void showAdminDashboard() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/fxml/AdminDashboard.fxml")
+                getClass().getResource("/fxml/ProductAdminDashboard.fxml")
             );
             root.setCenter(loader.load());
 

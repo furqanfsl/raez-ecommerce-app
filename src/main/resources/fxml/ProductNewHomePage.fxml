@@ -6,7 +6,7 @@
 
 <StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="Controllers.NewHomePageController"
+           fx:controller="Controllers.ProductNewHomePageController"
            fx:id="heroPane"
            prefHeight="620"
            maxWidth="Infinity"
@@ -17,7 +17,6 @@
                preserveRatio="false"
                smooth="true" />
 
-    <!-- RAEZ overlay — light weight matching original design -->
     <Label text="RAEZ"
            style="-fx-font-size: 100; -fx-font-weight: normal;
                   -fx-text-fill: white;

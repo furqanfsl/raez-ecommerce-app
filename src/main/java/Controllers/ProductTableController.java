@@ -160,11 +160,11 @@ public class ProductTableController {
                     });
                     toggleBtn.setOnAction(e -> {
                         Product p = getTableView().getItems().get(getIndex());
-                        if (onToggleStatus != null) onToggleStatus.accept(p.id, p.status);
+                        if (onToggleStatus != null) onToggleStatus.accept(p.productID, p.status);
                     });
                     deleteBtn.setOnAction(e -> {
                         Product p = getTableView().getItems().get(getIndex());
-                        if (onDelete != null) onDelete.accept(p.id);
+                        if (onDelete != null) onDelete.accept(p.productID);
                     });
                 }
 

@@ -12,13 +12,12 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controllers.SideBarController"
+            fx:controller="Controllers.ProductSideBarController"
             fitToWidth="true" prefWidth="240" minWidth="240"
             style="-fx-background-color: white; -fx-background: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0;">
 
     <VBox style="-fx-background-color: white; -fx-padding: 24 16 24 16;" spacing="0">
 
-        <!-- Search -->
         <Label text="Search Products"
                style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #111827;
                       -fx-padding: 0 0 8 0;" />
@@ -31,7 +30,6 @@
 
         <Separator style="-fx-padding: 12 0 0 0;" />
 
-        <!-- CATEGORY -->
         <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 0 12 0; -fx-cursor: hand;"
               onMouseClicked="#toggleCategory">
             <Label text="Category"
@@ -60,7 +58,6 @@
 
         <Separator style="-fx-background-color: #e5e7eb;" />
 
-        <!-- PRICE -->
         <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 0 12 0; -fx-cursor: hand;"
               onMouseClicked="#togglePrice">
             <Label text="Price Range"
@@ -86,7 +83,6 @@
 
         <Separator style="-fx-background-color: #e5e7eb;" />
 
-        <!-- FEATURES -->
         <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 0 12 0; -fx-cursor: hand;"
               onMouseClicked="#toggleFeatures">
             <Label text="Features"
@@ -105,7 +101,6 @@
 
         <Separator style="-fx-background-color: #e5e7eb;" />
 
-        <!-- Buttons -->
         <VBox spacing="8" style="-fx-padding: 16 0 0 0;">
             <Button text="Apply Filters" onAction="#applyFilters"
                     maxWidth="Infinity"

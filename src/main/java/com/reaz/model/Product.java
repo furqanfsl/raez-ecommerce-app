@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Product {
 
-    public int              id;
+    public int              productID;
     public String           sku;
     public String           name;
     public String           description;
@@ -21,45 +21,47 @@ public class Product {
     public String           createdAt;
     public String           updatedAt;
 
-    // Joined from product_categories + category
+    // Joined from product_categories + categories
     public List<Category>      categories = new ArrayList<>();
 
-    // Joined from product_image
+    // Joined from product_images
     public List<ProductImage>  images     = new ArrayList<>();
 
-    // Convenience: total stock across all warehouses (from inventory_record)
+    // Convenience: total stock across all warehouses (from warehouse_inventory)
     public int stock = 0;
 
     public Product() {}
 
     public Product(String sku, String name, String description,
-                   double price, String status) {
+                   double price, double unitCost, String status, Integer categoryID) {
         this.sku         = sku;
         this.name        = name;
         this.description = description;
         this.price       = price;
+        this.unitCost    = unitCost;
         this.status      = status;
+        this.categoryID  = categoryID;
     }
 
-    /** Returns primary image path, or null if none */
+    /** Returns primary image URL, or null if none */
     public String getPrimaryImage() {
         return images.stream()
-            .filter(i -> i.isPrimary)
-            .map(i -> i.imagePath)
+            .filter(i -> i.isPrimary != 0)
+            .map(i -> i.imageURL)
             .findFirst()
-            .orElse(images.isEmpty() ? null : images.get(0).imagePath);
+            .orElse(images.isEmpty() ? null : images.get(0).imageURL);
     }
 
     /** Returns category names as a comma-separated string */
     public String getCategoryNames() {
         return categories.stream()
-            .map(c -> c.name)
+            .map(c -> c.categoryName)
             .reduce((a, b) -> a + ", " + b)
             .orElse("Uncategorised");
     }
 
     @Override
     public String toString() {
-        return name + " (ù" + String.format("%.2f", price) + ")";
+        return name + " (" + String.format("%.2f", price) + ")";
     }
 }

@@ -6,9 +6,9 @@ import javafx.fxml.Initializable;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class HomepageController implements Initializable {
+public class ProductHomepageController implements Initializable {
 
-    @FXML private SideBarController sidebarController;
+    @FXML private ProductSideBarController sidebarController;
     @FXML private ProductListController productListController;
 
     @Override

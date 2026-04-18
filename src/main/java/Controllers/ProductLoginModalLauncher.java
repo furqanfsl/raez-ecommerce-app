@@ -10,15 +10,15 @@ import javafx.stage.StageStyle;
 
 import java.util.function.Consumer;
 
-public class LoginModalLauncher {
+public class ProductLoginModalLauncher {
 
     public static void show(Consumer<User> onLoginSuccess) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                LoginModalLauncher.class.getResource("/fxml/LoginModal.fxml")
+                ProductLoginModalLauncher.class.getResource("/fxml/ProductLoginModal.fxml")
             );
             Parent root = loader.load();
-            LoginModalController controller = loader.getController();
+            ProductLoginModalController controller = loader.getController();
 
             Stage modal = new Stage();
             modal.initModality(Modality.APPLICATION_MODAL);
@@ -34,7 +34,7 @@ public class LoginModalLauncher {
             modal.showAndWait();
 
         } catch (Exception e) {
-            System.err.println("LoginModalLauncher error: " + e.getMessage());
+            System.err.println("ProductLoginModalLauncher error: " + e.getMessage());
             e.printStackTrace();
         }
     }

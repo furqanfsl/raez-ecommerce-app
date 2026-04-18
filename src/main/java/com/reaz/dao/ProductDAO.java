@@ -126,7 +126,7 @@ public class ProductDAO {
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) {
                 int id = keys.getInt(1);
-                p.id = id;
+                p.productID = id;
                 return id;
             }
         } catch (SQLException e) {
@@ -154,7 +154,7 @@ public class ProductDAO {
                 ps.setNull(5, Types.INTEGER);
             }
             ps.setString(6, p.status != null ? p.status.toLowerCase() : "active");
-            ps.setInt(7, p.id);
+            ps.setInt(7, p.productID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("ProductDAO.update: " + e.getMessage());
@@ -284,7 +284,7 @@ public class ProductDAO {
 
     private Product map(ResultSet rs) throws SQLException {
         Product p     = new Product();
-        p.id          = rs.getInt("productID");
+        p.productID   = rs.getInt("productID");
         p.sku         = rs.getString("sku");
         p.name        = rs.getString("name");
         p.description = rs.getString("description");

@@ -62,7 +62,7 @@ public class ProductListController implements Initializable {
                 }
                 if (!categoryFilters.isEmpty()) {
                     Set<String> productCats = p.categories.stream()
-                        .map(c -> c.name)
+                        .map(c -> c.categoryName)
                         .collect(Collectors.toSet());
                     if (categoryFilters.stream().noneMatch(productCats::contains)) return false;
                 }
@@ -119,8 +119,8 @@ public class ProductListController implements Initializable {
         // Collect image URLs for this product
         List<String> imageUrls = new ArrayList<>();
         for (com.reaz.model.ProductImage img : product.images) {
-            if (img.imagePath != null && !img.imagePath.isEmpty())
-                imageUrls.add(img.imagePath);
+            if (img.imageURL != null && !img.imageURL.isEmpty())
+                imageUrls.add(img.imageURL);
         }
         if (imageUrls.isEmpty()) {
             String primary = product.getPrimaryImage();
@@ -216,7 +216,7 @@ public class ProductListController implements Initializable {
         }
 
         // Heart button
-        boolean alreadyFav = favManager.isFavourite(product.id);
+        boolean alreadyFav = favManager.isFavourite(product.productID);
         Button heartBtn = new Button(alreadyFav ? "♥" : "♡");
         heartBtn.setStyle(heartStyle(alreadyFav));
         StackPane.setAlignment(heartBtn, Pos.TOP_RIGHT);

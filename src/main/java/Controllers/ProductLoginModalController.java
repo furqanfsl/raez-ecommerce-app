@@ -1,5 +1,6 @@
 package Controllers;
 
+import com.reaz.db.DBConnection;
 import com.reaz.model.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,10 +12,15 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.LinkedHashSet;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.Consumer;
 
-public class LoginModalController implements Initializable {
+public class ProductLoginModalController implements Initializable {
 
     @FXML private Button        customerTabBtn;
     @FXML private Button        adminTabBtn;
@@ -40,8 +46,6 @@ public class LoginModalController implements Initializable {
         applyCustomerTab();
     }
 
-    // ── Tab handlers ──────────────────────────────────────────────────────
-
     @FXML private void handleCustomerTab() {
         activeTab = "customer";
         applyCustomerTab();
@@ -55,8 +59,8 @@ public class LoginModalController implements Initializable {
     private void applyCustomerTab() {
         if (customerTabBtn    != null) customerTabBtn.setStyle(activeTabStyle());
         if (adminTabBtn       != null) adminTabBtn.setStyle(inactiveTabStyle());
-        if (demoEmailLabel    != null) demoEmailLabel.setText("Email: customer@example.com");
-        if (demoPasswordLabel != null) demoPasswordLabel.setText("Password: customer123");
+        if (demoEmailLabel    != null) demoEmailLabel.setText("Use an email and password from your database seed.");
+        if (demoPasswordLabel != null) demoPasswordLabel.setText("Passwords are verified with passwordHash in the users table.");
         if (adminEmailHint    != null) { adminEmailHint.setVisible(false); adminEmailHint.setManaged(false); }
         if (emailField        != null) emailField.setPromptText("your@email.com");
         if (submitBtn         != null) submitBtn.setText("Login as Customer");
@@ -66,27 +70,19 @@ public class LoginModalController implements Initializable {
     private void applyAdminTab() {
         if (adminTabBtn       != null) adminTabBtn.setStyle(activeTabStyle());
         if (customerTabBtn    != null) customerTabBtn.setStyle(inactiveTabStyle());
-        if (demoEmailLabel    != null) demoEmailLabel.setText("Email: admin@raez.com");
-        if (demoPasswordLabel != null) demoPasswordLabel.setText("Password: admin123");
+        if (demoEmailLabel    != null) demoEmailLabel.setText("Admin: account must have product_admin or super_admin role.");
+        if (demoPasswordLabel != null) demoPasswordLabel.setText("Passwords are verified with passwordHash in the users table.");
         if (adminEmailHint    != null) { adminEmailHint.setVisible(true); adminEmailHint.setManaged(true); }
         if (emailField        != null) emailField.setPromptText("admin@raez.com");
         if (submitBtn         != null) submitBtn.setText("Login as Admin");
         clearError();
     }
 
-    // ── Fill demo credentials ─────────────────────────────────────────────
-
-    @FXML private void handleFillDemo() {
-        if (activeTab.equals("admin")) {
-            if (emailField    != null) emailField.setText("admin@raez.com");
-            if (passwordField != null) passwordField.setText("admin123");
-        } else {
-            if (emailField    != null) emailField.setText("customer@example.com");
-            if (passwordField != null) passwordField.setText("customer123");
-        }
+    @FXML private void handleClearForm() {
+        if (emailField    != null) emailField.clear();
+        if (passwordField != null) passwordField.clear();
+        clearError();
     }
-
-    // ── Login ─────────────────────────────────────────────────────────────
 
     @FXML private void handleLogin() {
         String email    = emailField    != null ? emailField.getText().trim()    : "";
@@ -97,32 +93,101 @@ public class LoginModalController implements Initializable {
             return;
         }
 
-        if (activeTab.equals("admin")) {
-            if (!email.equals("admin@raez.com") || !password.equals("admin123")) {
-                showError("Invalid admin credentials.");
-                return;
-            }
-            User user = new User(1, "Admin", email, "ADMIN", "ACTIVE");
-            if (onClose        != null) onClose.run();
-            if (onLoginSuccess != null) onLoginSuccess.accept(user);
-            navigateToAdmin();
+        String hashedPassword = DBConnection.hashPassword(password);
+        String sql = """
+            SELECT u.userID, u.firstName, u.lastName, u.email,
+                   u.username, u.isActive, r.roleName
+            FROM users u
+            JOIN user_roles ur ON ur.userID = u.userID
+            JOIN roles r ON r.roleID = ur.roleID
+            WHERE u.email = ? AND u.passwordHash = ?
+            """;
 
-        } else {
-            if (!email.equals("customer@example.com") || !password.equals("customer123")) {
+        Connection conn = DBConnection.getInstance().getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, hashedPassword);
+            ResultSet rs = ps.executeQuery();
+
+            Set<String> roleNames = new LinkedHashSet<>();
+            Integer userID = null;
+            String firstName = null;
+            String lastName = null;
+            String em = null;
+            String username = null;
+            int isActive = 1;
+
+            while (rs.next()) {
+                if (userID == null) {
+                    userID = rs.getInt("userID");
+                    firstName = rs.getString("firstName");
+                    lastName = rs.getString("lastName");
+                    em = rs.getString("email");
+                    username = rs.getString("username");
+                    isActive = rs.getInt("isActive");
+                }
+                roleNames.add(rs.getString("roleName"));
+            }
+
+            if (userID == null) {
                 showError("Invalid email or password.");
                 return;
             }
-            User user = new User(2, "Customer", email, "CUSTOMER", "ACTIVE");
-            if (onClose        != null) onClose.run();
-            if (onLoginSuccess != null) onLoginSuccess.accept(user);
+
+            if (activeTab.equals("admin")) {
+                boolean allowed = roleNames.stream().anyMatch(r ->
+                    "product_admin".equals(r) || "super_admin".equals(r));
+                if (!allowed) {
+                    showError("Invalid credentials for this login type.");
+                    return;
+                }
+                String roleName = roleNames.stream()
+                    .filter(r -> "product_admin".equals(r) || "super_admin".equals(r))
+                    .findFirst()
+                    .orElse("product_admin");
+                User user = new User(
+                    userID,
+                    firstName,
+                    lastName,
+                    em,
+                    roleName,
+                    isActive,
+                    username,
+                    null
+                );
+                if (onClose != null) onClose.run();
+                if (onLoginSuccess != null) onLoginSuccess.accept(user);
+                navigateToAdmin();
+            } else if (activeTab.equals("customer")) {
+                if (!roleNames.contains("customer")) {
+                    showError("Invalid credentials for this login type.");
+                    return;
+                }
+                User user = new User(
+                    userID,
+                    firstName,
+                    lastName,
+                    em,
+                    "customer",
+                    isActive,
+                    username,
+                    null
+                );
+                if (onClose != null) onClose.run();
+                if (onLoginSuccess != null) onLoginSuccess.accept(user);
+            } else {
+                showError("Invalid email or password.");
+            }
+        } catch (Exception e) {
+            showError("Login error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // FIX: removed (BorderPane) cast — root is a VBox, use setRoot() instead
     private void navigateToAdmin() {
         try {
             if (submitBtn == null || submitBtn.getScene() == null) return;
-            Parent view = FXMLLoader.load(getClass().getResource("/fxml/AdminDashboard.fxml"));
+            Parent view = FXMLLoader.load(getClass().getResource("/fxml/ProductAdminDashboard.fxml"));
             submitBtn.getScene().setRoot(view);
         } catch (Exception e) {
             System.err.println("Navigate to admin failed: " + e.getMessage());
@@ -130,13 +195,9 @@ public class LoginModalController implements Initializable {
         }
     }
 
-    // ── Close ─────────────────────────────────────────────────────────────
-
     @FXML private void handleClose() {
         if (onClose != null) onClose.run();
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────
 
     private void showError(String message) {
         if (errorLabel == null) return;
@@ -163,11 +224,5 @@ public class LoginModalController implements Initializable {
         return "-fx-background-color: white; -fx-border-color: transparent;" +
                "-fx-font-size: 14; -fx-text-fill: #6b7280;" +
                "-fx-padding: 14 0 14 0; -fx-cursor: hand; -fx-background-radius: 0;";
-    }
-
-    // Keep for backward compatibility
-    @FunctionalInterface
-    public interface TriConsumer<A, B, C> {
-        void accept(A a, B b, C c);
     }
 }

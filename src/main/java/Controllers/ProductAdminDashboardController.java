@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class AdminDashboardController implements Initializable {
+public class ProductAdminDashboardController implements Initializable {
 
     @FXML private Label      statTotal;
     @FXML private Label      statActive;
@@ -118,8 +118,6 @@ public class AdminDashboardController implements Initializable {
         }
     }
 
-    // ── Sort handlers ─────────────────────────────────────────────────────
-
     @FXML private void handleSortUpdated()   { currentSort = "updatedAt-desc"; refreshTable(); }
     @FXML private void handleSortPriceAsc()  { currentSort = "price-asc";      refreshTable(); }
     @FXML private void handleSortPriceDesc() { currentSort = "price-desc";     refreshTable(); }
@@ -127,14 +125,12 @@ public class AdminDashboardController implements Initializable {
     @FXML private void handleSortNameDesc()  { currentSort = "name-desc";      refreshTable(); }
     @FXML private void handleSortStockAsc()  { currentSort = "stock-asc";      refreshTable(); }
 
-    // ── CRUD handlers ─────────────────────────────────────────────────────
-
     @FXML private void handleAddProduct() {
         ProductFormDialogLauncher.show(null, product -> {
             try {
                 service.add(product,
-                    product.categories.stream().map(c -> c.name).collect(Collectors.toList()),
-                    product.images.stream().map(i -> i.imagePath).collect(Collectors.toList()));
+                    product.categories.stream().map(c -> c.categoryName).collect(Collectors.toList()),
+                    product.images.stream().map(i -> i.imageURL).collect(Collectors.toList()));
                 loadFromDb();
             } catch (Exception e) {
                 System.err.println("Add failed: " + e.getMessage());
@@ -145,10 +141,11 @@ public class AdminDashboardController implements Initializable {
     private void handleEdit(Product product) {
         ProductFormDialogLauncher.show(product, updated -> {
             try {
-                updated.id = product.id;
+                updated.productID = product.productID;
+                updated.sku = product.sku;
                 service.update(updated,
-                    updated.categories.stream().map(c -> c.name).collect(Collectors.toList()),
-                    updated.images.stream().map(i -> i.imagePath).collect(Collectors.toList()));
+                    updated.categories.stream().map(c -> c.categoryName).collect(Collectors.toList()),
+                    updated.images.stream().map(i -> i.imageURL).collect(Collectors.toList()));
                 loadFromDb();
             } catch (Exception e) {
                 System.err.println("Update failed: " + e.getMessage());
@@ -157,9 +154,9 @@ public class AdminDashboardController implements Initializable {
     }
 
     private void handleDelete(int id) {
-        String name = allProducts.stream().filter(p -> p.id == id)
+        String name = allProducts.stream().filter(p -> p.productID == id)
             .findFirst().map(p -> p.name).orElse("");
-        DeleteConfirmDialogLauncher.show(name, () -> {
+        ProductDeleteConfirmDialogLauncher.show(name, () -> {
             service.delete(id);
             loadFromDb();
         });
@@ -169,8 +166,6 @@ public class AdminDashboardController implements Initializable {
         service.toggleStatus(id, currentStatus);
         loadFromDb();
     }
-
-    // ── Export / Import ───────────────────────────────────────────────────
 
     @FXML private void handleExport() {
         javafx.stage.FileChooser fc = new javafx.stage.FileChooser();
@@ -183,7 +178,7 @@ public class AdminDashboardController implements Initializable {
         StringBuilder sb = new StringBuilder("[\n");
         for (int i = 0; i < allProducts.size(); i++) {
             Product p = allProducts.get(i);
-            sb.append("  {\"id\":").append(p.id)
+            sb.append("  {\"productID\":").append(p.productID)
               .append(",\"name\":\"").append(p.name)
               .append("\",\"price\":").append(p.price)
               .append(",\"stock\":").append(p.stock)
@@ -205,12 +200,9 @@ public class AdminDashboardController implements Initializable {
         fc.showOpenDialog(sortMenuBtn.getScene().getWindow());
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────
-
-    // FIX: removed (BorderPane) cast — root is a VBox, use setRoot() instead
     @FXML private void handleBackToHome() {
         try {
-            Parent view = FXMLLoader.load(getClass().getResource("/fxml/homepage.fxml"));
+            Parent view = FXMLLoader.load(getClass().getResource("/fxml/ProductHomepage.fxml"));
             sortMenuBtn.getScene().setRoot(view);
         } catch (Exception e) {
             System.err.println("Back to home failed: " + e.getMessage());

@@ -34,9 +34,9 @@ public class ImageDAO {
             "INSERT INTO product_images (productID, imageURL, isPrimary) VALUES (?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql,
                 Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, img.productId);
-            ps.setString(2, img.imagePath);
-            ps.setInt(3, img.isPrimary ? 1 : 0);
+            ps.setInt(1, img.productID);
+            ps.setString(2, img.imageURL);
+            ps.setInt(3, img.isPrimary);
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) return keys.getInt(1);
@@ -73,12 +73,12 @@ public class ImageDAO {
     }
 
     private ProductImage map(ResultSet rs) throws SQLException {
-        ProductImage img  = new ProductImage();
-        img.id            = rs.getInt("imageID");
-        img.productId     = rs.getInt("productID");
-        img.imagePath     = rs.getString("imageURL");
-        img.isPrimary     = rs.getInt("isPrimary") == 1;
-        img.uploadedAt    = rs.getString("uploadedAt");
+        ProductImage img = new ProductImage();
+        img.imageID    = rs.getInt("imageID");
+        img.productID  = rs.getInt("productID");
+        img.imageURL   = rs.getString("imageURL");
+        img.isPrimary  = rs.getInt("isPrimary");
+        img.uploadedAt = rs.getString("uploadedAt");
         return img;
     }
 }

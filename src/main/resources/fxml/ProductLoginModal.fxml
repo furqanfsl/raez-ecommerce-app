@@ -11,13 +11,12 @@
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.LoginModalController"
+      fx:controller="Controllers.ProductLoginModalController"
       prefWidth="440"
       style="-fx-background-color: white; -fx-border-color: #e5e7eb;
              -fx-border-radius: 8; -fx-background-radius: 8;
              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0.2, 0, 4);">
 
-    <!-- Header -->
     <VBox style="-fx-background-color: #f9fafb; -fx-padding: 24 24 20 24;
                  -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;
                  -fx-background-radius: 8 8 0 0;">
@@ -33,7 +32,6 @@
                style="-fx-font-size: 13; -fx-text-fill: #6b7280; -fx-padding: 4 0 0 0;" />
     </VBox>
 
-    <!-- Tabs: Customer / Admin -->
     <HBox style="-fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;">
         <Button fx:id="customerTabBtn" text="Customer Login"
                 onAction="#handleCustomerTab"
@@ -49,24 +47,21 @@
                        -fx-padding: 14 0 14 0; -fx-cursor: hand; -fx-background-radius: 0;" />
     </HBox>
 
-    <!-- Form body -->
     <VBox style="-fx-padding: 24;" spacing="20">
 
-        <!-- Demo credentials box -->
         <VBox style="-fx-background-color: #eff6ff; -fx-border-color: #bfdbfe;
                      -fx-border-radius: 8; -fx-background-radius: 8;
                      -fx-padding: 14;" spacing="4">
             <Label text="Demo Credentials:"
                    style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1e3a8a;" />
-            <Label fx:id="demoEmailLabel" text="Email: customer@example.com"
+            <Label fx:id="demoEmailLabel" text="Use an email and password from your database seed."
                    style="-fx-font-size: 12; -fx-text-fill: #4b5563;" />
-            <Label fx:id="demoPasswordLabel" text="Password: customer123"
+            <Label fx:id="demoPasswordLabel" text="Passwords are verified with passwordHash in the users table."
                    style="-fx-font-size: 12; -fx-text-fill: #4b5563;" />
-            <Hyperlink text="Fill demo credentials" onAction="#handleFillDemo"
+            <Hyperlink text="Clear form" onAction="#handleClearForm"
                        style="-fx-font-size: 12; -fx-text-fill: #2563eb; -fx-padding: 2 0 0 0;" />
         </VBox>
 
-        <!-- Email -->
         <VBox spacing="6">
             <HBox spacing="4">
                 <Label text="Email"
@@ -82,7 +77,6 @@
                               -fx-background-radius: 8; -fx-background-color: white;" />
         </VBox>
 
-        <!-- Password -->
         <VBox spacing="6">
             <Label text="Password" style="-fx-font-size: 13; -fx-text-fill: #374151;" />
             <PasswordField fx:id="passwordField"
@@ -92,12 +86,10 @@
                                   -fx-background-radius: 8; -fx-background-color: white;" />
         </VBox>
 
-        <!-- Error message -->
         <Label fx:id="errorLabel" text=""
                visible="false" managed="false"
                style="-fx-font-size: 12; -fx-text-fill: #dc2626;" />
 
-        <!-- Submit button -->
         <Button fx:id="submitBtn" text="Login as Customer"
                 onAction="#handleLogin"
                 maxWidth="Infinity"

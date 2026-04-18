@@ -48,13 +48,13 @@ public class ProductTest {
         Product saved = service.add(p, List.of("Home Assistants"), List.of("https://example.com/img.jpg"));
 
         assertNotNull(saved);
-        assertTrue(saved.id > 0);
+        assertTrue(saved.productID > 0);
         assertEquals("JUnit Test Robot", saved.name);
         assertEquals(299.99, saved.price, 0.01);
         assertEquals(10, saved.stock);
         assertFalse(saved.sku.isEmpty());
 
-        savedId = saved.id;
+        savedId = saved.productID;
         System.out.println("T1 PASS — Product added with ID: " + savedId);
     }
 
@@ -124,10 +124,10 @@ public class ProductTest {
 
         Product saved = service.add(p, List.of("Companions"), List.of());
 
-        assertEquals("INACTIVE", saved.status);
+        assertTrue(saved.status.equalsIgnoreCase("inactive"));
         assertEquals(0, saved.stock);
 
-        service.delete(saved.id);
+        service.delete(saved.productID);
         System.out.println("T5 PASS — Stock=0 product auto-set INACTIVE");
     }
 
@@ -138,8 +138,10 @@ public class ProductTest {
     void T6_editProduct() throws Exception {
         assertTestProductExists();
 
+        Product existing = service.getById(savedId);
         Product updated      = new Product();
-        updated.id           = savedId;
+        updated.productID    = savedId;
+        updated.sku          = existing.sku;
         updated.name         = "Updated JUnit Robot";
         updated.description  = "Updated via JUnit test";
         updated.price        = 399.99;
@@ -168,10 +170,10 @@ public class ProductTest {
         p.stock   = 5;
         Product saved = service.add(p, List.of("Educational"), List.of());
 
-        boolean deleted = service.delete(saved.id);
+        boolean deleted = service.delete(saved.productID);
         assertTrue(deleted);
 
-        Product fetched = service.getById(saved.id);
+        Product fetched = service.getById(saved.productID);
         assertNull(fetched);
         System.out.println("T7 PASS — Product deleted and not retrievable");
     }
@@ -186,10 +188,10 @@ public class ProductTest {
         productDAO.setStatus(savedId, "ACTIVE");
 
         service.toggleStatus(savedId, "ACTIVE");
-        assertEquals("INACTIVE", service.getById(savedId).status);
+        assertTrue(service.getById(savedId).status.equalsIgnoreCase("inactive"));
 
         service.toggleStatus(savedId, "INACTIVE");
-        assertEquals("ACTIVE", service.getById(savedId).status);
+        assertTrue(service.getById(savedId).status.equalsIgnoreCase("active"));
 
         System.out.println("T8 PASS — Status toggled both ways correctly");
     }
@@ -209,11 +211,11 @@ public class ProductTest {
 
         assertEquals(2, saved.categories.size());
 
-        List<String> names = saved.categories.stream().map(c -> c.name).toList();
+        List<String> names = saved.categories.stream().map(c -> c.categoryName).toList();
         assertTrue(names.contains("Home Assistants"));
         assertTrue(names.contains("Security Bots"));
 
-        service.delete(saved.id);
+        service.delete(saved.productID);
         System.out.println("T9 PASS — Product assigned to 2 categories");
     }
 
@@ -234,11 +236,11 @@ public class ProductTest {
         ));
 
         assertEquals(3, saved.images.size());
-        assertTrue(saved.images.get(0).isPrimary);
-        assertFalse(saved.images.get(1).isPrimary);
+        assertEquals(1, saved.images.get(0).isPrimary);
+        assertEquals(0, saved.images.get(1).isPrimary);
         assertEquals("https://example.com/img1.jpg", saved.getPrimaryImage());
 
-        service.delete(saved.id);
+        service.delete(saved.productID);
         System.out.println("T10 PASS — 3 images stored, first is primary");
     }
 
@@ -247,7 +249,7 @@ public class ProductTest {
     @Order(11)
     @DisplayName("T11 - Insert returns valid ID, getById retrieves it")
     void T11_insertAndGetById() {
-        Product p = new Product("JUNIT-SKU-001", "DAO Robot", "desc", 149.99, "ACTIVE");
+        Product p = new Product("JUNIT-SKU-001", "DAO Robot", "desc", 149.99, 0.0, "active", null);
         int id    = productDAO.insert(p);
 
         assertTrue(id > 0);
@@ -270,8 +272,8 @@ public class ProductTest {
 
         assertNotNull(active);
         for (Product p : active) {
-            assertEquals("ACTIVE", p.status,
-                "Found non-ACTIVE product: " + p.name + " = " + p.status);
+            assertTrue("active".equalsIgnoreCase(p.status),
+                "Found non-active product: " + p.name + " = " + p.status);
         }
         System.out.println("T12 PASS — getActive() returned " + active.size() + " ACTIVE products");
     }
@@ -289,9 +291,9 @@ public class ProductTest {
         Product saved = service.add(p, List.of("Educational"), List.of());
 
         assertEquals(42, saved.stock);
-        assertEquals(42, inventoryDAO.getStock(saved.id));
+        assertEquals(42, inventoryDAO.getStock(saved.productID));
 
-        service.delete(saved.id);
+        service.delete(saved.productID);
         System.out.println("T13 PASS — Stock=42 correctly stored in inventory_record");
     }
 

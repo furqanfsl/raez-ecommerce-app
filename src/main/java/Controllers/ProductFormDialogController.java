@@ -62,12 +62,12 @@ public class ProductFormDialogController implements Initializable {
 
             // Images
             images = new ArrayList<>();
-            for (ProductImage img : product.images) images.add(img.imagePath);
+            for (ProductImage img : product.images) images.add(img.imageURL);
             refreshImageList();
 
             // Categories
             List<String> catNames = new ArrayList<>();
-            for (Category c : product.categories) catNames.add(c.name);
+            for (Category c : product.categories) catNames.add(c.categoryName);
             if (catHomeAssistants != null) catHomeAssistants.setSelected(catNames.contains("Home Assistants"));
             if (catSecurityBots   != null) catSecurityBots.setSelected(catNames.contains("Security Bots"));
             if (catEducational    != null) catEducational.setSelected(catNames.contains("Educational"));
@@ -145,9 +145,15 @@ public class ProductFormDialogController implements Initializable {
 
         // Build Product object
         Product p = new Product();
+        if (editingProduct != null) {
+            p.productID = editingProduct.productID;
+            p.sku = editingProduct.sku;
+        }
         p.name        = nameField.getText().trim();
         p.description = descriptionField != null ? descriptionField.getText().trim() : "";
         p.price       = Double.parseDouble(priceField.getText().trim());
+        p.unitCost    = 0.0;
+        p.categoryID  = null;
         p.stock       = stockField != null && !stockField.getText().trim().isEmpty()
                         ? Integer.parseInt(stockField.getText().trim()) : 0;
         p.status      = (statusInactive != null && statusInactive.isSelected()) ? "INACTIVE" : "ACTIVE";
@@ -155,15 +161,16 @@ public class ProductFormDialogController implements Initializable {
         // Attach categories as Category objects (service will look them up by name)
         for (String name : catNames) {
             Category c = new Category();
-            c.name = name;
+            c.categoryName = name;
+            c.isActive = 1;
             p.categories.add(c);
         }
 
         // Attach images as ProductImage objects
         for (int i = 0; i < images.size(); i++) {
             ProductImage img = new ProductImage();
-            img.imagePath = images.get(i);
-            img.isPrimary = (i == 0);
+            img.imageURL = images.get(i);
+            img.isPrimary = (i == 0) ? 1 : 0;
             p.images.add(img);
         }
 

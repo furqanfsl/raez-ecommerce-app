@@ -1,10 +1,8 @@
 eclipse.preferences.version=1
 encoding//src/main/java=UTF-8
-encoding//src/main/java/Controllers/HomepageController.java=UTF-8
 encoding//src/main/java/Controllers/ProductFormDialogController.java=UTF-8
 encoding//src/main/java/Controllers/ProductListController.java=UTF-8
 encoding//src/main/java/Controllers/ProductTableController.java=UTF-8
-encoding//src/main/java/Controllers/SideBarController.java=UTF-8
 encoding//src/main/java/com/reaz/dao/ProductDAO.java=UTF-8
 encoding//src/main/java/com/reaz/db/DBConnection.java=UTF-8
 encoding//src/main/java/com/reaz/service/ProductService.java=UTF-8

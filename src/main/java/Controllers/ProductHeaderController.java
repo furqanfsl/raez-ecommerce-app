@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class HeaderController implements Initializable {
+public class ProductHeaderController implements Initializable {
 
     @FXML private Button     logoBtn;
     @FXML private TextField  searchField;
@@ -35,8 +35,6 @@ public class HeaderController implements Initializable {
     private final FavouritesManager favManager = FavouritesManager.getInstance();
     private Popup favouritesPopup;
 
-    // ── Initialise ────────────────────────────────────────────────────────
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (logoutMenuItem != null) logoutMenuItem.setVisible(false);
@@ -45,8 +43,6 @@ public class HeaderController implements Initializable {
         favManager.addListener(products -> Platform.runLater(() -> updateFavBadge(products)));
         updateFavBadge(favManager.getAll());
     }
-
-    // ── Favourites ────────────────────────────────────────────────────────
 
     private void updateFavBadge(List<Product> products) {
         if (heartBadge == null) return;
@@ -73,7 +69,6 @@ public class HeaderController implements Initializable {
             return;
         }
 
-        // Build popup content
         VBox box = new VBox(0);
         box.setStyle(
             "-fx-background-color: white;" +
@@ -85,7 +80,6 @@ public class HeaderController implements Initializable {
         box.setMinWidth(280);
         box.setMaxWidth(320);
 
-        // Header
         Label title = new Label("♥  My Favourites (" + favs.size() + ")");
         title.setStyle(
             "-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #111827;" +
@@ -95,7 +89,6 @@ public class HeaderController implements Initializable {
         title.setMaxWidth(Double.MAX_VALUE);
         box.getChildren().add(title);
 
-        // Product rows
         for (Product p : favs) {
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
@@ -118,7 +111,7 @@ public class HeaderController implements Initializable {
                 "-fx-padding: 2 4 2 4;"
             );
             removeBtn.setOnAction(e -> {
-                favManager.remove(p.id);
+                favManager.remove(p.productID);
                 if (favouritesPopup != null) favouritesPopup.hide();
                 handleHeartClick();
             });
@@ -133,7 +126,6 @@ public class HeaderController implements Initializable {
             box.getChildren().add(row);
         }
 
-        // Clear all button
         Button clearBtn = new Button("Clear All Favourites");
         clearBtn.setStyle(
             "-fx-background-color: transparent; -fx-border-color: transparent;" +
@@ -141,12 +133,11 @@ public class HeaderController implements Initializable {
             "-fx-padding: 10 16 10 16;"
         );
         clearBtn.setOnAction(e -> {
-            new ArrayList<>(favManager.getAll()).forEach(p -> favManager.remove(p.id));
+            new ArrayList<>(favManager.getAll()).forEach(p -> favManager.remove(p.productID));
             if (favouritesPopup != null) favouritesPopup.hide();
         });
         box.getChildren().add(clearBtn);
 
-        // Show popup
         if (favouritesPopup != null) favouritesPopup.hide();
         favouritesPopup = new Popup();
         favouritesPopup.getContent().add(box);
@@ -158,16 +149,13 @@ public class HeaderController implements Initializable {
         }
     }
 
-    // ── Login / Logout ────────────────────────────────────────────────────
-
     @FXML
     private void handleOpenLogin() {
-        LoginModalLauncher.show(user -> updateUserState(user));
+        ProductLoginModalLauncher.show(user -> updateUserState(user));
     }
 
     @FXML
     private void handleLogout() {
-        // No UserService needed — just reset the UI state
         clearUserState();
     }
 
@@ -175,7 +163,7 @@ public class HeaderController implements Initializable {
         if (user == null) { clearUserState(); return; }
         if (loginMenuItem  != null) loginMenuItem.setVisible(false);
         if (logoutMenuItem != null) logoutMenuItem.setVisible(true);
-        if (userMenuBtn    != null) userMenuBtn.setText(user.name);
+        if (userMenuBtn    != null) userMenuBtn.setText(user.firstName);
         if (user.isAdmin() && adminBtn != null) {
             adminBtn.setVisible(true);
             adminBtn.setManaged(true);
@@ -189,21 +177,19 @@ public class HeaderController implements Initializable {
         if (userMenuBtn    != null) userMenuBtn.setText("👤");
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────
-
     @FXML
     private void handleNavigateAdmin() {
-        navigateTo("/fxml/AdminDashboard.fxml");
+        navigateTo("/fxml/ProductAdminDashboard.fxml");
     }
 
     @FXML
     private void handleNavigateHome() {
-        navigateTo("/fxml/homepage.fxml");
+        navigateTo("/fxml/ProductHomepage.fxml");
     }
 
     @FXML
     private void handleLogoClick() {
-        navigateTo("/fxml/homepage.fxml");
+        navigateTo("/fxml/ProductHomepage.fxml");
     }
 
     private void navigateTo(String fxmlPath) {

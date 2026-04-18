@@ -51,13 +51,9 @@ public class CategoryDAO {
             "INSERT INTO categories (categoryName, description, isActive) VALUES (?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql,
                 Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, c.name);
+            ps.setString(1, c.categoryName);
             ps.setString(2, c.description);
-            int active = 1;
-            if (c.status != null) {
-                active = "ACTIVE".equalsIgnoreCase(c.status) || "1".equals(c.status) ? 1 : 0;
-            }
-            ps.setInt(3, active);
+            ps.setInt(3, c.isActive);
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) return keys.getInt(1);
@@ -105,12 +101,12 @@ public class CategoryDAO {
 
     private Category map(ResultSet rs) throws SQLException {
         Category c   = new Category();
-        c.id         = rs.getInt("categoryID");
-        c.name       = rs.getString("categoryName");
-        c.description = rs.getString("description");
+        c.categoryID   = rs.getInt("categoryID");
+        c.categoryName = rs.getString("categoryName");
+        c.description  = rs.getString("description");
         int pid = rs.getInt("parentID");
-        c.parentId   = rs.wasNull() ? 0 : pid;
-        c.status     = rs.getInt("isActive") == 1 ? "ACTIVE" : "INACTIVE";
+        c.parentID     = rs.wasNull() ? 0 : pid;
+        c.isActive     = rs.getInt("isActive");
         return c;
     }
 }

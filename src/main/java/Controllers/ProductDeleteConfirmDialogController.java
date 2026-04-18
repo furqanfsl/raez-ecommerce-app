@@ -7,7 +7,7 @@ import javafx.scene.control.Label;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class DeleteConfirmDialogController implements Initializable {
+public class ProductDeleteConfirmDialogController implements Initializable {
 
     @FXML private Label descriptionLabel;
 

@@ -12,21 +12,18 @@ import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class SideBarController implements Initializable {
+public class ProductSideBarController implements Initializable {
 
-    // Toggle arrows
     @FXML private Label categoryArrow;
     @FXML private Label priceArrow;
     @FXML private Label featuresArrow;
     @FXML private Label brandArrow;
 
-    // Panels
     @FXML private VBox categoryPanel;
     @FXML private VBox pricePanel;
     @FXML private VBox featuresPanel;
     @FXML private VBox brandPanel;
 
-    // Category checkboxes
     @FXML private CheckBox catAllRobots;
     @FXML private CheckBox catHomeAssistants;
     @FXML private CheckBox catSecurityBots;
@@ -34,16 +31,13 @@ public class SideBarController implements Initializable {
     @FXML private CheckBox catCompanions;
     @FXML private CheckBox catIndustrial;
 
-    // Price checkboxes
     @FXML private CheckBox priceUnder200;
     @FXML private CheckBox price200to400;
     @FXML private CheckBox price400to600;
     @FXML private CheckBox priceOver600;
 
-    // Search field
     @FXML private TextField searchField;
 
-    // Reference to product list — set by homepage controller or via lookup
     private ProductListController productListController;
 
     public void setProductListController(ProductListController c) {
@@ -53,7 +47,6 @@ public class SideBarController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {}
 
-    // ── Toggle panels ──────────────────────────────────────
     @FXML private void toggleCategory() { toggle(categoryPanel, categoryArrow); }
     @FXML private void togglePrice()    { toggle(pricePanel,    priceArrow);    }
     @FXML private void toggleFeatures() { toggle(featuresPanel, featuresArrow); }
@@ -66,11 +59,9 @@ public class SideBarController implements Initializable {
         arrow.setText(visible ? "∧" : "∨");
     }
 
-    // ── Apply filters ──────────────────────────────────────
     @FXML public void applyFilters() {
         if (productListController == null) return;
 
-        // Categories
         Set<String> cats = new HashSet<>();
         if (catHomeAssistants != null && catHomeAssistants.isSelected()) cats.add("Home Assistants");
         if (catSecurityBots   != null && catSecurityBots.isSelected())   cats.add("Security Bots");
@@ -78,7 +69,6 @@ public class SideBarController implements Initializable {
         if (catCompanions     != null && catCompanions.isSelected())      cats.add("Companions");
         if (catIndustrial     != null && catIndustrial.isSelected())      cats.add("Industrial");
 
-        // Price range
         double min = 0;
         double max = Double.MAX_VALUE;
         if (priceUnder200 != null && priceUnder200.isSelected()) { min = 0;   max = 200; }
@@ -86,7 +76,6 @@ public class SideBarController implements Initializable {
         if (price400to600 != null && price400to600.isSelected()) { min = 400; max = 600; }
         if (priceOver600  != null && priceOver600.isSelected())  { min = 600; max = Double.MAX_VALUE; }
 
-        // Search
         String search = searchField != null ? searchField.getText() : "";
 
         productListController.applyFilters(cats, min, max, search);

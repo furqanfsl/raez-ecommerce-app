@@ -9,15 +9,15 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class DeleteConfirmDialogLauncher {
+public class ProductDeleteConfirmDialogLauncher {
 
     public static void show(String productName, Runnable onConfirm) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                DeleteConfirmDialogLauncher.class.getResource("/fxml/DeleteConfirmDialog.fxml")
+                ProductDeleteConfirmDialogLauncher.class.getResource("/fxml/ProductDeleteConfirmDialog.fxml")
             );
             Parent root = loader.load();
-            DeleteConfirmDialogController controller = loader.getController();
+            ProductDeleteConfirmDialogController controller = loader.getController();
 
             Stage modal = new Stage();
             modal.initModality(Modality.APPLICATION_MODAL);

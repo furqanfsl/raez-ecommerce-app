@@ -29,7 +29,7 @@ public class FavouritesManager {
 
     /** Add a product to favourites */
     public void add(Product p) {
-        favourites.put(p.id, p);
+        favourites.put(p.productID, p);
         notifyListeners();
     }
 
@@ -41,8 +41,8 @@ public class FavouritesManager {
 
     /** Toggle — add if not present, remove if present */
     public boolean toggle(Product p) {
-        if (favourites.containsKey(p.id)) {
-            remove(p.id);
+        if (favourites.containsKey(p.productID)) {
+            remove(p.productID);
             return false; // now not favourited
         } else {
             add(p);

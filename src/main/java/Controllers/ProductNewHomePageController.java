@@ -9,7 +9,7 @@ import javafx.scene.layout.StackPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class NewHomePageController implements Initializable {
+public class ProductNewHomePageController implements Initializable {
 
     @FXML private ImageView heroImage;
     @FXML private StackPane heroPane;
@@ -27,7 +27,7 @@ public class NewHomePageController implements Initializable {
                 heroImage.setImage(img);
                 System.out.println("Hero image loaded from local resources.");
             } else {
-                System.err.println("hero.png not found in /images/ — using background colour.");
+                System.err.println("hero.png not found in /images/ â€” using background colour.");
             }
         } catch (Exception e) {
             System.err.println("Hero image load failed: " + e.getMessage());

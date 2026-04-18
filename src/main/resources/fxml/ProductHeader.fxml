@@ -11,22 +11,19 @@
 
 <HBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.HeaderController"
+      fx:controller="Controllers.ProductHeaderController"
       prefHeight="64"
       alignment="CENTER_LEFT"
       style="-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0; -fx-padding: 0 32 0 32;">
 
-    <!-- LEFT: RAEZ Logo -->
     <Button fx:id="logoBtn" text="RAEZ"
-            onAction="#handleNavigateHome"
+            onAction="#handleLogoClick"
             style="-fx-background-color: transparent; -fx-border-color: transparent;
                    -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #111827;
                    -fx-cursor: hand; -fx-padding: 0;" />
 
-    <!-- SPACER -->
     <Region HBox.hgrow="ALWAYS" />
 
-    <!-- CENTER: Search bar -->
     <HBox alignment="CENTER" prefWidth="460">
         <TextField fx:id="searchField"
                    promptText="Search..."
@@ -38,13 +35,10 @@
                           -fx-font-size: 14; -fx-prompt-text-fill: #9ca3af;" />
     </HBox>
 
-    <!-- SPACER -->
     <Region HBox.hgrow="ALWAYS" />
 
-    <!-- RIGHT: Menu, Heart, Cart, User -->
     <HBox alignment="CENTER_RIGHT" spacing="20">
 
-        <!-- Menu dropdown -->
         <MenuButton fx:id="menuBtn" text="Menu"
                     style="-fx-background-color: transparent; -fx-border-color: transparent;
                            -fx-font-size: 14; -fx-text-fill: #374151; -fx-cursor: hand;
@@ -60,7 +54,6 @@
             </items>
         </MenuButton>
 
-        <!-- Heart / Favourites button with badge -->
         <StackPane>
             <Button fx:id="heartBtn" text="♡"
                     onAction="#handleHeartClick"
@@ -76,7 +69,6 @@
                           -fx-translate-x: 10; -fx-translate-y: -8;" />
         </StackPane>
 
-        <!-- Cart with badge -->
         <StackPane>
             <Button text="&#128722;"
                     style="-fx-background-color: transparent; -fx-border-color: transparent;
@@ -89,7 +81,6 @@
                           -fx-translate-x: 10; -fx-translate-y: -8;" />
         </StackPane>
 
-        <!-- User account -->
         <MenuButton fx:id="userMenuBtn" text="&#128100;"
                     style="-fx-background-color: transparent; -fx-border-color: transparent;
                            -fx-font-size: 20; -fx-text-fill: #374151; -fx-cursor: hand; -fx-padding: 0;">
@@ -99,7 +90,6 @@
             </items>
         </MenuButton>
 
-        <!-- Admin button (hidden unless admin) -->
         <Button fx:id="adminBtn" text="&#9881;"
                 onAction="#handleNavigateAdmin"
                 visible="false" managed="false"
