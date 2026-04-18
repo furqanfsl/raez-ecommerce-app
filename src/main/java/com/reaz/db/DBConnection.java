@@ -2,14 +2,13 @@ package com.reaz.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 /**
  * Singleton SQLite connection.
- * Creates ALL tables on startup and seeds realistic data.
+ * Creates unified schema tables on startup and seeds default data.
  */
 public class DBConnection {
 
@@ -21,8 +20,8 @@ public class DBConnection {
     private DBConnection() {
         connect();
         createTables();
-        seedDefaultUsers();
-        seedSupportingData();
+        createIndexes();
+        seedAll();
     }
 
     public static DBConnection getInstance() {
@@ -41,12 +40,14 @@ public class DBConnection {
 
     private void connect() {
         try {
+            new java.io.File(DB_PATH).delete();
             new java.io.File(System.getProperty("user.home") + "/raez").mkdirs();
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
             connection.setAutoCommit(true);
             try (Statement st = connection.createStatement()) {
                 st.execute("PRAGMA foreign_keys = ON");
+                st.execute("PRAGMA journal_mode = WAL");
             }
             System.out.println("SQLite connected: " + DB_PATH);
         } catch (Exception e) {
@@ -54,646 +55,773 @@ public class DBConnection {
         }
     }
 
-    // ── Table Creation ────────────────────────────────────────────────────
-
+    /**
+     * Creates all unified-schema tables in dependency order (parents before children).
+     * DDL matches 1_unified_schema; {@code warehouse_warehouses} is created before
+     * {@code finance_supplier_orders} so foreign keys resolve.
+     */
     private void createTables() {
-        String[] tables = {
-            // Categories
+        String[] ddl = {
             """
-            CREATE TABLE IF NOT EXISTS category (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                name        TEXT NOT NULL UNIQUE,
+            CREATE TABLE IF NOT EXISTS roles (
+                roleID      INTEGER PRIMARY KEY AUTOINCREMENT,
+                roleName    TEXT    NOT NULL UNIQUE,
                 description TEXT,
-                parent_id   INTEGER,
-                status      TEXT DEFAULT 'ACTIVE',
-                FOREIGN KEY (parent_id) REFERENCES category(id)
+                createdAt   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
             """,
-            // Products
             """
-            CREATE TABLE IF NOT EXISTS product (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                sku         TEXT NOT NULL UNIQUE,
-                name        TEXT NOT NULL,
-                description TEXT,
-                price       REAL NOT NULL CHECK(price > 0),
-                status      TEXT DEFAULT 'ACTIVE',
-                created_at  TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at  TEXT DEFAULT CURRENT_TIMESTAMP
+            CREATE TABLE IF NOT EXISTS users (
+                userID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                email        TEXT    NOT NULL UNIQUE,
+                username     TEXT    NOT NULL UNIQUE,
+                passwordHash TEXT    NOT NULL,
+                firstName    TEXT,
+                lastName     TEXT,
+                phone        TEXT,
+                isActive     INTEGER NOT NULL DEFAULT 1,
+                lastLogin    TEXT,
+                createdAt    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
             """,
-            // Product ↔ Category junction
             """
-            CREATE TABLE IF NOT EXISTS product_categories (
-                product_id  INTEGER,
-                category_id INTEGER,
-                PRIMARY KEY (product_id, category_id),
-                FOREIGN KEY (product_id)  REFERENCES product(id)  ON DELETE CASCADE,
-                FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
+            CREATE TABLE IF NOT EXISTS user_roles (
+                userRoleID INTEGER PRIMARY KEY AUTOINCREMENT,
+                userID     INTEGER NOT NULL,
+                roleID     INTEGER NOT NULL,
+                assignedAt TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (userID, roleID),
+                FOREIGN KEY (userID) REFERENCES users(userID)   ON DELETE CASCADE,
+                FOREIGN KEY (roleID) REFERENCES roles(roleID)   ON DELETE CASCADE
             )
             """,
-            // Product images
             """
-            CREATE TABLE IF NOT EXISTS product_image (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                product_id  INTEGER NOT NULL,
-                image_path  TEXT NOT NULL,
-                is_primary  INTEGER DEFAULT 0,
-                uploaded_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                tokenID    INTEGER PRIMARY KEY AUTOINCREMENT,
+                userID     INTEGER NOT NULL,
+                token      TEXT    NOT NULL UNIQUE,
+                expiryTime TEXT    NOT NULL,
+                isUsed     INTEGER NOT NULL DEFAULT 0,
+                createdAt  TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE
             )
             """,
-            // Product validation log
             """
-            CREATE TABLE IF NOT EXISTS product_validation (
-                id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                product_id      INTEGER NOT NULL,
-                validated_by    TEXT,
-                validation_date TEXT DEFAULT CURRENT_TIMESTAMP,
-                status          TEXT,
-                message         TEXT,
-                FOREIGN KEY (product_id) REFERENCES product(id)
+            CREATE TABLE IF NOT EXISTS customers (
+                customerID    INTEGER PRIMARY KEY AUTOINCREMENT,
+                userID        INTEGER,
+                name          TEXT    NOT NULL,
+                email         TEXT    NOT NULL UNIQUE,
+                contactNumber TEXT,
+                deliveryAddress TEXT,
+                customerType  TEXT    NOT NULL DEFAULT 'Individual',
+                idCardImage   TEXT,
+                status        TEXT    NOT NULL DEFAULT 'active',
+                registeredAt  TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE SET NULL
             )
             """,
-            // Users
-            """
-            CREATE TABLE IF NOT EXISTS fuser (
-                id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                name          TEXT NOT NULL,
-                email         TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                role          TEXT NOT NULL,
-                status        TEXT DEFAULT 'ACTIVE',
-                created_at    TEXT DEFAULT CURRENT_TIMESTAMP
-            )
-            """,
-            // Admin users
-            """
-            CREATE TABLE IF NOT EXISTS admin_user (
-                id      INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER UNIQUE,
-                FOREIGN KEY (user_id) REFERENCES fuser(id)
-            )
-            """,
-            // Login credentials
-            """
-            CREATE TABLE IF NOT EXISTS login_credentials (
-                id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id       INTEGER UNIQUE,
-                username      TEXT UNIQUE,
-                password_hash TEXT,
-                FOREIGN KEY (user_id) REFERENCES fuser(id)
-            )
-            """,
-            // Customer registration
-            """
-            CREATE TABLE IF NOT EXISTS customer_registration (
-                id      INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER UNIQUE,
-                phone   TEXT,
-                address TEXT,
-                FOREIGN KEY (user_id) REFERENCES fuser(id)
-            )
-            """,
-            // Customer preferences
             """
             CREATE TABLE IF NOT EXISTS customer_preferences (
-                id                   INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id              INTEGER UNIQUE,
-                preferred_categories TEXT,
-                delivery_notes       TEXT,
-                FOREIGN KEY (user_id) REFERENCES fuser(id)
+                preferenceID          INTEGER PRIMARY KEY AUTOINCREMENT,
+                customerID            INTEGER NOT NULL UNIQUE,
+                preferredCategories   TEXT,
+                notificationSettings  TEXT,
+                deliveryInstructions  TEXT,
+                FOREIGN KEY (customerID) REFERENCES customers(customerID) ON DELETE CASCADE
             )
             """,
-            // Customer updates log
             """
-            CREATE TABLE IF NOT EXISTS customer_update (
-                id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id       INTEGER,
-                updated_field TEXT,
-                old_value     TEXT,
-                new_value     TEXT,
-                update_date   TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES fuser(id)
+            CREATE TABLE IF NOT EXISTS customer_updates (
+                updateID     INTEGER PRIMARY KEY AUTOINCREMENT,
+                adminUserID  INTEGER,
+                customerID   INTEGER,
+                updatedField TEXT,
+                oldValue     TEXT,
+                newValue     TEXT,
+                updateDate   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (adminUserID) REFERENCES users(userID)         ON DELETE SET NULL,
+                FOREIGN KEY (customerID)  REFERENCES customers(customerID) ON DELETE CASCADE
             )
             """,
-            // Orders
+            """
+            CREATE TABLE IF NOT EXISTS categories (
+                categoryID   INTEGER PRIMARY KEY AUTOINCREMENT,
+                categoryName TEXT    NOT NULL UNIQUE,
+                description  TEXT,
+                parentID     INTEGER,
+                isActive     INTEGER NOT NULL DEFAULT 1,
+                FOREIGN KEY (parentID) REFERENCES categories(categoryID) ON DELETE SET NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS products (
+                productID   INTEGER PRIMARY KEY AUTOINCREMENT,
+                sku         TEXT    NOT NULL UNIQUE,
+                name        TEXT    NOT NULL,
+                description TEXT,
+                price       REAL    NOT NULL DEFAULT 0.00,
+                unitCost    REAL    NOT NULL DEFAULT 0.00,
+                status      TEXT    NOT NULL DEFAULT 'active',
+                categoryID  INTEGER,
+                createdAt   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (categoryID) REFERENCES categories(categoryID) ON DELETE SET NULL
+            )
+            """,
             """
             CREATE TABLE IF NOT EXISTS orders (
-                id           INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id      INTEGER NOT NULL,
-                order_date   TEXT DEFAULT CURRENT_TIMESTAMP,
-                status       TEXT DEFAULT 'PROCESSING',
-                total_amount REAL CHECK(total_amount >= 0),
-                FOREIGN KEY (user_id) REFERENCES fuser(id)
+                orderID     INTEGER PRIMARY KEY AUTOINCREMENT,
+                customerID  INTEGER NOT NULL,
+                orderDate   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                totalAmount REAL    NOT NULL DEFAULT 0.00,
+                status      TEXT    NOT NULL DEFAULT 'Processing',
+                FOREIGN KEY (customerID) REFERENCES customers(customerID)
             )
             """,
-            // Order items
             """
-            CREATE TABLE IF NOT EXISTS order_item (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                order_id   INTEGER NOT NULL,
-                product_id INTEGER NOT NULL,
-                quantity   INTEGER NOT NULL CHECK(quantity > 0),
-                unit_price REAL NOT NULL CHECK(unit_price > 0),
-                line_total REAL NOT NULL CHECK(line_total >= 0),
-                FOREIGN KEY (order_id)   REFERENCES orders(id),
-                FOREIGN KEY (product_id) REFERENCES product(id)
+            CREATE TABLE IF NOT EXISTS order_items (
+                orderItemID INTEGER PRIMARY KEY AUTOINCREMENT,
+                orderID     INTEGER NOT NULL,
+                productID   INTEGER NOT NULL,
+                quantity    INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
+                unitPrice   REAL    NOT NULL DEFAULT 0.00,
+                FOREIGN KEY (orderID)   REFERENCES orders(orderID)     ON DELETE CASCADE,
+                FOREIGN KEY (productID) REFERENCES products(productID)
             )
             """,
-            // Payment
             """
-            CREATE TABLE IF NOT EXISTS payment (
-                id             INTEGER PRIMARY KEY AUTOINCREMENT,
-                order_id       INTEGER UNIQUE,
-                amount         REAL NOT NULL CHECK(amount > 0),
-                payment_method TEXT,
-                payment_date   TEXT DEFAULT CURRENT_TIMESTAMP,
-                status         TEXT,
-                FOREIGN KEY (order_id) REFERENCES orders(id)
+            CREATE TABLE IF NOT EXISTS payments (
+                paymentID      INTEGER PRIMARY KEY AUTOINCREMENT,
+                orderID        INTEGER NOT NULL,
+                amountPaid     REAL    NOT NULL,
+                currency       TEXT    NOT NULL DEFAULT 'GBP',
+                paymentMethod  TEXT,
+                paymentStatus  TEXT    NOT NULL DEFAULT 'PENDING',
+                transactionRef TEXT    UNIQUE,
+                paymentDate    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                notes          TEXT,
+                createdAt      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (orderID) REFERENCES orders(orderID)
             )
             """,
-            // Refunds
             """
-            CREATE TABLE IF NOT EXISTS refund (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                payment_id  INTEGER,
-                product_id  INTEGER,
-                amount      REAL CHECK(amount >= 0),
-                reason      TEXT,
-                status      TEXT,
-                refund_date TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (payment_id) REFERENCES payment(id),
-                FOREIGN KEY (product_id) REFERENCES product(id)
+            CREATE TABLE IF NOT EXISTS finance_invoices (
+                invoiceID     INTEGER PRIMARY KEY AUTOINCREMENT,
+                orderID       INTEGER,
+                customerID    INTEGER NOT NULL,
+                paymentID     INTEGER,
+                invoiceNumber TEXT    NOT NULL UNIQUE,
+                status        TEXT    NOT NULL DEFAULT 'PENDING'
+                              CHECK (status IN ('PENDING','PAID','OVERDUE','PARTIAL','CANCELLED')),
+                subtotal      REAL    NOT NULL DEFAULT 0.00,
+                vatAmount     REAL    NOT NULL DEFAULT 0.00,
+                totalAmount   REAL    NOT NULL,
+                currency      TEXT    NOT NULL DEFAULT 'GBP',
+                issuedAt      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                dueDate       TEXT,
+                paidAt        TEXT,
+                notes         TEXT,
+                createdAt     TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt     TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (orderID)    REFERENCES orders(orderID)         ON DELETE SET NULL,
+                FOREIGN KEY (customerID) REFERENCES customers(customerID)   ON DELETE CASCADE,
+                FOREIGN KEY (paymentID)  REFERENCES payments(paymentID)     ON DELETE SET NULL
             )
             """,
-            // Warehouse
             """
-            CREATE TABLE IF NOT EXISTS warehouse (
-                id       INTEGER PRIMARY KEY AUTOINCREMENT,
-                name     TEXT NOT NULL,
-                location TEXT,
-                capacity INTEGER,
-                status   TEXT DEFAULT 'ACTIVE'
+            CREATE TABLE IF NOT EXISTS finance_refunds (
+                refundID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                orderID        INTEGER NOT NULL,
+                orderItemID    INTEGER,
+                productID      INTEGER,
+                refundAmount   REAL    NOT NULL,
+                refundDate     TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                reason         TEXT,
+                status         TEXT    NOT NULL DEFAULT 'REQUESTED'
+                               CHECK (status IN ('REQUESTED','APPROVED','REJECTED','PROCESSED')),
+                processedByUserID INTEGER,
+                approvedAt     TEXT,
+                createdAt      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (orderID)          REFERENCES orders(orderID)         ON DELETE CASCADE,
+                FOREIGN KEY (orderItemID)      REFERENCES order_items(orderItemID),
+                FOREIGN KEY (productID)        REFERENCES products(productID),
+                FOREIGN KEY (processedByUserID) REFERENCES users(userID)          ON DELETE SET NULL
             )
             """,
-            // Inventory records
             """
-            CREATE TABLE IF NOT EXISTS inventory_record (
-                id           INTEGER PRIMARY KEY AUTOINCREMENT,
-                product_id   INTEGER NOT NULL,
-                warehouse_id INTEGER NOT NULL,
-                quantity     INTEGER NOT NULL CHECK(quantity >= 0),
-                min_stock    INTEGER DEFAULT 0,
-                last_updated TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (product_id)   REFERENCES product(id),
-                FOREIGN KEY (warehouse_id) REFERENCES warehouse(id),
-                UNIQUE(product_id, warehouse_id)
+            CREATE TABLE IF NOT EXISTS finance_anomalies (
+                anomalyID          INTEGER PRIMARY KEY AUTOINCREMENT,
+                anomalyType        TEXT,
+                description        TEXT,
+                severity           TEXT    NOT NULL DEFAULT 'LOW'
+                                   CHECK (severity IN ('LOW','MEDIUM','HIGH','CRITICAL')),
+                detectionRule      TEXT,
+                alertDate          TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                isResolved         INTEGER NOT NULL DEFAULT 0,
+                resolvedByUserID   INTEGER,
+                affectedCustomerID INTEGER,
+                affectedOrderID    INTEGER,
+                affectedProductID  INTEGER,
+                FOREIGN KEY (resolvedByUserID)   REFERENCES users(userID)          ON DELETE SET NULL,
+                FOREIGN KEY (affectedCustomerID) REFERENCES customers(customerID),
+                FOREIGN KEY (affectedOrderID)    REFERENCES orders(orderID),
+                FOREIGN KEY (affectedProductID)  REFERENCES products(productID)
             )
             """,
-            // Stock movements
             """
-            CREATE TABLE IF NOT EXISTS stock_movement (
-                id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                inventory_id  INTEGER NOT NULL,
-                change_amount INTEGER NOT NULL,
-                movement_type TEXT,
-                movement_date TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (inventory_id) REFERENCES inventory_record(id)
+            CREATE TABLE IF NOT EXISTS finance_alerts (
+                alertID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                alertType     TEXT,
+                severity      TEXT    NOT NULL DEFAULT 'LOW'
+                              CHECK (severity IN ('LOW','WARNING','HIGH','CRITICAL')),
+                message       TEXT,
+                entityType    TEXT,
+                entityID      INTEGER,
+                isResolved    INTEGER NOT NULL DEFAULT 0,
+                resolvedByUserID INTEGER,
+                resolvedAt    TEXT,
+                anomalyID     INTEGER,
+                createdAt     TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (resolvedByUserID) REFERENCES users(userID)             ON DELETE SET NULL,
+                FOREIGN KEY (anomalyID)        REFERENCES finance_anomalies(anomalyID)
             )
             """,
-            // Drivers
             """
-            CREATE TABLE IF NOT EXISTS driver (
-                id             INTEGER PRIMARY KEY AUTOINCREMENT,
-                name           TEXT NOT NULL,
-                license_number TEXT UNIQUE,
-                phone          TEXT,
-                status         TEXT DEFAULT 'ACTIVE'
+            CREATE TABLE IF NOT EXISTS finance_suppliers (
+                supplierID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                name             TEXT    NOT NULL,
+                contact          TEXT,
+                email            TEXT,
+                avgLeadDays      REAL    NOT NULL DEFAULT 5,
+                reliabilityScore REAL    NOT NULL DEFAULT 0.85
             )
             """,
-            // Delivery
             """
-            CREATE TABLE IF NOT EXISTS delivery (
-                id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                order_id        INTEGER UNIQUE,
-                driver_id       INTEGER,
-                delivery_status TEXT,
-                delivery_date   TEXT,
-                FOREIGN KEY (order_id)  REFERENCES orders(id),
-                FOREIGN KEY (driver_id) REFERENCES driver(id)
+            CREATE TABLE IF NOT EXISTS finance_supplier_products (
+                supplierProductID     INTEGER PRIMARY KEY AUTOINCREMENT,
+                supplierID            INTEGER NOT NULL,
+                productID             INTEGER NOT NULL,
+                unitCostFromSupplier  REAL    NOT NULL DEFAULT 0.00,
+                leadDays              INTEGER NOT NULL DEFAULT 7,
+                isPreferred           INTEGER NOT NULL DEFAULT 0,
+                lastOrderDate         TEXT,
+                UNIQUE (supplierID, productID),
+                FOREIGN KEY (supplierID) REFERENCES finance_suppliers(supplierID)  ON DELETE CASCADE,
+                FOREIGN KEY (productID)  REFERENCES products(productID)             ON DELETE CASCADE
             )
             """,
-            // Delivery log
+            """
+            CREATE TABLE IF NOT EXISTS warehouse_warehouses (
+                warehouseID   INTEGER PRIMARY KEY AUTOINCREMENT,
+                warehouseName TEXT    NOT NULL,
+                location      TEXT    NOT NULL,
+                contactEmail  TEXT,
+                capacityLimit INTEGER,
+                warehouseCode TEXT    UNIQUE,
+                productLine   TEXT    NOT NULL DEFAULT 'General'
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS finance_supplier_orders (
+                supplierOrderID  INTEGER PRIMARY KEY AUTOINCREMENT,
+                supplierID       INTEGER NOT NULL,
+                productID        INTEGER NOT NULL,
+                warehouseID      INTEGER NOT NULL,
+                quantity         INTEGER NOT NULL DEFAULT 1,
+                unitCostAtOrder  REAL    NOT NULL DEFAULT 0.00,
+                status           TEXT    NOT NULL DEFAULT 'ORDERED'
+                                 CHECK (status IN ('ORDERED','SHIPPED','DELIVERED','CANCELLED')),
+                orderedAt        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                expectedAt       TEXT,
+                deliveredAt      TEXT,
+                createdByUserID  INTEGER,
+                notes            TEXT,
+                FOREIGN KEY (supplierID)      REFERENCES finance_suppliers(supplierID),
+                FOREIGN KEY (productID)       REFERENCES products(productID),
+                FOREIGN KEY (warehouseID)     REFERENCES warehouse_warehouses(warehouseID),
+                FOREIGN KEY (createdByUserID) REFERENCES users(userID) ON DELETE SET NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS finance_settings (
+                settingKey   TEXT PRIMARY KEY,
+                settingValue TEXT NOT NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS warehouse_inventory (
+                inventoryID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                warehouseID       INTEGER NOT NULL,
+                productID         INTEGER NOT NULL,
+                quantityOnHand    INTEGER NOT NULL DEFAULT 0,
+                minStockThreshold INTEGER NOT NULL DEFAULT 0,
+                lastRestockDate   TEXT,
+                reorderQuantity   INTEGER NOT NULL DEFAULT 0,
+                lowStockFlag      INTEGER NOT NULL DEFAULT 0,
+                supplierID        INTEGER,
+                unitCost          REAL    NOT NULL DEFAULT 0.00,
+                isActive          INTEGER NOT NULL DEFAULT 1,
+                UNIQUE (warehouseID, productID),
+                FOREIGN KEY (warehouseID) REFERENCES warehouse_warehouses(warehouseID) ON DELETE CASCADE,
+                FOREIGN KEY (productID)   REFERENCES products(productID),
+                FOREIGN KEY (supplierID)  REFERENCES finance_suppliers(supplierID)     ON DELETE SET NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS warehouse_stock_movements (
+                movementID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                inventoryID      INTEGER NOT NULL,
+                fromWarehouseID  INTEGER,
+                toWarehouseID    INTEGER,
+                quantityChanged  INTEGER NOT NULL,
+                movementType     TEXT,
+                performedByUserID INTEGER,
+                movementDate     TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (inventoryID)       REFERENCES warehouse_inventory(inventoryID)   ON DELETE CASCADE,
+                FOREIGN KEY (fromWarehouseID)   REFERENCES warehouse_warehouses(warehouseID)  ON DELETE SET NULL,
+                FOREIGN KEY (toWarehouseID)     REFERENCES warehouse_warehouses(warehouseID)  ON DELETE SET NULL,
+                FOREIGN KEY (performedByUserID) REFERENCES users(userID)                      ON DELETE SET NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS warehouse_restock_requests (
+                requestID         INTEGER PRIMARY KEY AUTOINCREMENT,
+                warehouseID       INTEGER NOT NULL,
+                productID         INTEGER NOT NULL,
+                requestedQty      INTEGER NOT NULL,
+                requestedByUserID INTEGER,
+                status            TEXT    NOT NULL DEFAULT 'Pending'
+                                  CHECK (status IN ('Pending','Approved','Fulfilled','Cancelled')),
+                requestDate       TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                fulfilledDate     TEXT,
+                FOREIGN KEY (warehouseID)       REFERENCES warehouse_warehouses(warehouseID) ON DELETE CASCADE,
+                FOREIGN KEY (productID)         REFERENCES products(productID),
+                FOREIGN KEY (requestedByUserID) REFERENCES users(userID) ON DELETE SET NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS warehouse_audit_log (
+                auditID           INTEGER PRIMARY KEY AUTOINCREMENT,
+                warehouseID       INTEGER,
+                performedByUserID INTEGER,
+                actionType        TEXT,
+                description       TEXT,
+                actionDate        TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (warehouseID)       REFERENCES warehouse_warehouses(warehouseID) ON DELETE SET NULL,
+                FOREIGN KEY (performedByUserID) REFERENCES users(userID)                     ON DELETE SET NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS delivery_drivers (
+                driverID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                licenceNumber  TEXT    UNIQUE,
+                phoneNum       TEXT,
+                email          TEXT,
+                driverName     TEXT    NOT NULL,
+                userID         INTEGER,
+                status         TEXT    NOT NULL DEFAULT 'ACTIVE',
+                FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE SET NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS delivery_deliveries (
+                deliveryID      INTEGER PRIMARY KEY AUTOINCREMENT,
+                orderID         INTEGER NOT NULL,
+                customerAddress TEXT,
+                orderStatus     TEXT    NOT NULL DEFAULT 'Pending'
+                                CHECK (orderStatus IN ('Pending','Assigned','In Transit','Delivered','Rejected','Returned')),
+                orderDate       TEXT,
+                numOfItems      INTEGER NOT NULL DEFAULT 1,
+                driverID        INTEGER,
+                warehouseID     INTEGER,
+                FOREIGN KEY (orderID)     REFERENCES orders(orderID)                     ON DELETE CASCADE,
+                FOREIGN KEY (driverID)    REFERENCES delivery_drivers(driverID)          ON DELETE SET NULL,
+                FOREIGN KEY (warehouseID) REFERENCES warehouse_warehouses(warehouseID)   ON DELETE SET NULL
+            )
+            """,
             """
             CREATE TABLE IF NOT EXISTS delivery_log (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                delivery_id INTEGER,
-                status      TEXT,
-                change_date TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (delivery_id) REFERENCES delivery(id)
+                logID         INTEGER PRIMARY KEY AUTOINCREMENT,
+                deliveryID    INTEGER NOT NULL,
+                driverID      INTEGER,
+                timeDelivered TEXT,
+                statusChange  TEXT,
+                logDate       TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (deliveryID) REFERENCES delivery_deliveries(deliveryID) ON DELETE CASCADE,
+                FOREIGN KEY (driverID)   REFERENCES delivery_drivers(driverID)      ON DELETE SET NULL
             )
             """,
-            // Reviews
             """
-            CREATE TABLE IF NOT EXISTS review (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                product_id  INTEGER NOT NULL,
-                user_id     INTEGER NOT NULL,
-                rating      INTEGER CHECK(rating BETWEEN 1 AND 5),
-                comment     TEXT,
-                review_date TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (product_id) REFERENCES product(id),
-                FOREIGN KEY (user_id)    REFERENCES fuser(id),
-                UNIQUE(product_id, user_id)
+            CREATE TABLE IF NOT EXISTS product_images (
+                imageID    INTEGER PRIMARY KEY AUTOINCREMENT,
+                productID  INTEGER NOT NULL,
+                imageURL   TEXT    NOT NULL,
+                fileType   TEXT,
+                sizeKB     INTEGER,
+                isPrimary  INTEGER NOT NULL DEFAULT 0,
+                uploadedAt TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (productID) REFERENCES products(productID) ON DELETE CASCADE
             )
             """,
-            // Alerts
             """
-            CREATE TABLE IF NOT EXISTS alert (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                product_id INTEGER,
-                order_id   INTEGER,
-                severity   TEXT,
-                message    TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                resolved   INTEGER DEFAULT 0,
-                FOREIGN KEY (product_id) REFERENCES product(id),
-                FOREIGN KEY (order_id)   REFERENCES orders(id)
+            CREATE TABLE IF NOT EXISTS product_validations (
+                validationID      INTEGER PRIMARY KEY AUTOINCREMENT,
+                productID         INTEGER NOT NULL,
+                validatedByUserID INTEGER,
+                validationDate    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                isValid           INTEGER,
+                validationMessage TEXT,
+                FOREIGN KEY (productID)         REFERENCES products(productID)  ON DELETE CASCADE,
+                FOREIGN KEY (validatedByUserID) REFERENCES users(userID)        ON DELETE SET NULL
             )
             """,
-            // Financial anomalies
             """
-            CREATE TABLE IF NOT EXISTS financial_anomalies (
-                id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                product_id  INTEGER,
-                order_id    INTEGER,
-                description TEXT,
-                severity    TEXT,
-                detected_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                resolved    INTEGER DEFAULT 0,
-                FOREIGN KEY (product_id) REFERENCES product(id),
-                FOREIGN KEY (order_id)   REFERENCES orders(id)
+            CREATE TABLE IF NOT EXISTS product_categories (
+                productID  INTEGER NOT NULL,
+                categoryID INTEGER NOT NULL,
+                PRIMARY KEY (productID, categoryID),
+                FOREIGN KEY (productID)  REFERENCES products(productID)    ON DELETE CASCADE,
+                FOREIGN KEY (categoryID) REFERENCES categories(categoryID) ON DELETE CASCADE
             )
             """,
-            // Indexes
-            "CREATE INDEX IF NOT EXISTS idx_product_name    ON product(name)",
-            "CREATE INDEX IF NOT EXISTS idx_product_sku     ON product(sku)",
-            "CREATE INDEX IF NOT EXISTS idx_category_name   ON category(name)",
-            "CREATE INDEX IF NOT EXISTS idx_order_status    ON orders(status)",
-            "CREATE INDEX IF NOT EXISTS idx_review_product  ON review(product_id)",
-            "CREATE INDEX IF NOT EXISTS idx_stock_movement  ON stock_movement(inventory_id)",
-            "CREATE INDEX IF NOT EXISTS idx_delivery_order  ON delivery(order_id)"
+            """
+            CREATE TABLE IF NOT EXISTS orders_status_history (
+                historyID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                orderID         INTEGER NOT NULL,
+                previousStatus  TEXT,
+                newStatus       TEXT    NOT NULL,
+                changedByUserID INTEGER,
+                notes           TEXT,
+                changedAt       TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (orderID)         REFERENCES orders(orderID)  ON DELETE CASCADE,
+                FOREIGN KEY (changedByUserID) REFERENCES users(userID)    ON DELETE SET NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS reviews_reviews (
+                reviewID       INTEGER PRIMARY KEY AUTOINCREMENT,
+                productID      INTEGER NOT NULL,
+                customerID     INTEGER NOT NULL,
+                rating         INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                comment        TEXT    NOT NULL,
+                createdAt      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                status         TEXT    NOT NULL DEFAULT 'ACTIVE'
+                               CHECK (status IN ('ACTIVE','FLAGGED','REMOVED','CUSTOMER_DELETED')),
+                helpfulCount   INTEGER NOT NULL DEFAULT 0,
+                unhelpfulCount INTEGER NOT NULL DEFAULT 0,
+                UNIQUE (productID, customerID),
+                FOREIGN KEY (productID)  REFERENCES products(productID)    ON DELETE CASCADE,
+                FOREIGN KEY (customerID) REFERENCES customers(customerID)  ON DELETE CASCADE
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS reviews_votes (
+                voteID     INTEGER PRIMARY KEY AUTOINCREMENT,
+                reviewID   INTEGER NOT NULL,
+                customerID INTEGER NOT NULL,
+                voteType   TEXT    NOT NULL CHECK (voteType IN ('HELPFUL','UNHELPFUL')),
+                votedAt    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (reviewID, customerID),
+                FOREIGN KEY (reviewID)   REFERENCES reviews_reviews(reviewID)   ON DELETE CASCADE,
+                FOREIGN KEY (customerID) REFERENCES customers(customerID)       ON DELETE CASCADE
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS reviews_moderation (
+                auditID      INTEGER PRIMARY KEY AUTOINCREMENT,
+                reviewID     INTEGER NOT NULL,
+                adminUserID  INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                reason       TEXT    NOT NULL,
+                actionTime   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (reviewID)    REFERENCES reviews_reviews(reviewID) ON DELETE CASCADE,
+                FOREIGN KEY (adminUserID) REFERENCES users(userID)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS reviews_settings (
+                settingKey   TEXT PRIMARY KEY,
+                settingValue TEXT NOT NULL
+            )
+            """
         };
 
         try (Statement stmt = connection.createStatement()) {
-            for (String sql : tables) {
-                stmt.execute(sql);
+            for (String sql : ddl) {
+                stmt.execute(sql.trim());
             }
-            System.out.println("All tables created/verified.");
+            System.out.println("Unified schema tables created/verified.");
         } catch (SQLException e) {
             System.err.println("createTables failed: " + e.getMessage());
         }
     }
 
-    // ── Seed Default Users ────────────────────────────────────────────────
-
-    /** Seeds default users on first run */
-    public void seedDefaultUsers() {
-        try {
-            ResultSet rs = connection.createStatement()
-                .executeQuery("SELECT COUNT(*) FROM fuser");
-            if (rs.getInt(1) > 0) return;
-        } catch (SQLException e) { return; }
-
-        String hash_admin    = hashPassword("admin123");
-        String hash_customer = hashPassword("customer123");
-
-        String[][] users = {
-            {"Admin",         "admin@raez.com",          hash_admin,    "ADMIN"},
-            {"Alice Johnson", "alice@example.com",        hash_customer, "CUSTOMER"},
-            {"Bob Smith",     "bob@example.com",          hash_customer, "CUSTOMER"},
-            {"Carol White",   "carol@example.com",        hash_customer, "CUSTOMER"},
-            {"David Brown",   "david@example.com",        hash_customer, "CUSTOMER"},
-            {"Emma Davis",    "emma@example.com",         hash_customer, "CUSTOMER"},
+    private void createIndexes() {
+        String[] indexes = {
+            "CREATE INDEX IF NOT EXISTS idx_users_email            ON users(email)",
+            "CREATE INDEX IF NOT EXISTS idx_user_roles_user        ON user_roles(userID)",
+            "CREATE INDEX IF NOT EXISTS idx_customers_email        ON customers(email)",
+            "CREATE INDEX IF NOT EXISTS idx_customers_user         ON customers(userID)",
+            "CREATE INDEX IF NOT EXISTS idx_products_sku           ON products(sku)",
+            "CREATE INDEX IF NOT EXISTS idx_products_name          ON products(name)",
+            "CREATE INDEX IF NOT EXISTS idx_products_category      ON products(categoryID)",
+            "CREATE INDEX IF NOT EXISTS idx_orders_customer        ON orders(customerID)",
+            "CREATE INDEX IF NOT EXISTS idx_orders_status          ON orders(status)",
+            "CREATE INDEX IF NOT EXISTS idx_order_items_order      ON order_items(orderID)",
+            "CREATE INDEX IF NOT EXISTS idx_payments_order         ON payments(orderID)",
+            "CREATE INDEX IF NOT EXISTS idx_finance_invoices_customer ON finance_invoices(customerID)",
+            "CREATE INDEX IF NOT EXISTS idx_finance_invoices_order    ON finance_invoices(orderID)",
+            "CREATE INDEX IF NOT EXISTS idx_warehouse_inv_warehouse   ON warehouse_inventory(warehouseID)",
+            "CREATE INDEX IF NOT EXISTS idx_warehouse_inv_product     ON warehouse_inventory(productID)",
+            "CREATE INDEX IF NOT EXISTS idx_delivery_order            ON delivery_deliveries(orderID)",
+            "CREATE INDEX IF NOT EXISTS idx_delivery_driver           ON delivery_deliveries(driverID)",
+            "CREATE INDEX IF NOT EXISTS idx_reviews_product           ON reviews_reviews(productID)",
+            "CREATE INDEX IF NOT EXISTS idx_reviews_customer          ON reviews_reviews(customerID)",
+            "CREATE INDEX IF NOT EXISTS idx_reviews_status            ON reviews_reviews(status)",
+            "CREATE INDEX IF NOT EXISTS idx_reviews_votes_review      ON reviews_votes(reviewID)",
+            "CREATE INDEX IF NOT EXISTS idx_orders_history_order      ON orders_status_history(orderID)"
         };
 
-        String sql = "INSERT OR IGNORE INTO fuser (name, email, password_hash, role) VALUES (?,?,?,?)";
-        String credSql = "INSERT OR IGNORE INTO login_credentials (user_id, username, password_hash) VALUES (?,?,?)";
-        String regSql  = "INSERT OR IGNORE INTO customer_registration (user_id, phone, address) VALUES (?,?,?)";
-        String prefSql = "INSERT OR IGNORE INTO customer_preferences (user_id, preferred_categories, delivery_notes) VALUES (?,?,?)";
-
-        String[][] customerDetails = {
-            {"+44 7700 900001", "123 High Street, London, W1A 1AA",   "Home Assistants,Companions", "Leave at door"},
-            {"+44 7700 900002", "45 Park Lane, Manchester, M1 2AB",   "Security Bots,Industrial",   "Ring doorbell"},
-            {"+44 7700 900003", "78 Queen Road, Birmingham, B1 3CD",  "Educational",                "Leave with neighbour"},
-            {"+44 7700 900004", "12 King Street, Leeds, LS1 4EF",     "Companions,Home Assistants", "Call before delivery"},
-            {"+44 7700 900005", "99 Victoria Ave, Bristol, BS1 5GH",  "Industrial",                 "No specific instructions"},
-        };
-
-        try (PreparedStatement ps   = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-             PreparedStatement cred = connection.prepareStatement(credSql);
-             PreparedStatement reg  = connection.prepareStatement(regSql);
-             PreparedStatement pref = connection.prepareStatement(prefSql)) {
-
-            int customerIdx = 0;
-            for (String[] u : users) {
-                ps.setString(1, u[0]);
-                ps.setString(2, u[1]);
-                ps.setString(3, u[2]);
-                ps.setString(4, u[3]);
-                ps.executeUpdate();
-
-                ResultSet keys = ps.getGeneratedKeys();
-                if (keys.next()) {
-                    int uid = keys.getInt(1);
-
-                    // Login credentials for all users
-                    cred.setInt(1, uid);
-                    cred.setString(2, u[1]);
-                    cred.setString(3, u[2]);
-                    cred.executeUpdate();
-
-                    // Customer-specific data
-                    if ("CUSTOMER".equals(u[3]) && customerIdx < customerDetails.length) {
-                        reg.setInt(1, uid);
-                        reg.setString(2, customerDetails[customerIdx][0]);
-                        reg.setString(3, customerDetails[customerIdx][1]);
-                        reg.executeUpdate();
-
-                        pref.setInt(1, uid);
-                        pref.setString(2, customerDetails[customerIdx][2]);
-                        pref.setString(3, customerDetails[customerIdx][3]);
-                        pref.executeUpdate();
-                        customerIdx++;
-                    }
-
-                    // Admin user record
-                    if ("ADMIN".equals(u[3])) {
-                        connection.createStatement().execute(
-                            "INSERT OR IGNORE INTO admin_user (user_id) VALUES (" + uid + ")");
-                    }
-                }
+        try (Statement stmt = connection.createStatement()) {
+            for (String sql : indexes) {
+                stmt.execute(sql);
             }
-            System.out.println("Default users seeded.");
+            System.out.println("Schema indexes created/verified.");
         } catch (SQLException e) {
-            System.err.println("seedDefaultUsers failed: " + e.getMessage());
+            System.err.println("createIndexes failed: " + e.getMessage());
         }
     }
 
-    // ── Seed Supporting Data ──────────────────────────────────────────────
+    private void seedAll() {
+        String adminHash = hashPassword("admin123");
+        String customerHash = hashPassword("customer123");
 
-    /**
-     * Seeds drivers, orders, payments, deliveries, reviews, alerts,
-     * and stock movements after products exist.
-     * Only runs once (checks if data already exists).
-     */
-    public void seedSupportingData() {
-        try {
-            ResultSet rs = connection.createStatement()
-                .executeQuery("SELECT COUNT(*) FROM driver");
-            if (rs.getInt(1) > 0) return;
-        } catch (SQLException e) { return; }
+        String insertRoles = """
+            INSERT INTO roles (roleName, description) VALUES
+            ('super_admin', 'Full access to all modules'),
+            ('customer', 'Registered customer — storefront access'),
+            ('product_admin', 'Product module — catalogue and validations'),
+            ('finance_user', 'Finance module — view reports'),
+            ('finance_admin', 'Finance module — full finance control'),
+            ('warehouse_user', 'Warehouse module — stock updates'),
+            ('warehouse_admin', 'Warehouse module — full inventory control'),
+            ('delivery_user', 'Delivery module — update delivery status'),
+            ('delivery_admin', 'Delivery module — assign drivers and deliveries'),
+            ('orders_user', 'Orders module — process orders'),
+            ('orders_admin', 'Orders module — full order management'),
+            ('reviews_admin', 'Reviews module — moderate reviews')
+            """;
 
-        seedDrivers();
-        seedOrdersAndPayments();
-        seedDeliveries();
-        seedReviews();
-        seedAlerts();
-        seedStockMovements();
-        System.out.println("Supporting data seeded.");
-    }
+        String insertUsers = """
+            INSERT INTO users (email, username, passwordHash, firstName, lastName, isActive)
+            VALUES (?, ?, ?, ?, ?, 1), (?, ?, ?, ?, ?, 1)
+            """;
 
-    private void seedDrivers() {
-        String[][] drivers = {
-            {"James Wilson",  "DL-UK-001", "+44 7700 100001"},
-            {"Sarah Connor",  "DL-UK-002", "+44 7700 100002"},
-            {"Mike Taylor",   "DL-UK-003", "+44 7700 100003"},
-            {"Lucy Evans",    "DL-UK-004", "+44 7700 100004"},
-            {"Tom Harrison",  "DL-UK-005", "+44 7700 100005"},
-        };
-        try {
-            String sql = "INSERT OR IGNORE INTO driver (name, license_number, phone) VALUES (?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            for (String[] d : drivers) {
-                ps.setString(1, d[0]); ps.setString(2, d[1]); ps.setString(3, d[2]);
-                ps.executeUpdate();
+        try (Statement st = connection.createStatement()) {
+            st.execute(insertRoles);
+        } catch (SQLException e) {
+            System.err.println("seedAll roles failed: " + e.getMessage());
+            return;
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(insertUsers)) {
+            ps.setString(1, "admin@raez.com");
+            ps.setString(2, "admin");
+            ps.setString(3, adminHash);
+            ps.setString(4, "Admin");
+            ps.setString(5, "User");
+            ps.setString(6, "customer@example.com");
+            ps.setString(7, "customer");
+            ps.setString(8, customerHash);
+            ps.setString(9, "Customer");
+            ps.setString(10, "User");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("seedAll users failed: " + e.getMessage());
+            return;
+        }
+
+        int adminUserId;
+        int customerUserId;
+        int productAdminRoleId;
+        int customerRoleId;
+        try (Statement st = connection.createStatement();
+             var rsUsers = st.executeQuery(
+                 "SELECT userID, email FROM users ORDER BY userID")) {
+            rsUsers.next();
+            adminUserId = rsUsers.getInt(1);
+            rsUsers.next();
+            customerUserId = rsUsers.getInt(1);
+        } catch (SQLException e) {
+            System.err.println("seedAll user id lookup failed: " + e.getMessage());
+            return;
+        }
+
+        try (Statement st = connection.createStatement();
+             var rsRoles = st.executeQuery(
+                 "SELECT roleID, roleName FROM roles WHERE roleName IN ('product_admin','customer')")) {
+            productAdminRoleId = 0;
+            customerRoleId = 0;
+            while (rsRoles.next()) {
+                if ("product_admin".equals(rsRoles.getString(2))) productAdminRoleId = rsRoles.getInt(1);
+                if ("customer".equals(rsRoles.getString(2))) customerRoleId = rsRoles.getInt(1);
             }
-        } catch (SQLException e) { System.err.println("seedDrivers: " + e.getMessage()); }
-    }
+        } catch (SQLException e) {
+            System.err.println("seedAll role id lookup failed: " + e.getMessage());
+            return;
+        }
 
-    private void seedOrdersAndPayments() {
-        try {
-            // Get user IDs (customers only)
-            ResultSet rs = connection.createStatement().executeQuery(
-                "SELECT id FROM fuser WHERE role='CUSTOMER' LIMIT 5");
-            java.util.List<Integer> userIds = new java.util.ArrayList<>();
-            while (rs.next()) userIds.add(rs.getInt(1));
-            if (userIds.isEmpty()) return;
+        String insertUserRoles = "INSERT INTO user_roles (userID, roleID) VALUES (?, ?), (?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(insertUserRoles)) {
+            ps.setInt(1, adminUserId);
+            ps.setInt(2, productAdminRoleId);
+            ps.setInt(3, customerUserId);
+            ps.setInt(4, customerRoleId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("seedAll user_roles failed: " + e.getMessage());
+            return;
+        }
 
-            // Get product IDs and prices
-            ResultSet prs = connection.createStatement().executeQuery(
-                "SELECT id, price FROM product WHERE status='ACTIVE' LIMIT 10");
-            java.util.List<int[]> products = new java.util.ArrayList<>();
-            while (prs.next()) products.add(new int[]{prs.getInt(1), (int)(prs.getDouble(2) * 100)});
-            if (products.isEmpty()) return;
+        String insertCustomer = """
+            INSERT INTO customers (userID, name, email, contactNumber, deliveryAddress, customerType, status)
+            VALUES (?, ?, ?, NULL, NULL, 'Individual', 'active')
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(insertCustomer)) {
+            ps.setInt(1, customerUserId);
+            ps.setString(2, "Customer User");
+            ps.setString(3, "customer@example.com");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("seedAll customers failed: " + e.getMessage());
+            return;
+        }
 
-            String[] statuses = {"PROCESSING", "SHIPPED", "DELIVERED", "DELIVERED", "DELIVERED"};
-            String[] methods  = {"CARD", "PAYPAL", "CARD", "BANK_TRANSFER", "CARD"};
-            String[] dates    = {
-                "2026-01-15 10:30:00", "2026-01-22 14:15:00", "2026-02-05 09:00:00",
-                "2026-02-14 16:45:00", "2026-03-01 11:20:00"
-            };
+        String insertCategories = """
+            INSERT INTO categories (categoryName, description, isActive) VALUES
+            ('Electronics', 'Electronic goods and gadgets', 1),
+            ('Toys & Games', 'Toys, games, and play', 1),
+            ('Home & Living', 'Home and lifestyle products', 1),
+            ('Educational', 'Learning and educational items', 1)
+            """;
+        try (Statement st = connection.createStatement()) {
+            st.execute(insertCategories);
+        } catch (SQLException e) {
+            System.err.println("seedAll categories failed: " + e.getMessage());
+            return;
+        }
 
-            for (int i = 0; i < Math.min(5, userIds.size()); i++) {
-                int[] prod = products.get(i % products.size());
-                int qty   = (i % 3) + 1;
-                double unitPrice = prod[1] / 100.0;
-                double total     = unitPrice * qty;
-
-                // Insert order
-                PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO orders (user_id, order_date, status, total_amount) VALUES (?,?,?,?)",
-                    Statement.RETURN_GENERATED_KEYS);
-                ps.setInt(1, userIds.get(i));
-                ps.setString(2, dates[i]);
-                ps.setString(3, statuses[i]);
-                ps.setDouble(4, total);
-                ps.executeUpdate();
-                int orderId = ps.getGeneratedKeys().getInt(1);
-
-                // Insert order item
-                PreparedStatement oi = connection.prepareStatement(
-                    "INSERT INTO order_item (order_id, product_id, quantity, unit_price, line_total) VALUES (?,?,?,?,?)");
-                oi.setInt(1, orderId); oi.setInt(2, prod[0]);
-                oi.setInt(3, qty);     oi.setDouble(4, unitPrice); oi.setDouble(5, total);
-                oi.executeUpdate();
-
-                // Insert payment
-                PreparedStatement pay = connection.prepareStatement(
-                    "INSERT INTO payment (order_id, amount, payment_method, payment_date, status) VALUES (?,?,?,?,?)");
-                pay.setInt(1, orderId);  pay.setDouble(2, total);
-                pay.setString(3, methods[i]); pay.setString(4, dates[i]);
-                pay.setString(5, "COMPLETED");
-                pay.executeUpdate();
-            }
-
-            // Add one refund for first order
-            ResultSet payRs = connection.createStatement()
-                .executeQuery("SELECT id FROM payment LIMIT 1");
-            if (payRs.next()) {
-                int[] prod = products.get(0);
-                PreparedStatement ref = connection.prepareStatement(
-                    "INSERT INTO refund (payment_id, product_id, amount, reason, status) VALUES (?,?,?,?,?)");
-                ref.setInt(1, payRs.getInt(1)); ref.setInt(2, prod[0]);
-                ref.setDouble(3, prod[1] / 100.0);
-                ref.setString(4, "Product damaged on arrival");
-                ref.setString(5, "APPROVED");
-                ref.executeUpdate();
-            }
-
-        } catch (SQLException e) { System.err.println("seedOrders: " + e.getMessage()); }
-    }
-
-    private void seedDeliveries() {
-        try {
-            ResultSet rs = connection.createStatement()
-                .executeQuery("SELECT id, status FROM orders");
-            ResultSet drs = connection.createStatement()
-                .executeQuery("SELECT id FROM driver");
-
-            java.util.List<Integer> driverIds = new java.util.ArrayList<>();
-            while (drs.next()) driverIds.add(drs.getInt(1));
-            if (driverIds.isEmpty()) return;
-
-            int dIdx = 0;
+        int catElectronics;
+        int catToys;
+        int catHome;
+        try (Statement st = connection.createStatement();
+             var rs = st.executeQuery(
+                 "SELECT categoryID, categoryName FROM categories ORDER BY categoryID")) {
+            catElectronics = 0;
+            catToys = 0;
+            catHome = 0;
             while (rs.next()) {
-                int orderId = rs.getInt(1);
-                String status = rs.getString(2);
-                String delivStatus = "PROCESSING".equals(status) ? "PENDING"
-                    : "SHIPPED".equals(status) ? "IN_TRANSIT" : "DELIVERED";
-                String delivDate = "DELIVERED".equals(delivStatus) ? "2026-03-10" : null;
-
-                PreparedStatement ps = connection.prepareStatement(
-                    "INSERT OR IGNORE INTO delivery (order_id, driver_id, delivery_status, delivery_date) VALUES (?,?,?,?)");
-                ps.setInt(1, orderId);
-                ps.setInt(2, driverIds.get(dIdx % driverIds.size()));
-                ps.setString(3, delivStatus);
-                ps.setString(4, delivDate);
-                ps.executeUpdate();
-                int delivId = ps.getGeneratedKeys().getInt(1);
-
-                // Delivery log entry
-                PreparedStatement log = connection.prepareStatement(
-                    "INSERT INTO delivery_log (delivery_id, status) VALUES (?,?)");
-                log.setInt(1, delivId); log.setString(2, delivStatus);
-                log.executeUpdate();
-
-                dIdx++;
+                String n = rs.getString(2);
+                if ("Electronics".equals(n)) catElectronics = rs.getInt(1);
+                if ("Toys & Games".equals(n)) catToys = rs.getInt(1);
+                if ("Home & Living".equals(n)) catHome = rs.getInt(1);
             }
-        } catch (SQLException e) { System.err.println("seedDeliveries: " + e.getMessage()); }
+        } catch (SQLException e) {
+            System.err.println("seedAll category ids failed: " + e.getMessage());
+            return;
+        }
+
+        String insertProducts = """
+            INSERT INTO products (sku, name, description, price, unitCost, status, categoryID) VALUES
+            (?, ?, ?, ?, ?, 'active', ?),
+            (?, ?, ?, ?, ?, 'active', ?),
+            (?, ?, ?, ?, ?, 'active', ?)
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(insertProducts)) {
+            ps.setString(1, "SKU-EL-1001");
+            ps.setString(2, "Nova Bluetooth Speaker");
+            ps.setString(3, "Portable 360° sound with 12-hour battery");
+            ps.setDouble(4, 79.99);
+            ps.setDouble(5, 42.50);
+            ps.setInt(6, catElectronics);
+
+            ps.setString(7, "SKU-TG-2002");
+            ps.setString(8, "STEM Robotics Kit");
+            ps.setString(9, "Build-and-code robot set for ages 10+");
+            ps.setDouble(10, 129.00);
+            ps.setDouble(11, 68.00);
+            ps.setInt(12, catToys);
+
+            ps.setString(13, "SKU-HL-3003");
+            ps.setString(14, "Aroma Smart Diffuser");
+            ps.setString(15, "Wi-Fi humidifier with app scheduling");
+            ps.setDouble(16, 59.50);
+            ps.setDouble(17, 31.25);
+            ps.setInt(18, catHome);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("seedAll products failed: " + e.getMessage());
+            return;
+        }
+
+        int p1;
+        int p2;
+        int p3;
+        try (Statement st = connection.createStatement();
+             var rs = st.executeQuery("SELECT productID, sku FROM products ORDER BY productID")) {
+            rs.next();
+            p1 = rs.getInt(1);
+            rs.next();
+            p2 = rs.getInt(1);
+            rs.next();
+            p3 = rs.getInt(1);
+        } catch (SQLException e) {
+            System.err.println("seedAll product ids failed: " + e.getMessage());
+            return;
+        }
+
+        String insertWarehouse = """
+            INSERT INTO warehouse_warehouses (warehouseName, location, warehouseCode, productLine)
+            VALUES ('Main Warehouse', 'London, UK', 'WH-001', 'General')
+            """;
+        int warehouseId;
+        try (Statement st = connection.createStatement()) {
+            st.executeUpdate(insertWarehouse);
+            try (var rs = st.executeQuery("SELECT last_insert_rowid()")) {
+                warehouseId = rs.next() ? rs.getInt(1) : 1;
+            }
+        } catch (SQLException e) {
+            System.err.println("seedAll warehouse failed: " + e.getMessage());
+            return;
+        }
+
+        String insertInv = """
+            INSERT INTO warehouse_inventory
+            (warehouseID, productID, quantityOnHand, minStockThreshold, reorderQuantity, unitCost, isActive)
+            VALUES (?, ?, 50, 10, 0, ?, 1), (?, ?, 50, 10, 0, ?, 1), (?, ?, 50, 10, 0, ?, 1)
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(insertInv)) {
+            ps.setInt(1, warehouseId);
+            ps.setInt(2, p1);
+            ps.setDouble(3, 42.50);
+            ps.setInt(4, warehouseId);
+            ps.setInt(5, p2);
+            ps.setDouble(6, 68.00);
+            ps.setInt(7, warehouseId);
+            ps.setInt(8, p3);
+            ps.setDouble(9, 31.25);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("seedAll warehouse_inventory failed: " + e.getMessage());
+        }
+
+        System.out.println("seedAll completed.");
     }
-
-    private void seedReviews() {
-        try {
-            ResultSet prs = connection.createStatement()
-                .executeQuery("SELECT id FROM product WHERE status='ACTIVE' LIMIT 5");
-            ResultSet urs = connection.createStatement()
-                .executeQuery("SELECT id FROM fuser WHERE role='CUSTOMER' LIMIT 5");
-
-            java.util.List<Integer> pIds = new java.util.ArrayList<>();
-            java.util.List<Integer> uIds = new java.util.ArrayList<>();
-            while (prs.next()) pIds.add(prs.getInt(1));
-            while (urs.next()) uIds.add(urs.getInt(1));
-            if (pIds.isEmpty() || uIds.isEmpty()) return;
-
-            int[][] reviews = {
-                {5, 0, 0}, {4, 1, 1}, {5, 2, 2}, {3, 3, 3}, {4, 4, 4}
-            };
-            String[] comments = {
-                "Absolutely love this robot! Works perfectly and easy to set up.",
-                "Great product overall, delivery was fast and packaging was excellent.",
-                "Impressive build quality. My kids are obsessed with it!",
-                "Good product but took a while to arrive. Works as described.",
-                "Really happy with this purchase. The AI features are amazing."
-            };
-
-            String sql = "INSERT OR IGNORE INTO review (product_id, user_id, rating, comment) VALUES (?,?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            for (int[] r : reviews) {
-                if (r[1] >= pIds.size() || r[2] >= uIds.size()) continue;
-                ps.setInt(1, pIds.get(r[1]));
-                ps.setInt(2, uIds.get(r[2]));
-                ps.setInt(3, r[0]);
-                ps.setString(4, comments[r[0] - 1]);
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) { System.err.println("seedReviews: " + e.getMessage()); }
-    }
-
-    private void seedAlerts() {
-        try {
-            ResultSet prs = connection.createStatement()
-                .executeQuery("SELECT id FROM product LIMIT 3");
-            java.util.List<Integer> pIds = new java.util.ArrayList<>();
-            while (prs.next()) pIds.add(prs.getInt(1));
-            if (pIds.isEmpty()) return;
-
-            String[][] alerts = {
-                {"LOW_STOCK",  "WARNING", "Stock level for product is below minimum threshold"},
-                {"LOW_STOCK",  "WARNING", "Stock critically low — only 2 units remaining"},
-                {"PRICE_DROP", "INFO",    "Product price dropped by more than 20% this week"},
-            };
-
-            String sql = "INSERT INTO alert (product_id, severity, message) VALUES (?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            for (int i = 0; i < Math.min(alerts.length, pIds.size()); i++) {
-                ps.setInt(1, pIds.get(i));
-                ps.setString(2, alerts[i][1]);
-                ps.setString(3, alerts[i][2]);
-                ps.executeUpdate();
-            }
-
-            // One financial anomaly
-            if (!pIds.isEmpty()) {
-                PreparedStatement fa = connection.prepareStatement(
-                    "INSERT INTO financial_anomalies (product_id, description, severity) VALUES (?,?,?)");
-                fa.setInt(1, pIds.get(0));
-                fa.setString(2, "Unusual price fluctuation detected — price changed 3 times in 24 hours");
-                fa.setString(3, "MEDIUM");
-                fa.executeUpdate();
-            }
-        } catch (SQLException e) { System.err.println("seedAlerts: " + e.getMessage()); }
-    }
-
-    private void seedStockMovements() {
-        try {
-            ResultSet irs = connection.createStatement()
-                .executeQuery("SELECT id FROM inventory_record LIMIT 5");
-            java.util.List<Integer> invIds = new java.util.ArrayList<>();
-            while (irs.next()) invIds.add(irs.getInt(1));
-            if (invIds.isEmpty()) return;
-
-            String[][] movements = {
-                {"+50",  "STOCK_IN",   "Initial stock loaded"},
-                {"-5",   "SALE",       "Order #1 fulfilled"},
-                {"-3",   "SALE",       "Order #2 fulfilled"},
-                {"+20",  "RESTOCK",    "Supplier delivery received"},
-                {"-1",   "DAMAGED",    "Unit damaged in warehouse"},
-            };
-
-            String sql = "INSERT INTO stock_movement (inventory_id, change_amount, movement_type) VALUES (?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            for (int i = 0; i < Math.min(movements.length, invIds.size()); i++) {
-                ps.setInt(1, invIds.get(i));
-                ps.setInt(2, Integer.parseInt(movements[i][0]));
-                ps.setString(3, movements[i][1]);
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) { System.err.println("seedStockMovements: " + e.getMessage()); }
-    }
-
-    // ── Password hashing ──────────────────────────────────────────────────
 
     public static String hashPassword(String password) {
         try {
@@ -704,6 +832,8 @@ public class DBConnection {
             StringBuilder sb = new StringBuilder();
             for (byte b : hash) sb.append(String.format("%02x", b));
             return sb.toString();
-        } catch (Exception e) { return password; }
+        } catch (Exception e) {
+            return password;
+        }
     }
 }
