@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * All SQL operations for the 'product' table.
+ * All SQL operations for the {@code products} table.
  * Does NOT load categories/images — ProductService handles that.
  */
 public class ProductDAO {
@@ -18,7 +18,7 @@ public class ProductDAO {
     /** Get all products ordered by newest first */
     public List<Product> getAll() {
         List<Product> list = new ArrayList<>();
-        String sql = "SELECT * FROM product ORDER BY updated_at DESC";
+        String sql = "SELECT * FROM products ORDER BY updatedAt DESC";
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) list.add(map(rs));
@@ -31,7 +31,7 @@ public class ProductDAO {
     /** Get only active products */
     public List<Product> getActive() {
         List<Product> list = new ArrayList<>();
-        String sql = "SELECT * FROM product WHERE status = 'ACTIVE' ORDER BY name";
+        String sql = "SELECT * FROM products WHERE LOWER(status) = 'active' ORDER BY name";
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) list.add(map(rs));
@@ -43,7 +43,7 @@ public class ProductDAO {
 
     /** Get product by ID */
     public Product getById(int id) {
-        String sql = "SELECT * FROM product WHERE id = ?";
+        String sql = "SELECT * FROM products WHERE productID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -58,7 +58,7 @@ public class ProductDAO {
     public List<Product> search(String query) {
         List<Product> list = new ArrayList<>();
         String sql = """
-            SELECT * FROM product
+            SELECT * FROM products
             WHERE (LOWER(name) LIKE ? OR LOWER(description) LIKE ?)
             ORDER BY name
             """;
@@ -77,7 +77,7 @@ public class ProductDAO {
     /** Filter products by price range */
     public List<Product> filterByPrice(double min, double max) {
         List<Product> list = new ArrayList<>();
-        String sql = "SELECT * FROM product WHERE price >= ? AND price <= ? ORDER BY price";
+        String sql = "SELECT * FROM products WHERE price >= ? AND price <= ? ORDER BY price";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDouble(1, min);
             ps.setDouble(2, max);
@@ -92,9 +92,9 @@ public class ProductDAO {
     /** Filter products by status */
     public List<Product> filterByStatus(String status) {
         List<Product> list = new ArrayList<>();
-        String sql = "SELECT * FROM product WHERE status = ? ORDER BY name";
+        String sql = "SELECT * FROM products WHERE LOWER(status) = LOWER(?) ORDER BY name";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status.toUpperCase());
+            ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
@@ -106,8 +106,8 @@ public class ProductDAO {
     /** Insert a new product, returns generated id */
     public int insert(Product p) {
         String sql = """
-            INSERT INTO product (sku, name, description, price, status)
-            VALUES (?,?,?,?,?)
+            INSERT INTO products (sku, name, description, price, unitCost, status, categoryID)
+            VALUES (?,?,?,?,?,?,?)
             """;
         try (PreparedStatement ps = conn.prepareStatement(sql,
                 Statement.RETURN_GENERATED_KEYS)) {
@@ -115,7 +115,13 @@ public class ProductDAO {
             ps.setString(2, p.name);
             ps.setString(3, p.description);
             ps.setDouble(4, p.price);
-            ps.setString(5, p.status != null ? p.status.toUpperCase() : "ACTIVE");
+            ps.setDouble(5, p.unitCost);
+            ps.setString(6, p.status != null ? p.status.toLowerCase() : "active");
+            if (p.categoryID != null) {
+                ps.setInt(7, p.categoryID);
+            } else {
+                ps.setNull(7, Types.INTEGER);
+            }
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) {
@@ -132,17 +138,23 @@ public class ProductDAO {
     /** Update an existing product */
     public boolean update(Product p) {
         String sql = """
-            UPDATE product
-            SET name=?, description=?, price=?, status=?,
-                updated_at=CURRENT_TIMESTAMP
-            WHERE id=?
+            UPDATE products
+            SET name=?, description=?, price=?, unitCost=?, categoryID=?, status=?,
+                updatedAt=CURRENT_TIMESTAMP
+            WHERE productID=?
             """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, p.name);
             ps.setString(2, p.description);
             ps.setDouble(3, p.price);
-            ps.setString(4, p.status.toUpperCase());
-            ps.setInt(5, p.id);
+            ps.setDouble(4, p.unitCost);
+            if (p.categoryID != null) {
+                ps.setInt(5, p.categoryID);
+            } else {
+                ps.setNull(5, Types.INTEGER);
+            }
+            ps.setString(6, p.status != null ? p.status.toLowerCase() : "active");
+            ps.setInt(7, p.id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("ProductDAO.update: " + e.getMessage());
@@ -151,77 +163,73 @@ public class ProductDAO {
     }
 
     /**
-     * Delete a product and ALL child rows that reference it.
-     * Order matters — deepest dependencies deleted first.
+     * Delete a product and dependent rows that reference it (unified schema).
+     * Order respects foreign keys before deleting from {@code products}.
      */
     public boolean delete(int id) {
         try {
             conn.setAutoCommit(false);
 
-            // 1. Stock movements (depend on inventory_record)
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM stock_movement WHERE inventory_id IN " +
-                    "(SELECT id FROM inventory_record WHERE product_id = ?)")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM finance_refunds WHERE productID = ? OR orderItemID IN "
+                    + "(SELECT orderItemID FROM order_items WHERE productID = ?)")) {
+                ps.setInt(1, id);
+                ps.setInt(2, id);
+                ps.executeUpdate();
             }
 
-            // 2. Inventory records
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM inventory_record WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM order_items WHERE productID = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
             }
 
-            // 3. Product images
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM product_image WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM finance_alerts WHERE anomalyID IN "
+                    + "(SELECT anomalyID FROM finance_anomalies WHERE affectedProductID = ?)")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
             }
 
-            // 4. Product categories
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM product_categories WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM finance_anomalies WHERE affectedProductID = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
             }
 
-            // 5. Product validation logs
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM product_validation WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM finance_supplier_orders WHERE productID = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
             }
 
-            // 6. Reviews
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM review WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM finance_supplier_products WHERE productID = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
             }
 
-            // 7. Alerts
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM alert WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM warehouse_stock_movements WHERE inventoryID IN "
+                    + "(SELECT inventoryID FROM warehouse_inventory WHERE productID = ?)")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
             }
 
-            // 8. Financial anomalies
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM financial_anomalies WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM warehouse_inventory WHERE productID = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
             }
 
-            // 9. Refunds linked to this product
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM refund WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
+                    "DELETE FROM warehouse_restock_requests WHERE productID = ?")) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
             }
 
-            // 10. Order items
             try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM order_item WHERE product_id = ?")) {
-                ps.setInt(1, id); ps.executeUpdate();
-            }
-
-            // 11. Finally delete the product itself
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM product WHERE id = ?")) {
+                    "DELETE FROM products WHERE productID = ?")) {
                 ps.setInt(1, id);
                 int rows = ps.executeUpdate();
                 conn.commit();
@@ -230,22 +238,26 @@ public class ProductDAO {
 
         } catch (SQLException e) {
             System.err.println("ProductDAO.delete: " + e.getMessage());
-            try { conn.rollback(); } catch (SQLException ex) {
+            try {
+                conn.rollback();
+            } catch (SQLException ex) {
                 System.err.println("ProductDAO.delete rollback failed: " + ex.getMessage());
             }
             return false;
         } finally {
-            try { conn.setAutoCommit(true); } catch (SQLException e) {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
                 System.err.println("ProductDAO.delete autoCommit reset failed: " + e.getMessage());
             }
         }
     }
 
-    /** Toggle product status ACTIVE ↔ INACTIVE */
+    /** Toggle product status active ↔ inactive */
     public boolean setStatus(int id, String status) {
-        String sql = "UPDATE product SET status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?";
+        String sql = "UPDATE products SET status=?, updatedAt=CURRENT_TIMESTAMP WHERE productID=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status.toUpperCase());
+            ps.setString(1, status != null ? status.toLowerCase() : "active");
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -257,9 +269,12 @@ public class ProductDAO {
     /** Count total products */
     public int count() {
         try (Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM product")) {
-            return rs.getInt(1);
-        } catch (SQLException e) { return 0; }
+             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM products")) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            return 0;
+        }
+        return 0;
     }
 
     /** Check if any products exist */
@@ -269,14 +284,21 @@ public class ProductDAO {
 
     private Product map(ResultSet rs) throws SQLException {
         Product p     = new Product();
-        p.id          = rs.getInt("id");
+        p.id          = rs.getInt("productID");
         p.sku         = rs.getString("sku");
         p.name        = rs.getString("name");
         p.description = rs.getString("description");
         p.price       = rs.getDouble("price");
+        p.unitCost    = rs.getDouble("unitCost");
+        int cid = rs.getInt("categoryID");
+        if (rs.wasNull()) {
+            p.categoryID = null;
+        } else {
+            p.categoryID = cid;
+        }
         p.status      = rs.getString("status");
-        p.createdAt   = rs.getString("created_at");
-        p.updatedAt   = rs.getString("updated_at");
+        p.createdAt   = rs.getString("createdAt");
+        p.updatedAt   = rs.getString("updatedAt");
         return p;
     }
 }

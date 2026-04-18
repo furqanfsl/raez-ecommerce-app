@@ -601,7 +601,7 @@ public class DBConnection {
         String customerHash = hashPassword("customer123");
 
         String insertRoles = """
-            INSERT INTO roles (roleName, description) VALUES
+            INSERT OR IGNORE INTO roles (roleName, description) VALUES
             ('super_admin', 'Full access to all modules'),
             ('customer', 'Registered customer — storefront access'),
             ('product_admin', 'Product module — catalogue and validations'),
@@ -617,7 +617,7 @@ public class DBConnection {
             """;
 
         String insertUsers = """
-            INSERT INTO users (email, username, passwordHash, firstName, lastName, isActive)
+            INSERT OR IGNORE INTO users (email, username, passwordHash, firstName, lastName, isActive)
             VALUES (?, ?, ?, ?, ?, 1), (?, ?, ?, ?, ?, 1)
             """;
 
@@ -651,13 +651,27 @@ public class DBConnection {
         int customerRoleId;
         try (Statement st = connection.createStatement();
              var rsUsers = st.executeQuery(
-                 "SELECT userID, email FROM users ORDER BY userID")) {
-            rsUsers.next();
+                 "SELECT userID FROM users WHERE email = 'admin@raez.com'")) {
+            if (!rsUsers.next()) {
+                System.err.println("seedAll: admin user not found");
+                return;
+            }
             adminUserId = rsUsers.getInt(1);
-            rsUsers.next();
-            customerUserId = rsUsers.getInt(1);
         } catch (SQLException e) {
             System.err.println("seedAll user id lookup failed: " + e.getMessage());
+            return;
+        }
+
+        try (Statement st = connection.createStatement();
+             var rsCust = st.executeQuery(
+                 "SELECT userID FROM users WHERE email = 'customer@example.com'")) {
+            if (!rsCust.next()) {
+                System.err.println("seedAll: customer user not found");
+                return;
+            }
+            customerUserId = rsCust.getInt(1);
+        } catch (SQLException e) {
+            System.err.println("seedAll customer user id lookup failed: " + e.getMessage());
             return;
         }
 
@@ -675,7 +689,8 @@ public class DBConnection {
             return;
         }
 
-        String insertUserRoles = "INSERT INTO user_roles (userID, roleID) VALUES (?, ?), (?, ?)";
+        String insertUserRoles =
+            "INSERT OR IGNORE INTO user_roles (userID, roleID) VALUES (?, ?), (?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(insertUserRoles)) {
             ps.setInt(1, adminUserId);
             ps.setInt(2, productAdminRoleId);
@@ -688,7 +703,7 @@ public class DBConnection {
         }
 
         String insertCustomer = """
-            INSERT INTO customers (userID, name, email, contactNumber, deliveryAddress, customerType, status)
+            INSERT OR IGNORE INTO customers (userID, name, email, contactNumber, deliveryAddress, customerType, status)
             VALUES (?, ?, ?, NULL, NULL, 'Individual', 'active')
             """;
         try (PreparedStatement ps = connection.prepareStatement(insertCustomer)) {
@@ -702,7 +717,7 @@ public class DBConnection {
         }
 
         String insertCategories = """
-            INSERT INTO categories (categoryName, description, isActive) VALUES
+            INSERT OR IGNORE INTO categories (categoryName, description, isActive) VALUES
             ('Electronics', 'Electronic goods and gadgets', 1),
             ('Toys & Games', 'Toys, games, and play', 1),
             ('Home & Living', 'Home and lifestyle products', 1),
@@ -736,7 +751,7 @@ public class DBConnection {
         }
 
         String insertProducts = """
-            INSERT INTO products (sku, name, description, price, unitCost, status, categoryID) VALUES
+            INSERT OR IGNORE INTO products (sku, name, description, price, unitCost, status, categoryID) VALUES
             (?, ?, ?, ?, ?, 'active', ?),
             (?, ?, ?, ?, ?, 'active', ?),
             (?, ?, ?, ?, ?, 'active', ?)
@@ -773,12 +788,27 @@ public class DBConnection {
         int p2;
         int p3;
         try (Statement st = connection.createStatement();
-             var rs = st.executeQuery("SELECT productID, sku FROM products ORDER BY productID")) {
-            rs.next();
+             var rs = st.executeQuery("""
+                 SELECT productID FROM products WHERE sku IN ('SKU-EL-1001','SKU-TG-2002','SKU-HL-3003')
+                 ORDER BY CASE sku
+                   WHEN 'SKU-EL-1001' THEN 1
+                   WHEN 'SKU-TG-2002' THEN 2
+                   WHEN 'SKU-HL-3003' THEN 3 END
+                 """)) {
+            if (!rs.next()) {
+                System.err.println("seedAll: no seeded products found");
+                return;
+            }
             p1 = rs.getInt(1);
-            rs.next();
+            if (!rs.next()) {
+                System.err.println("seedAll: expected 3 products");
+                return;
+            }
             p2 = rs.getInt(1);
-            rs.next();
+            if (!rs.next()) {
+                System.err.println("seedAll: expected 3 products");
+                return;
+            }
             p3 = rs.getInt(1);
         } catch (SQLException e) {
             System.err.println("seedAll product ids failed: " + e.getMessage());
@@ -786,14 +816,19 @@ public class DBConnection {
         }
 
         String insertWarehouse = """
-            INSERT INTO warehouse_warehouses (warehouseName, location, warehouseCode, productLine)
+            INSERT OR IGNORE INTO warehouse_warehouses (warehouseName, location, warehouseCode, productLine)
             VALUES ('Main Warehouse', 'London, UK', 'WH-001', 'General')
             """;
         int warehouseId;
         try (Statement st = connection.createStatement()) {
             st.executeUpdate(insertWarehouse);
-            try (var rs = st.executeQuery("SELECT last_insert_rowid()")) {
-                warehouseId = rs.next() ? rs.getInt(1) : 1;
+            try (var rs = st.executeQuery(
+                "SELECT warehouseID FROM warehouse_warehouses WHERE warehouseCode = 'WH-001'")) {
+                if (!rs.next()) {
+                    System.err.println("seedAll: warehouse WH-001 not found");
+                    return;
+                }
+                warehouseId = rs.getInt(1);
             }
         } catch (SQLException e) {
             System.err.println("seedAll warehouse failed: " + e.getMessage());
@@ -801,7 +836,7 @@ public class DBConnection {
         }
 
         String insertInv = """
-            INSERT INTO warehouse_inventory
+            INSERT OR IGNORE INTO warehouse_inventory
             (warehouseID, productID, quantityOnHand, minStockThreshold, reorderQuantity, unitCost, isActive)
             VALUES (?, ?, 50, 10, 0, ?, 1), (?, ?, 50, 10, 0, ?, 1), (?, ?, 50, 10, 0, ?, 1)
             """;

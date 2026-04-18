@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * All SQL operations for the 'category' table.
+ * All SQL operations for the {@code categories} table.
  */
 public class CategoryDAO {
 
@@ -17,7 +17,7 @@ public class CategoryDAO {
     /** Get all active categories */
     public List<Category> getAll() {
         List<Category> list = new ArrayList<>();
-        String sql = "SELECT * FROM category WHERE status = 'ACTIVE' ORDER BY name";
+        String sql = "SELECT * FROM categories WHERE isActive = 1 ORDER BY categoryName";
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) list.add(map(rs));
@@ -31,9 +31,9 @@ public class CategoryDAO {
     public List<Category> getByProduct(int productId) {
         List<Category> list = new ArrayList<>();
         String sql = """
-            SELECT c.* FROM category c
-            JOIN product_categories pc ON pc.category_id = c.id
-            WHERE pc.product_id = ?
+            SELECT c.* FROM categories c
+            JOIN product_categories pc ON pc.categoryID = c.categoryID
+            WHERE pc.productID = ?
             """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
@@ -47,12 +47,17 @@ public class CategoryDAO {
 
     /** Insert a new category, returns generated id */
     public int insert(Category c) {
-        String sql = "INSERT INTO category (name, description, status) VALUES (?,?,?)";
+        String sql =
+            "INSERT INTO categories (categoryName, description, isActive) VALUES (?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql,
                 Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, c.name);
             ps.setString(2, c.description);
-            ps.setString(3, c.status != null ? c.status : "ACTIVE");
+            int active = 1;
+            if (c.status != null) {
+                active = "ACTIVE".equalsIgnoreCase(c.status) || "1".equals(c.status) ? 1 : 0;
+            }
+            ps.setInt(3, active);
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) return keys.getInt(1);
@@ -64,7 +69,7 @@ public class CategoryDAO {
 
     /** Find category by name, returns null if not found */
     public Category findByName(String name) {
-        String sql = "SELECT * FROM category WHERE name = ?";
+        String sql = "SELECT * FROM categories WHERE categoryName = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
@@ -77,7 +82,7 @@ public class CategoryDAO {
 
     /** Link a product to a category */
     public void linkProductCategory(int productId, int categoryId) {
-        String sql = "INSERT OR IGNORE INTO product_categories (product_id, category_id) VALUES (?,?)";
+        String sql = "INSERT OR IGNORE INTO product_categories (productID, categoryID) VALUES (?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.setInt(2, categoryId);
@@ -89,7 +94,7 @@ public class CategoryDAO {
 
     /** Remove all category links for a product */
     public void unlinkAllForProduct(int productId) {
-        String sql = "DELETE FROM product_categories WHERE product_id = ?";
+        String sql = "DELETE FROM product_categories WHERE productID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.executeUpdate();
@@ -100,11 +105,12 @@ public class CategoryDAO {
 
     private Category map(ResultSet rs) throws SQLException {
         Category c   = new Category();
-        c.id         = rs.getInt("id");
-        c.name       = rs.getString("name");
+        c.id         = rs.getInt("categoryID");
+        c.name       = rs.getString("categoryName");
         c.description = rs.getString("description");
-        c.parentId   = rs.getInt("parent_id");
-        c.status     = rs.getString("status");
+        int pid = rs.getInt("parentID");
+        c.parentId   = rs.wasNull() ? 0 : pid;
+        c.status     = rs.getInt("isActive") == 1 ? "ACTIVE" : "INACTIVE";
         return c;
     }
 }

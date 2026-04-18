@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Matches the 'product' table.
+ * Matches the unified {@code products} table.
  * Categories and images are loaded separately by ProductDAO
  * and attached here for convenience.
  */
@@ -15,7 +15,9 @@ public class Product {
     public String           name;
     public String           description;
     public double           price;
-    public String           status;   // ACTIVE | INACTIVE
+    public double           unitCost;
+    public Integer          categoryID;
+    public String           status;   // active | inactive | discontinued
     public String           createdAt;
     public String           updatedAt;
 
@@ -58,6 +60,6 @@ public class Product {
 
     @Override
     public String toString() {
-        return name + " (£" + String.format("%.2f", price) + ")";
+        return name + " (ù" + String.format("%.2f", price) + ")";
     }
 }

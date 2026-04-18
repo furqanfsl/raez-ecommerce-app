@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * All SQL operations for the 'product_image' table.
+ * All SQL operations for the {@code product_images} table.
  */
 public class ImageDAO {
 
@@ -17,7 +17,7 @@ public class ImageDAO {
     /** Get all images for a product */
     public List<ProductImage> getByProduct(int productId) {
         List<ProductImage> list = new ArrayList<>();
-        String sql = "SELECT * FROM product_image WHERE product_id = ? ORDER BY is_primary DESC";
+        String sql = "SELECT * FROM product_images WHERE productID = ? ORDER BY isPrimary DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ResultSet rs = ps.executeQuery();
@@ -30,7 +30,8 @@ public class ImageDAO {
 
     /** Insert a new image, returns generated id */
     public int insert(ProductImage img) {
-        String sql = "INSERT INTO product_image (product_id, image_path, is_primary) VALUES (?,?,?)";
+        String sql =
+            "INSERT INTO product_images (productID, imageURL, isPrimary) VALUES (?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql,
                 Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, img.productId);
@@ -47,7 +48,7 @@ public class ImageDAO {
 
     /** Delete all images for a product */
     public void deleteAllForProduct(int productId) {
-        String sql = "DELETE FROM product_image WHERE product_id = ?";
+        String sql = "DELETE FROM product_images WHERE productID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.executeUpdate();
@@ -59,9 +60,9 @@ public class ImageDAO {
     /** Set a specific image as primary */
     public void setPrimary(int productId, int imageId) {
         try (PreparedStatement ps1 = conn.prepareStatement(
-                "UPDATE product_image SET is_primary = 0 WHERE product_id = ?");
+                "UPDATE product_images SET isPrimary = 0 WHERE productID = ?");
              PreparedStatement ps2 = conn.prepareStatement(
-                "UPDATE product_image SET is_primary = 1 WHERE id = ?")) {
+                "UPDATE product_images SET isPrimary = 1 WHERE imageID = ?")) {
             ps1.setInt(1, productId);
             ps1.executeUpdate();
             ps2.setInt(1, imageId);
@@ -73,11 +74,11 @@ public class ImageDAO {
 
     private ProductImage map(ResultSet rs) throws SQLException {
         ProductImage img  = new ProductImage();
-        img.id            = rs.getInt("id");
-        img.productId     = rs.getInt("product_id");
-        img.imagePath     = rs.getString("image_path");
-        img.isPrimary     = rs.getInt("is_primary") == 1;
-        img.uploadedAt    = rs.getString("uploaded_at");
+        img.id            = rs.getInt("imageID");
+        img.productId     = rs.getInt("productID");
+        img.imagePath     = rs.getString("imageURL");
+        img.isPrimary     = rs.getInt("isPrimary") == 1;
+        img.uploadedAt    = rs.getString("uploadedAt");
         return img;
     }
 }
