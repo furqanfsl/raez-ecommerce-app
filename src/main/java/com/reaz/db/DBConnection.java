@@ -647,7 +647,6 @@ public class DBConnection {
 
         int adminUserId;
         int customerUserId;
-        int productAdminRoleId;
         int customerRoleId;
         try (Statement st = connection.createStatement();
              var rsUsers = st.executeQuery(
@@ -675,13 +674,14 @@ public class DBConnection {
             return;
         }
 
+        int superAdminRoleId;
         try (Statement st = connection.createStatement();
              var rsRoles = st.executeQuery(
-                 "SELECT roleID, roleName FROM roles WHERE roleName IN ('product_admin','customer')")) {
-            productAdminRoleId = 0;
+                 "SELECT roleID, roleName FROM roles WHERE roleName IN ('super_admin','customer')")) {
+            superAdminRoleId = 0;
             customerRoleId = 0;
             while (rsRoles.next()) {
-                if ("product_admin".equals(rsRoles.getString(2))) productAdminRoleId = rsRoles.getInt(1);
+                if ("super_admin".equals(rsRoles.getString(2))) superAdminRoleId = rsRoles.getInt(1);
                 if ("customer".equals(rsRoles.getString(2))) customerRoleId = rsRoles.getInt(1);
             }
         } catch (SQLException e) {
@@ -693,7 +693,7 @@ public class DBConnection {
             "INSERT OR IGNORE INTO user_roles (userID, roleID) VALUES (?, ?), (?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(insertUserRoles)) {
             ps.setInt(1, adminUserId);
-            ps.setInt(2, productAdminRoleId);
+            ps.setInt(2, superAdminRoleId);
             ps.setInt(3, customerUserId);
             ps.setInt(4, customerRoleId);
             ps.executeUpdate();

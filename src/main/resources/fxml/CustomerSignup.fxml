@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.CustomerSignupController"
+            style="-fx-background-color: white;">
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: white; -fx-background: white; -fx-border-color: transparent;">
+            <content>
+                <VBox alignment="CENTER" spacing="12"
+                      style="-fx-background-color: white;"
+                      minHeight="700" fillWidth="true">
+                    <padding>
+                        <Insets top="40" right="500" bottom="40" left="500"/>
+                    </padding>
+
+                    <Label text="RAEZ"
+                           style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+                    <Label text="Create Your Account"
+                           style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
+
+                    <Label fx:id="generalErrorLabel"
+                           wrapText="true" maxWidth="Infinity"
+                           style="-fx-font-size: 12px;"/>
+
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="First Name" style="-fx-text-fill: #0F172A;"/>
+                            <TextField fx:id="firstNameField" promptText="John" maxWidth="Infinity"/>
+                            <Label fx:id="firstNameErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Last Name" style="-fx-text-fill: #0F172A;"/>
+                            <TextField fx:id="lastNameField" promptText="Doe" maxWidth="Infinity"/>
+                            <Label fx:id="lastNameErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;"/>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="4">
+                        <Label text="Email Address" style="-fx-text-fill: #0F172A;"/>
+                        <TextField fx:id="emailField" promptText="john@email.com" maxWidth="Infinity"/>
+                        <Label fx:id="emailErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;" wrapText="true"/>
+                    </VBox>
+
+                    <VBox spacing="4">
+                        <Label text="Contact Number" style="-fx-text-fill: #0F172A;"/>
+                        <TextField fx:id="phoneField" promptText="+44-7700-000000" maxWidth="Infinity"/>
+                        <Label fx:id="phoneErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;"/>
+                    </VBox>
+
+                    <VBox spacing="4">
+                        <Label text="Delivery Address" style="-fx-text-fill: #0F172A;"/>
+                        <TextArea fx:id="addressField"
+                                  promptText="Enter your complete delivery address"
+                                  prefRowCount="2" wrapText="true" maxWidth="Infinity"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <Label text="ID Card Image" style="-fx-text-fill: #0F172A;"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Button text="📁 Upload ID Card"
+                                    onAction="#handleUploadIdCard"
+                                    style="-fx-background-color: #F1F5F9; -fx-border-color: #E2E8F0;
+                                           -fx-border-radius: 6; -fx-background-radius: 6;
+                                           -fx-padding: 8 16; -fx-cursor: hand;"/>
+                            <Label fx:id="idCardLabel" text="No file selected"
+                                   style="-fx-text-fill: #6B7280; -fx-font-size: 12px;" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <Label fx:id="idCardErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;"/>
+                    </VBox>
+
+                    <VBox spacing="4">
+                        <Label text="Password" style="-fx-text-fill: #0F172A;"/>
+                        <PasswordField fx:id="passwordField" promptText="Create password" maxWidth="Infinity"/>
+                        <Label fx:id="passwordErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;"/>
+                    </VBox>
+
+                    <VBox spacing="4">
+                        <Label text="Confirm Password" style="-fx-text-fill: #0F172A;"/>
+                        <PasswordField fx:id="confirmPasswordField" promptText="Confirm password" maxWidth="Infinity"/>
+                        <Label fx:id="confirmPasswordErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;"/>
+                    </VBox>
+
+                    <Button text="Create My RAEZ Account"
+                            onAction="#handleSignup"
+                            maxWidth="Infinity"
+                            style="-fx-background-color: #3B82F6; -fx-text-fill: white;
+                                   -fx-font-size: 14px; -fx-font-weight: bold;
+                                   -fx-padding: 12 0; -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+                    <Button text="Back to Login"
+                            onAction="#handleBack"
+                            maxWidth="Infinity"
+                            style="-fx-background-color: transparent; -fx-border-color: #E2E8F0;
+                                   -fx-border-radius: 8; -fx-font-size: 13px;
+                                   -fx-padding: 12 0; -fx-cursor: hand;"/>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
