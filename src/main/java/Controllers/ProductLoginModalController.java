@@ -84,6 +84,19 @@ public class ProductLoginModalController implements Initializable {
         clearError();
     }
 
+    @FXML private void handleFillDemo() {
+        if (emailField == null || passwordField == null) return;
+
+        if ("admin".equals(activeTab)) {
+            emailField.setText("admin@raez.com");
+            passwordField.setText("admin123");
+        } else {
+            emailField.setText("customer@example.com");
+            passwordField.setText("customer123");
+        }
+        clearError();
+    }
+
     @FXML private void handleLogin() {
         String email    = emailField    != null ? emailField.getText().trim()    : "";
         String password = passwordField != null ? passwordField.getText().trim() : "";

@@ -16,17 +16,17 @@ public class InventoryDAO {
     /** Get or create the default warehouse, returns its id */
     public int getOrCreateDefaultWarehouse() {
         // Try to find existing
-        String find = "SELECT id FROM warehouse WHERE name = ?";
+        String find = "SELECT warehouseID FROM warehouse_warehouses WHERE warehouseName = ?";
         try (PreparedStatement ps = conn.prepareStatement(find)) {
             ps.setString(1, DEFAULT_WAREHOUSE);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt("id");
+            if (rs.next()) return rs.getInt("warehouseID");
         } catch (SQLException e) {
             System.err.println("InventoryDAO.findWarehouse: " + e.getMessage());
         }
 
         // Create it
-        String insert = "INSERT INTO warehouse (name, location, status) VALUES (?, 'Main', 'ACTIVE')";
+        String insert = "INSERT INTO warehouse_warehouses (warehouseName, location, warehouseCode) VALUES (?, 'Main', 'WH-DEFAULT')";
         try (PreparedStatement ps = conn.prepareStatement(insert,
                 Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, DEFAULT_WAREHOUSE);

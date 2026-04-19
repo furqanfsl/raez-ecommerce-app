@@ -60,9 +60,6 @@ public class ProductService {
         saveImages(id, imageUrls);
         inventoryDAO.setStock(id, p.stock);
 
-        // Auto-deactivate if stock is 0
-        autoCheckStatus(id, p.stock, p.name);
-
         return getById(id);
     }
 

@@ -58,8 +58,10 @@
                    style="-fx-font-size: 12; -fx-text-fill: #4b5563;" />
             <Label fx:id="demoPasswordLabel" text="Passwords are verified with passwordHash in the users table."
                    style="-fx-font-size: 12; -fx-text-fill: #4b5563;" />
-            <Hyperlink text="Clear form" onAction="#handleClearForm"
-                       style="-fx-font-size: 12; -fx-text-fill: #2563eb; -fx-padding: 2 0 0 0;" />
+            <Button text="Fill Demo Credentials" onAction="#handleFillDemo"
+                    style="-fx-background-color: transparent; -fx-border-color: transparent;
+                           -fx-font-size: 12; -fx-text-fill: #2563eb; -fx-padding: 2 0 0 0;
+                           -fx-underline: true; -fx-cursor: hand;" />
         </VBox>
 
         <VBox spacing="6">

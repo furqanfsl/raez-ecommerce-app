@@ -13,13 +13,13 @@ import java.util.List;
  */
 public class ProductDAO {
 
-    private final Connection conn = DBConnection.getInstance().getConnection();
+    private Connection conn() { return DBConnection.getInstance().getConnection(); }
 
     /** Get all products ordered by newest first */
     public List<Product> getAll() {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products ORDER BY updatedAt DESC";
-        try (Statement st = conn.createStatement();
+        try (Statement st = conn().createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
@@ -32,7 +32,7 @@ public class ProductDAO {
     public List<Product> getActive() {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE LOWER(status) = 'active' ORDER BY name";
-        try (Statement st = conn.createStatement();
+        try (Statement st = conn().createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
@@ -44,7 +44,7 @@ public class ProductDAO {
     /** Get product by ID */
     public Product getById(int id) {
         String sql = "SELECT * FROM products WHERE productID = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return map(rs);
@@ -63,7 +63,7 @@ public class ProductDAO {
             ORDER BY name
             """;
         String like = "%" + query.toLowerCase() + "%";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setString(1, like);
             ps.setString(2, like);
             ResultSet rs = ps.executeQuery();
@@ -78,7 +78,7 @@ public class ProductDAO {
     public List<Product> filterByPrice(double min, double max) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE price >= ? AND price <= ? ORDER BY price";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setDouble(1, min);
             ps.setDouble(2, max);
             ResultSet rs = ps.executeQuery();
@@ -93,7 +93,7 @@ public class ProductDAO {
     public List<Product> filterByStatus(String status) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE LOWER(status) = LOWER(?) ORDER BY name";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(map(rs));
@@ -109,7 +109,7 @@ public class ProductDAO {
             INSERT INTO products (sku, name, description, price, unitCost, status, categoryID)
             VALUES (?,?,?,?,?,?,?)
             """;
-        try (PreparedStatement ps = conn.prepareStatement(sql,
+        try (PreparedStatement ps = conn().prepareStatement(sql,
                 Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, p.sku);
             ps.setString(2, p.name);
@@ -143,7 +143,7 @@ public class ProductDAO {
                 updatedAt=CURRENT_TIMESTAMP
             WHERE productID=?
             """;
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setString(1, p.name);
             ps.setString(2, p.description);
             ps.setDouble(3, p.price);
@@ -167,6 +167,7 @@ public class ProductDAO {
      * Order respects foreign keys before deleting from {@code products}.
      */
     public boolean delete(int id) {
+        Connection conn = conn();
         try {
             conn.setAutoCommit(false);
 
@@ -256,7 +257,7 @@ public class ProductDAO {
     /** Toggle product status active ↔ inactive */
     public boolean setStatus(int id, String status) {
         String sql = "UPDATE products SET status=?, updatedAt=CURRENT_TIMESTAMP WHERE productID=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setString(1, status != null ? status.toLowerCase() : "active");
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;
@@ -268,7 +269,7 @@ public class ProductDAO {
 
     /** Count total products */
     public int count() {
-        try (Statement st = conn.createStatement();
+        try (Statement st = conn().createStatement();
              ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM products")) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {

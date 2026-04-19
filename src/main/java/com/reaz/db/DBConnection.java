@@ -15,7 +15,7 @@ public class DBConnection {
     private static DBConnection instance;
     private Connection connection;
     private static final String DB_PATH =
-        System.getProperty("user.home") + "/raez/raez.db";
+        System.getProperty("user.home") + "/raez/main_raez.db";
 
     private DBConnection() {
         connect();
