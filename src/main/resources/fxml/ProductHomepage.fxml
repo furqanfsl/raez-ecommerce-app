@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.ScrollPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.ProductHomepageController"
+            style="-fx-background-color: white;">
+
+    <top>
+        <fx:include source="ProductHeader.fxml" />
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: white; -fx-border-color: transparent;">
+            <content>
+                <VBox spacing="0">
+
+                    <fx:include source="ProductNewHomePage.fxml" />
+
+                    <HBox spacing="0" style="-fx-background-color: white;">
+                        <fx:include fx:id="sidebar" source="ProductSidebar.fxml" />
+                        <fx:include fx:id="productList" source="ProductList.fxml" />
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

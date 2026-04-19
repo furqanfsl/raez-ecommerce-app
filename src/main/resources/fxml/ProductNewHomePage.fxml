@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Controllers.ProductNewHomePageController"
+           fx:id="heroPane"
+           prefHeight="620"
+           maxWidth="Infinity"
+           style="-fx-background-color: #5a9070;">
+
+    <ImageView fx:id="heroImage"
+               fitWidth="1600" fitHeight="620"
+               preserveRatio="false"
+               smooth="true" />
+
+    <Label text="RAEZ"
+           style="-fx-font-size: 100; -fx-font-weight: normal;
+                  -fx-text-fill: white;
+                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.1, 0, 2);" />
+
+</StackPane>

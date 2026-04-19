@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ScrollPane?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.ProductSideBarController"
+            fitToWidth="true" prefWidth="240" minWidth="240"
+            style="-fx-background-color: white; -fx-background: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0;">
+
+    <VBox style="-fx-background-color: white; -fx-padding: 24 16 24 16;" spacing="0">
+
+        <Label text="Search Products"
+               style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #111827;
+                      -fx-padding: 0 0 8 0;" />
+        <TextField fx:id="searchField"
+                   promptText="Search by name..."
+                   onAction="#applyFilters"
+                   style="-fx-font-size: 13; -fx-padding: 8 12 8 12;
+                          -fx-border-color: #d1d5db; -fx-border-radius: 6;
+                          -fx-background-radius: 6;" />
+
+        <Separator style="-fx-padding: 12 0 0 0;" />
+
+        <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 0 12 0; -fx-cursor: hand;"
+              onMouseClicked="#toggleCategory">
+            <Label text="Category"
+                   style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="categoryArrow" text="∧"
+                   style="-fx-font-size: 12; -fx-text-fill: #6b7280;" />
+        </HBox>
+        <VBox fx:id="categoryPanel" spacing="10" style="-fx-padding: 0 0 16 0;">
+            <CheckBox fx:id="catHomeAssistants" text="Home Assistants"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox fx:id="catSecurityBots" text="Security Bots"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox fx:id="catEducational" text="Educational"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox fx:id="catCompanions" text="Companions"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox fx:id="catIndustrial" text="Industrial"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+        </VBox>
+
+        <Separator style="-fx-background-color: #e5e7eb;" />
+
+        <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 0 12 0; -fx-cursor: hand;"
+              onMouseClicked="#togglePrice">
+            <Label text="Price Range"
+                   style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="priceArrow" text="∧"
+                   style="-fx-font-size: 12; -fx-text-fill: #6b7280;" />
+        </HBox>
+        <VBox fx:id="pricePanel" spacing="10" style="-fx-padding: 0 0 16 0;">
+            <CheckBox fx:id="priceUnder200" text="Under £200"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox fx:id="price200to400" text="£200 – £400"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox fx:id="price400to600" text="£400 – £600"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox fx:id="priceOver600" text="Over £600"
+                      onAction="#applyFilters"
+                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+        </VBox>
+
+        <Separator style="-fx-background-color: #e5e7eb;" />
+
+        <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 0 12 0; -fx-cursor: hand;"
+              onMouseClicked="#toggleFeatures">
+            <Label text="Features"
+                   style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="featuresArrow" text="∧"
+                   style="-fx-font-size: 12; -fx-text-fill: #6b7280;" />
+        </HBox>
+        <VBox fx:id="featuresPanel" spacing="10" style="-fx-padding: 0 0 16 0;">
+            <CheckBox text="Voice Control"   style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox text="AI Learning"     style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox text="App Connected"   style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox text="Auto Navigation" style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+            <CheckBox text="Camera Enabled"  style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+        </VBox>
+
+        <Separator style="-fx-background-color: #e5e7eb;" />
+
+        <VBox spacing="8" style="-fx-padding: 16 0 0 0;">
+            <Button text="Apply Filters" onAction="#applyFilters"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #111827; -fx-text-fill: white;
+                           -fx-font-size: 13; -fx-font-weight: bold;
+                           -fx-padding: 10 0 10 0; -fx-background-radius: 6;
+                           -fx-cursor: hand;" />
+            <Button text="Clear Filters" onAction="#clearFilters"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: white; -fx-text-fill: #374151;
+                           -fx-border-color: #e5e7eb; -fx-border-radius: 6;
+                           -fx-background-radius: 6; -fx-font-size: 13;
+                           -fx-padding: 10 0 10 0; -fx-cursor: hand;" />
+        </VBox>
+
+    </VBox>
+</ScrollPane>

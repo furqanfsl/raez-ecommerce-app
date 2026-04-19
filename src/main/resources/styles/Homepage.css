@@ -1,0 +1,341 @@
+/* ============================================================
+   HomePage.css  —  RAEZ Robotics  (JavaFX CSS)
+   Dark futuristic theme: deep navy/black + cyan neon accents
+   ============================================================ */
+
+/* ── Root / global ─────────────────────────────────────────── */
+.root-container {
+    -fx-background-color: linear-gradient(to bottom, #111827, #000000);
+    -fx-pref-width: 1280;
+}
+
+/* ── Hero ───────────────────────────────────────────────────── */
+.hero-section {
+    -fx-background-color: linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(30,58,100,0.6), rgba(0,0,0,0.85));
+    -fx-pref-height: 520;
+}
+
+.hero-overlay {
+    -fx-fill: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(30,58,138,0.5), rgba(0,0,0,0.8));
+    -fx-width: 10000;
+    -fx-height: 10000;
+}
+
+.hero-neon-overlay {
+    -fx-fill: linear-gradient(to right, rgba(6,182,212,0.08), transparent, rgba(59,130,246,0.08));
+    -fx-width: 10000;
+    -fx-height: 10000;
+}
+
+.hero-content {
+    -fx-padding: 60 40 60 40;
+    -fx-alignment: center;
+}
+
+.hero-title {
+    -fx-font-family: "Courier New";
+    -fx-font-size: 96px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.85), 30, 0.6, 0, 0);
+    -fx-letter-spacing: 8px;
+}
+
+.hero-subtitle {
+    -fx-font-family: "Courier New";
+    -fx-font-size: 26px;
+    -fx-text-fill: #67e8f9;
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.6), 20, 0.5, 0, 0);
+    -fx-wrap-text: true;
+}
+
+.hero-body {
+    -fx-font-size: 15px;
+    -fx-text-fill: #d1d5db;
+    -fx-wrap-text: true;
+    -fx-line-spacing: 4;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn-primary {
+    -fx-background-color: linear-gradient(to right, #06b6d4, #2563eb);
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 14 32 14 32;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.6), 24, 0.4, 0, 0);
+}
+
+.btn-primary:hover {
+    -fx-background-color: linear-gradient(to right, #22d3ee, #3b82f6);
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.9), 40, 0.5, 0, 0);
+    -fx-scale-x: 1.04;
+    -fx-scale-y: 1.04;
+}
+
+.btn-secondary {
+    -fx-background-color: rgba(30,41,59,0.85);
+    -fx-border-color: rgba(6,182,212,0.55);
+    -fx-border-width: 2;
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 12 28 12 28;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.3), 18, 0.3, 0, 0);
+}
+
+.btn-secondary:hover {
+    -fx-background-color: rgba(6,182,212,0.18);
+    -fx-border-color: #22d3ee;
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.6), 32, 0.4, 0, 0);
+}
+
+/* ── Credentials Banner ─────────────────────────────────────── */
+.credentials-banner {
+    -fx-background-color: rgba(15,23,42,0.95);
+    -fx-border-color: rgba(6,182,212,0.25);
+    -fx-border-width: 1 0 1 0;
+    -fx-padding: 12 24 12 24;
+}
+
+.banner-label-heading {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #67e8f9;
+}
+
+.banner-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #9ca3af;
+    -fx-font-family: "Courier New";
+}
+
+.banner-separator {
+    -fx-text-fill: rgba(6,182,212,0.35);
+}
+
+/* ── Spotlight Section ──────────────────────────────────────── */
+.spotlight-section {
+    -fx-background-color: linear-gradient(to bottom right, #0f172a, rgba(30,58,100,0.35), #1e293b);
+    -fx-padding: 60 64 60 64;
+}
+
+.glow-top-right {
+    -fx-fill: radial-gradient(center 100% 0%, radius 60%, rgba(6,182,212,0.20), transparent);
+    -fx-width: 10000;
+    -fx-height: 10000;
+}
+
+.glow-bottom-left {
+    -fx-fill: radial-gradient(center 0% 100%, radius 60%, rgba(59,130,246,0.18), transparent);
+    -fx-width: 10000;
+    -fx-height: 10000;
+}
+
+.spotlight-content {
+    -fx-padding: 0 0 0 0;
+}
+
+.spotlight-body {
+    -fx-padding: 0 0 0 0;
+}
+
+.spotlight-description {
+    -fx-font-size: 15px;
+    -fx-text-fill: #d1d5db;
+    -fx-wrap-text: true;
+    -fx-line-spacing: 4;
+}
+
+.spotlight-description .cyan {
+    -fx-fill: #67e8f9;
+}
+
+.features-heading {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.features-list {
+    -fx-padding: 0 0 0 8;
+}
+
+.feature-item {
+    -fx-font-size: 14px;
+    -fx-text-fill: #d1d5db;
+}
+
+.feature-item:hover {
+    -fx-text-fill: white;
+}
+
+.spotlight-quote {
+    -fx-font-size: 13px;
+    -fx-font-style: italic;
+    -fx-text-fill: #a5f3fc;
+    -fx-border-color: rgba(6,182,212,0.45);
+    -fx-border-width: 0 0 0 2;
+    -fx-padding: 6 0 6 14;
+    -fx-wrap-text: true;
+}
+
+/* ── Section titles ─────────────────────────────────────────── */
+.section-title {
+    -fx-font-family: "Courier New";
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.55), 18, 0.4, 0, 0);
+}
+
+.section-subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: #6b7280;
+}
+
+.title-divider {
+    -fx-fill: linear-gradient(to right, transparent, #06b6d4, transparent);
+}
+
+/* ── About Section ──────────────────────────────────────────── */
+.about-section {
+    -fx-background-color: linear-gradient(to bottom, #1e293b, #111827);
+    -fx-border-color: rgba(6,182,212,0.2);
+    -fx-border-width: 1 0 1 0;
+    -fx-padding: 56 64 56 64;
+}
+
+.about-body {
+    -fx-font-size: 15px;
+    -fx-text-fill: #d1d5db;
+    -fx-wrap-text: true;
+    -fx-line-spacing: 4;
+}
+
+.about-subtext {
+    -fx-font-size: 14px;
+    -fx-text-fill: #9ca3af;
+    -fx-wrap-text: true;
+    -fx-line-spacing: 3;
+}
+
+/* ── Categories ─────────────────────────────────────────────── */
+.categories-section {
+    -fx-background-color: #0a0f1a;
+    -fx-padding: 56 64 56 64;
+}
+
+.category-grid {
+    -fx-hgap: 16;
+    -fx-vgap: 16;
+}
+
+.category-card {
+    -fx-background-color: #111827;
+    -fx-border-color: rgba(6,182,212,0.2);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0.2, 0, 2);
+}
+
+.category-card:hover {
+    -fx-border-color: rgba(6,182,212,0.6);
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.25), 16, 0.3, 0, 0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.category-image {
+    -fx-fit-width: 240;
+    -fx-fit-height: 260;
+    -fx-preserve-ratio: false;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.category-info {
+    -fx-padding: 12 8 12 8;
+    -fx-alignment: center;
+}
+
+.category-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.category-count {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+}
+
+/* ── Features Strip ─────────────────────────────────────────── */
+.features-strip {
+    -fx-background-color: linear-gradient(to bottom, #0f172a, #111827);
+    -fx-border-color: rgba(6,182,212,0.2);
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 40 64 40 64;
+}
+
+.feature-cell {
+    -fx-padding: 16 32 16 32;
+    -fx-alignment: center;
+}
+
+.feature-icon {
+    -fx-font-size: 28px;
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.5), 16, 0.4, 0, 0);
+}
+
+.feature-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.feature-desc {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+}
+
+.feature-divider {
+    -fx-background-color: rgba(6,182,212,0.2);
+    -fx-pref-height: 60;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.footer {
+    -fx-background-color: #030712;
+    -fx-border-color: rgba(6,182,212,0.15);
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 32 64 32 64;
+}
+
+.footer-brand {
+    -fx-font-family: "Courier New";
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.5), 12, 0.3, 0, 0);
+}
+
+.footer-copy {
+    -fx-font-size: 12px;
+    -fx-text-fill: #4b5563;
+}
+
+.footer-link {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+    -fx-border-color: transparent;
+}
+
+.footer-link:hover {
+    -fx-text-fill: #67e8f9;
+}
