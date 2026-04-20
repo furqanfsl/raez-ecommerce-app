@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.Label?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.raez.controllers.ProductTableController"
+      style="-fx-background-color: white; -fx-border-color: #e5e7eb;
+             -fx-border-radius: 8; -fx-background-radius: 8;"
+      VBox.vgrow="ALWAYS">
+
+    <TableView fx:id="productTable"
+               VBox.vgrow="ALWAYS"
+               style="-fx-background-color: white; -fx-border-color: transparent;">
+        <columns>
+            <TableColumn fx:id="imageCol"    text="Image"      prefWidth="60"  minWidth="60"  maxWidth="60"  />
+            <TableColumn fx:id="nameCol"     text="Name"       prefWidth="180" minWidth="140"                />
+            <TableColumn fx:id="categoryCol" text="Categories" prefWidth="140" minWidth="100"                />
+            <TableColumn fx:id="priceCol"    text="Price"      prefWidth="90"  minWidth="80"  maxWidth="110" />
+            <TableColumn fx:id="stockCol"    text="Stock"      prefWidth="70"  minWidth="60"  maxWidth="90"  />
+            <TableColumn fx:id="statusCol"   text="Status"     prefWidth="90"  minWidth="80"  maxWidth="110" />
+            <TableColumn fx:id="actionsCol"  text="Actions"    prefWidth="260" minWidth="240"                />
+        </columns>
+        <placeholder>
+            <Label text="No products found. Add your first product to get started."
+                   style="-fx-text-fill: #9ca3af; -fx-font-size: 13;" />
+        </placeholder>
+    </TableView>
+</VBox>

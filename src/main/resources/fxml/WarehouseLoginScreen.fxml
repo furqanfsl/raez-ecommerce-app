@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns="http://javafx.com/javafx/13"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.raez.warehouse.Warehouse_LoginScreenController"
+           styleClass="root">
+
+    <VBox maxWidth="420" styleClass="card">
+
+        <!-- Tabs -->
+        <HBox styleClass="tabs">
+            <Button text="Staff Login"
+                    onAction="#onStaffTab"
+                    HBox.hgrow="ALWAYS"
+                    maxWidth="1.7976931348623157E308"
+                    styleClass="tab-button"/>
+            <Button text="User Login"
+                    onAction="#onUserTab"
+                    HBox.hgrow="ALWAYS"
+                    maxWidth="1.7976931348623157E308"
+                    styleClass="tab-button"/>
+        </HBox>
+
+        <!-- Content -->
+        <VBox spacing="12" styleClass="content">
+
+            <Label fx:id="titleLabel" text="Warehouse Staff Login" styleClass="title"/>
+
+            <VBox spacing="6">
+                <Label text="Email" styleClass="label"/>
+                <TextField fx:id="emailField" promptText="name@raez.org.uk"/>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="Password" styleClass="label"/>
+                <PasswordField fx:id="passwordField" promptText="••••••••"/>
+            </VBox>
+
+            <Label fx:id="errorLabel"
+                   text=""
+                   managed="false"
+                   visible="false"
+                   styleClass="error"/>
+
+            <Button text="Login"
+                    onAction="#onLogin"
+                    maxWidth="1.7976931348623157E308"
+                    styleClass="primary-button"/>
+
+            <!-- Demo credentials button -->
+            <Button fx:id="demoBtn"
+                    text="🔑  Use Demo Credentials"
+                    onAction="#onDemoCredentials"
+                    maxWidth="1.7976931348623157E308"
+                    style="-fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-border-color: #d1d5db; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 14; -fx-cursor: hand; -fx-font-size: 12px;"/>
+
+            <Text fx:id="footerText"
+                  text="Authorised warehouse staff only."
+                  styleClass="footer"/>
+        </VBox>
+    </VBox>
+</StackPane>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Hyperlink?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.raez.controllers.AppFooterController"
+      style="-fx-background-color: #000080; -fx-padding: 32 48 28 48;">
+
+    <HBox spacing="48" style="-fx-padding: 0 0 20 0;">
+        <VBox spacing="8">
+            <Label text="RAEZ"
+                   style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Label text="Next-generation robotics &amp; AI commerce."
+                   style="-fx-font-size: 12; -fx-text-fill: #cbd5e1;" wrapText="true" />
+            <Label text="© 2026 RAEZ Holdings Ltd."
+                   style="-fx-font-size: 11; -fx-text-fill: #94a3b8;" />
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Shop" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Label text="All Products" style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
+            <Label text="New Arrivals" style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
+            <Label text="Sale"         style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Support" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Label text="Contact Us"    style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
+            <Label text="Shipping"      style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
+            <Label text="Returns"       style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
+        </VBox>
+
+        <Region HBox.hgrow="ALWAYS" />
+
+        <VBox spacing="6" alignment="TOP_RIGHT">
+            <Label text="Staff" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Hyperlink text="Admin Portal" onAction="#handleAdminLogin"
+                       style="-fx-font-size: 11; -fx-text-fill: #a5b4fc; -fx-border-color: transparent;
+                              -fx-underline: false;" />
+            <Label text="Restricted to authorised staff only."
+                   style="-fx-font-size: 10; -fx-text-fill: #94a3b8;" />
+        </VBox>
+    </HBox>
+
+    <HBox alignment="CENTER" style="-fx-border-color: #1e3a8a; -fx-border-width: 1 0 0 0; -fx-padding: 16 0 0 0;">
+        <Label text="Secure checkout · Trusted by 10,000+ customers worldwide"
+               style="-fx-font-size: 11; -fx-text-fill: #94a3b8;" />
+    </HBox>
+</VBox>

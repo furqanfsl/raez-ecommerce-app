@@ -1,0 +1,593 @@
+package com.raez.finance.dao;
+
+import com.raez.finance.model.FinanceCustomerReportRow;
+import com.raez.finance.model.FinanceTopBuyerRow;
+import com.raez.finance.util.FinanceDatabaseConnection;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Fetches customer report rows for Detailed Reports (Customer tab).
+ * Schema has no type/country; type defaulted to "Individual", country from deliveryAddress.
+ */
+public class FinanceCustomerDao implements FinanceCustomerDaoInterface {
+
+    private static final String ORDER_DATE_FILTER =
+        " AND (? IS NULL OR o.orderDate >= ?) AND (? IS NULL OR o.orderDate <= ?) ";
+
+    private static final String FIND_SQL =
+        "SELECT c.customerID, c.name, COALESCE(c.customerType, 'Individual') AS customerType, c.deliveryAddress, " +
+        "(SELECT COUNT(*) FROM \"orders\" o WHERE o.customerID = c.customerID" + ORDER_DATE_FILTER + ") AS totalOrders, " +
+        "(SELECT COALESCE(SUM(o.totalAmount), 0) FROM \"orders\" o WHERE o.customerID = c.customerID" + ORDER_DATE_FILTER + ") AS totalSpent, " +
+        "(SELECT COALESCE(MAX(o.orderDate), '') FROM \"orders\" o WHERE o.customerID = c.customerID" + ORDER_DATE_FILTER + ") AS lastPurchase " +
+        "FROM customers c " +
+        "WHERE (? IS NULL OR (c.name LIKE ? OR c.email LIKE ? OR CAST(c.customerID AS TEXT) LIKE ?)) " +
+        "AND (? IS NULL OR COALESCE(c.customerType, 'Individual') = ?) " +
+        "AND (? IS NULL OR c.name = ?) " +
+        "AND (? IS NULL OR c.deliveryAddress LIKE ?) " +
+        "ORDER BY totalSpent DESC " +
+        "LIMIT ? OFFSET ?";
+
+    private static final String FIND_NO_LIMIT_SQL =
+        "SELECT c.customerID, c.name, COALESCE(c.customerType, 'Individual') AS customerType, c.deliveryAddress, " +
+        "(SELECT COUNT(*) FROM \"orders\" o WHERE o.customerID = c.customerID" + ORDER_DATE_FILTER + ") AS totalOrders, " +
+        "(SELECT COALESCE(SUM(o.totalAmount), 0) FROM \"orders\" o WHERE o.customerID = c.customerID" + ORDER_DATE_FILTER + ") AS totalSpent, " +
+        "(SELECT COALESCE(MAX(o.orderDate), '') FROM \"orders\" o WHERE o.customerID = c.customerID" + ORDER_DATE_FILTER + ") AS lastPurchase " +
+        "FROM customers c " +
+        "WHERE (? IS NULL OR (c.name LIKE ? OR c.email LIKE ? OR CAST(c.customerID AS TEXT) LIKE ?)) " +
+        "AND (? IS NULL OR COALESCE(c.customerType, 'Individual') = ?) " +
+        "AND (? IS NULL OR c.name = ?) " +
+        "AND (? IS NULL OR c.deliveryAddress LIKE ?) " +
+        "ORDER BY totalSpent DESC";
+
+    private static final String COUNT_SQL =
+        "SELECT COUNT(*) FROM (" +
+        "SELECT c.customerID " +
+        "FROM customers c " +
+        "WHERE (? IS NULL OR (c.name LIKE ? OR c.email LIKE ? OR CAST(c.customerID AS TEXT) LIKE ?)) " +
+        "AND (? IS NULL OR COALESCE(c.customerType, 'Individual') = ?) " +
+        "AND (? IS NULL OR c.name = ?) " +
+        "AND (? IS NULL OR c.deliveryAddress LIKE ?) " +
+        ") AS sub";
+
+    /**
+     * Fetch customers with order aggregates (optionally limited to orders between orderFrom and orderTo).
+     */
+    public List<FinanceCustomerReportRow> findReportRows(LocalDate orderFrom, LocalDate orderTo, String typeFilter, String countryFilter, String companyName, String search, int limit, int offset) throws SQLException {
+        String searchTerm = normalizeSearch(search);
+        String normalizedType = normalizeType(typeFilter);
+        String normalizedCompany = normalizeValue(companyName);
+        String countryLike = normalizeCountry(countryFilter);
+        String sql = limit > 0 ? FIND_SQL : FIND_NO_LIMIT_SQL;
+
+        List<FinanceCustomerReportRow> rows = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            int i = 1;
+            i = bindOrderDateFilter(ps, i, orderFrom, orderTo);
+            i = bindOrderDateFilter(ps, i, orderFrom, orderTo);
+            i = bindOrderDateFilter(ps, i, orderFrom, orderTo);
+            ps.setString(i++, searchTerm);
+            ps.setString(i++, searchTerm);
+            ps.setString(i++, searchTerm);
+            ps.setString(i++, searchTerm);
+            ps.setString(i++, normalizedType);
+            ps.setString(i++, normalizedType);
+            ps.setString(i++, normalizedCompany);
+            ps.setString(i++, normalizedCompany);
+            ps.setString(i++, countryLike);
+            ps.setString(i++, countryLike);
+            if (limit > 0) {
+                ps.setInt(i++, limit);
+                ps.setInt(i, offset);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int totalOrders = rs.getInt("totalOrders");
+                double totalSpent = rs.getDouble("totalSpent");
+                double aov = totalOrders > 0 ? totalSpent / totalOrders : 0;
+                String lastPurchase = rs.getString("lastPurchase");
+                if (lastPurchase != null && lastPurchase.length() >= 10) lastPurchase = lastPurchase.substring(0, 10);
+                else if (lastPurchase == null || lastPurchase.isEmpty()) lastPurchase = "—";
+                rows.add(new FinanceCustomerReportRow(
+                        String.valueOf(rs.getInt("customerID")),
+                        rs.getString("name"),
+                        rs.getString("customerType") != null ? rs.getString("customerType") : "Individual",
+                        rs.getString("deliveryAddress") != null ? rs.getString("deliveryAddress") : "—",
+                        totalOrders,
+                        totalSpent,
+                        aov,
+                        lastPurchase
+                ));
+            }
+        }
+        return rows;
+    }
+
+    /** Distinct company names (customer name where customerType = 'Company') for Company filter dropdown. */
+    public List<String> findCompanyNames() throws SQLException {
+        String sql = "SELECT DISTINCT name FROM customers WHERE COALESCE(customerType, 'Individual') = 'Company' AND name IS NOT NULL ORDER BY name";
+        List<String> list = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) list.add(rs.getString("name"));
+        }
+        return list;
+    }
+
+    /** Count customer report rows with same filters (for pagination). */
+    public int countReportRows(LocalDate orderFrom, LocalDate orderTo, String typeFilter, String countryFilter, String companyName, String search) throws SQLException {
+        String searchTerm = normalizeSearch(search);
+        String normalizedType = normalizeType(typeFilter);
+        String normalizedCompany = normalizeValue(companyName);
+        String countryLike = normalizeCountry(countryFilter);
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(COUNT_SQL)) {
+            int i = 1;
+            ps.setString(i++, searchTerm);
+            ps.setString(i++, searchTerm);
+            ps.setString(i++, searchTerm);
+            ps.setString(i++, searchTerm);
+            ps.setString(i++, normalizedType);
+            ps.setString(i++, normalizedType);
+            ps.setString(i++, normalizedCompany);
+            ps.setString(i++, normalizedCompany);
+            ps.setString(i++, countryLike);
+            ps.setString(i, countryLike);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
+        }
+    }
+
+    /** Binds (? IS NULL OR o.orderDate >= ?) AND (? IS NULL OR o.orderDate <= ?) — four parameters. */
+    private static int bindOrderDateFilter(PreparedStatement ps, int i, LocalDate from, LocalDate to) throws SQLException {
+        if (from == null) {
+            ps.setNull(i++, Types.VARCHAR);
+            ps.setNull(i++, Types.VARCHAR);
+        } else {
+            String f = from + " 00:00:00";
+            ps.setString(i++, f);
+            ps.setString(i++, f);
+        }
+        if (to == null) {
+            ps.setNull(i++, Types.VARCHAR);
+            ps.setNull(i++, Types.VARCHAR);
+        } else {
+            String t = to + " 23:59:59";
+            ps.setString(i++, t);
+            ps.setString(i++, t);
+        }
+        return i;
+    }
+
+    /**
+     * Top buyers by total spent (for Customer Insights). Sorted descending by totalSpent.
+     */
+    public List<FinanceTopBuyerRow> findTopBuyers(int limit) throws SQLException {
+        String sql = "SELECT c.customerID, c.name, COALESCE(c.customerType, 'Individual') AS customerType, c.deliveryAddress, " +
+                "COUNT(o.orderID) AS totalOrders, COALESCE(SUM(o.totalAmount), 0) AS totalSpent, " +
+                "COALESCE(MAX(o.orderDate), '') AS lastPurchase " +
+                "FROM customers c " +
+                "LEFT JOIN \"orders\" o ON o.customerID = c.customerID " +
+                "GROUP BY c.customerID, c.name, c.customerType, c.deliveryAddress " +
+                "ORDER BY totalSpent DESC LIMIT ?";
+        List<FinanceTopBuyerRow> rows = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit <= 0 ? 100 : limit);
+            ResultSet rs = ps.executeQuery();
+            int rank = 1;
+            while (rs.next()) {
+                int totalOrders = rs.getInt("totalOrders");
+                double totalSpent = rs.getDouble("totalSpent");
+                double aov = totalOrders > 0 ? totalSpent / totalOrders : 0;
+                String last = rs.getString("lastPurchase");
+                if (last != null && last.length() >= 10) last = last.substring(0, 10);
+                else if (last == null || last.isEmpty()) last = "—";
+                rows.add(new FinanceTopBuyerRow(rank++, rs.getString("name"),
+                        rs.getString("customerType") != null ? rs.getString("customerType") : "Individual",
+                        rs.getString("deliveryAddress") != null ? rs.getString("deliveryAddress") : "—",
+                        totalSpent, totalOrders, aov, last));
+            }
+        }
+        return rows;
+    }
+
+    /**
+     * Monthly order counts for the last 12 months (default chart range).
+     */
+    public List<MonthlyCount> findMonthlyOrderCounts() throws SQLException {
+        return findMonthlyOrderCounts(LocalDate.now().minusMonths(12), LocalDate.now());
+    }
+
+    /**
+     * Monthly order counts between {@code from} and {@code end} (inclusive), grouped by YYYY-MM.
+     */
+    public List<MonthlyCount> findMonthlyOrderCounts(LocalDate from, LocalDate end) throws SQLException {
+        String sql = "SELECT strftime('%Y-%m', orderDate) AS month, COUNT(*) AS cnt " +
+                "FROM \"orders\" " +
+                "WHERE (? IS NULL OR orderDate >= ?) AND (? IS NULL OR orderDate <= ?) " +
+                "GROUP BY month ORDER BY month";
+        List<MonthlyCount> list = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            bindOrderDateFilter(ps, 1, from, end);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new MonthlyCount(rs.getString("month"), rs.getInt("cnt")));
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Monthly order counts split by customer type (Company vs Individual) for grouped bar charts.
+     */
+    public List<MonthlySplit> findMonthlyOrderCountsByCustomerType(LocalDate from, LocalDate end) throws SQLException {
+        String sql = "SELECT strftime('%Y-%m', o.orderDate) AS month, " +
+                "COALESCE(c.customerType, 'Individual') AS ctype, COUNT(*) AS cnt " +
+                "FROM \"orders\" o " +
+                "JOIN customers c ON o.customerID = c.customerID " +
+                "WHERE (? IS NULL OR o.orderDate >= ?) AND (? IS NULL OR o.orderDate <= ?) " +
+                "GROUP BY month, ctype ORDER BY month";
+        Map<String, int[]> byMonth = new LinkedHashMap<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            bindOrderDateFilter(ps, 1, from, end);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String month = rs.getString("month");
+                    String ctype = rs.getString("ctype");
+                    int cnt = rs.getInt("cnt");
+                    int[] pair = byMonth.computeIfAbsent(month, k -> new int[2]);
+                    if (ctype != null && "Company".equalsIgnoreCase(ctype.trim())) {
+                        pair[0] += cnt;
+                    } else {
+                        pair[1] += cnt;
+                    }
+                }
+            }
+        }
+        List<MonthlySplit> list = new ArrayList<>();
+        for (Map.Entry<String, int[]> e : byMonth.entrySet()) {
+            int[] p = e.getValue();
+            list.add(new MonthlySplit(e.getKey(), p[0], p[1]));
+        }
+        return list;
+    }
+
+    public static final class MonthlyCount {
+        public final String month;
+        public final int count;
+        public MonthlyCount(String month, int count) { this.month = month; this.count = count; }
+    }
+
+    /** One calendar month with order counts for companies vs individuals. */
+    public static final class MonthlySplit {
+        public final String month;
+        public final int companyCount;
+        public final int individualCount;
+        public MonthlySplit(String month, int companyCount, int individualCount) {
+            this.month = month;
+            this.companyCount = companyCount;
+            this.individualCount = individualCount;
+        }
+    }
+
+    /**
+     * Top buyers in a date range, optionally filtered by customer type (Company / Individual).
+     * Rank is 1-based within the full sorted result (use {@code offset} for pagination).
+     */
+    public List<FinanceTopBuyerRow> findTopBuyersInRange(LocalDate from, LocalDate to, String insightCustomerTypeFilter, int limit, int offset) throws SQLException {
+        String normalizedType = normalizeInsightCustomerType(insightCustomerTypeFilter);
+        String sql = "SELECT c.customerID, c.name, COALESCE(c.customerType, 'Individual') AS customerType, c.deliveryAddress, " +
+                "COUNT(o.orderID) AS totalOrders, COALESCE(SUM(o.totalAmount), 0) AS totalSpent, " +
+                "COALESCE(MAX(o.orderDate), '') AS lastPurchase " +
+                "FROM customers c " +
+                "INNER JOIN \"orders\" o ON o.customerID = c.customerID " +
+                "WHERE (? IS NULL OR o.orderDate >= ?) AND (? IS NULL OR o.orderDate <= ?) " +
+                "AND (? IS NULL OR COALESCE(c.customerType, 'Individual') = ?) " +
+                "GROUP BY c.customerID, c.name, c.customerType, c.deliveryAddress " +
+                "ORDER BY totalSpent DESC " +
+                "LIMIT ? OFFSET ?";
+        List<FinanceTopBuyerRow> rows = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            int i = 1;
+            i = bindOrderDateFilter(ps, i, from, to);
+            if (normalizedType == null) {
+                ps.setNull(i++, Types.VARCHAR);
+                ps.setNull(i++, Types.VARCHAR);
+            } else {
+                ps.setString(i++, normalizedType);
+                ps.setString(i++, normalizedType);
+            }
+            ps.setInt(i++, limit <= 0 ? 100 : limit);
+            ps.setInt(i, offset);
+            try (ResultSet rs = ps.executeQuery()) {
+                int rank = offset + 1;
+                while (rs.next()) {
+                    int totalOrders = rs.getInt("totalOrders");
+                    double totalSpent = rs.getDouble("totalSpent");
+                    double aov = totalOrders > 0 ? totalSpent / totalOrders : 0;
+                    String last = rs.getString("lastPurchase");
+                    if (last != null && last.length() >= 10) last = last.substring(0, 10);
+                    else if (last == null || last.isEmpty()) last = "—";
+                    rows.add(new FinanceTopBuyerRow(rank++, rs.getString("name"),
+                            rs.getString("customerType") != null ? rs.getString("customerType") : "Individual",
+                            rs.getString("deliveryAddress") != null ? rs.getString("deliveryAddress") : "—",
+                            totalSpent, totalOrders, aov, last));
+                }
+            }
+        }
+        return rows;
+    }
+
+    /** Number of customers matching top-buyer filters (for pagination). */
+    public int countTopBuyersInRange(LocalDate from, LocalDate to, String insightCustomerTypeFilter) throws SQLException {
+        String normalizedType = normalizeInsightCustomerType(insightCustomerTypeFilter);
+        String sql = "SELECT COUNT(*) FROM (" +
+                "SELECT c.customerID " +
+                "FROM customers c " +
+                "INNER JOIN \"orders\" o ON o.customerID = c.customerID " +
+                "WHERE (? IS NULL OR o.orderDate >= ?) AND (? IS NULL OR o.orderDate <= ?) " +
+                "AND (? IS NULL OR COALESCE(c.customerType, 'Individual') = ?) " +
+                "GROUP BY c.customerID, c.name, c.customerType, c.deliveryAddress" +
+                ") AS t";
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            int i = 1;
+            i = bindOrderDateFilter(ps, i, from, to);
+            if (normalizedType == null) {
+                ps.setNull(i++, Types.VARCHAR);
+                ps.setNull(i++, Types.VARCHAR);
+            } else {
+                ps.setString(i++, normalizedType);
+                ps.setString(i++, normalizedType);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    /**
+     * Sum of order totals in range for orders matching the same customer-type filter as top buyers
+     * (combined spend across all matching customers).
+     */
+    public double sumOrderTotalInBuyerFilterRange(LocalDate from, LocalDate to, String insightCustomerTypeFilter) throws SQLException {
+        String normalizedType = normalizeInsightCustomerType(insightCustomerTypeFilter);
+        String sql = "SELECT COALESCE(SUM(o.totalAmount), 0) FROM \"orders\" o " +
+                "JOIN customers c ON o.customerID = c.customerID " +
+                "WHERE (? IS NULL OR o.orderDate >= ?) AND (? IS NULL OR o.orderDate <= ?) " +
+                "AND (? IS NULL OR COALESCE(c.customerType, 'Individual') = ?)";
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            int i = 1;
+            i = bindOrderDateFilter(ps, i, from, to);
+            if (normalizedType == null) {
+                ps.setNull(i++, Types.VARCHAR);
+                ps.setNull(i++, Types.VARCHAR);
+            } else {
+                ps.setString(i++, normalizedType);
+                ps.setString(i++, normalizedType);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getDouble(1) : 0;
+            }
+        }
+    }
+
+    /** "All Customers" / "Companies" / "Normal Users" → null / "Company" / "Individual". */
+    private static String normalizeInsightCustomerType(String filter) {
+        if (filter == null) return null;
+        String f = filter.trim();
+        if (f.isEmpty() || "All Customers".equalsIgnoreCase(f)) return null;
+        if ("Companies".equalsIgnoreCase(f)) return "Company";
+        if ("Normal Users".equalsIgnoreCase(f)) return "Individual";
+        return f;
+    }
+
+    /** Total customer count and total revenue for KPIs (avg spending = totalRevenue/count). */
+    public int getTotalCustomerCount() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM customers";
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        }
+    }
+
+    /** Count customers where customerType = 'Company'. */
+    public int getCompanyCustomerCount() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM customers WHERE COALESCE(customerType, 'Individual') = 'Company'";
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        }
+    }
+
+    /** Sum of all order amounts (for avg spending per customer). */
+    public double getTotalRevenue() throws SQLException {
+        String sql = "SELECT COALESCE(SUM(totalAmount), 0) FROM \"orders\"";
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getDouble(1) : 0;
+        }
+    }
+
+    /**
+     * finance_refunds alert strings for Customer Insights (simple dev-friendly heuristics).
+     * Uses finance_refunds + orders + customers to produce human-readable alerts.
+     */
+    public List<String> findRefundAlerts() throws SQLException {
+        String sql =
+                "SELECT c.name, COUNT(r.refundID) AS refundCount, COALESCE(SUM(r.refundAmount), 0) AS totalRefunded " +
+                "FROM finance_refunds r " +
+                "JOIN \"orders\" o ON r.orderID = o.orderID " +
+                "JOIN customers c ON o.customerID = c.customerID " +
+                "WHERE UPPER(TRIM(COALESCE(r.status,''))) IN ('REQUESTED','APPROVED','PROCESSED') " +
+                "GROUP BY c.customerID, c.name " +
+                "HAVING refundCount >= 2 OR totalRefunded >= 500 " +
+                "ORDER BY totalRefunded DESC LIMIT 10";
+        List<String> list = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String name = rs.getString(1);
+                int cnt = rs.getInt(2);
+                double amt = rs.getDouble(3);
+                list.add(String.format("%s has %d refunds totalling %s", name, cnt, com.raez.finance.util.FinanceCurrencyUtil.formatCurrency(amt)));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * products issue alert strings for Customer Insights (heuristic: products with high refunds).
+     */
+    public List<String> findProductIssueAlerts() throws SQLException {
+        String sql =
+                "SELECT p.name, COUNT(r.refundID) AS refundCount, COALESCE(SUM(r.refundAmount), 0) AS totalRefunded " +
+                "FROM finance_refunds r " +
+                "JOIN products p ON r.productID = p.productID " +
+                "WHERE r.productID IS NOT NULL " +
+                "GROUP BY p.productID, p.name " +
+                "HAVING refundCount >= 2 OR totalRefunded >= 500 " +
+                "ORDER BY refundCount DESC, totalRefunded DESC LIMIT 10";
+        List<String> list = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String name = rs.getString(1);
+                int cnt = rs.getInt(2);
+                double amt = rs.getDouble(3);
+                list.add(String.format("products \"%s\" has %d refunds totalling %s", name, cnt, com.raez.finance.util.FinanceCurrencyUtil.formatCurrency(amt)));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Distinct delivery address fragments (or "countries") for filter ComboBox.
+     */
+    public List<String> findCountryOptions() throws SQLException {
+        String sql = "SELECT DISTINCT deliveryAddress FROM customers WHERE deliveryAddress IS NOT NULL AND deliveryAddress != '' ORDER BY deliveryAddress";
+        List<String> list = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(rs.getString("deliveryAddress"));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Customers with at least one order: how many have last order older than {@code days90} / {@code days180} days,
+     * plus customers with no orders yet.
+     */
+    public ChurnStats findChurnStats(int days90, int days180) throws SQLException {
+        String sql =
+                "WITH last_purchase AS ( "
+                + "SELECT customerID, MAX(substr(orderDate, 1, 10)) AS lastDay FROM \"orders\" GROUP BY customerID "
+                + ") "
+                + "SELECT "
+                + "(SELECT COUNT(*) FROM last_purchase) AS withOrders, "
+                + "(SELECT COUNT(*) FROM last_purchase WHERE julianday('now') - julianday(lastDay) > ?) AS dormant90, "
+                + "(SELECT COUNT(*) FROM last_purchase WHERE julianday('now') - julianday(lastDay) > ?) AS dormant180, "
+                + "(SELECT COUNT(*) FROM customers c WHERE NOT EXISTS ( "
+                + "SELECT 1 FROM \"orders\" o WHERE o.customerID = c.customerID)) AS noOrders";
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, days90);
+            ps.setInt(2, days180);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return new ChurnStats(0, 0, 0, 0);
+                return new ChurnStats(
+                        rs.getInt("withOrders"),
+                        rs.getInt("dormant90"),
+                        rs.getInt("dormant180"),
+                        rs.getInt("noOrders"));
+            }
+        }
+    }
+
+    /**
+     * Count of customers by calendar month of their <strong>first order</strong> (proxy for acquisition when
+     * {@code registrationDate} is not stored).
+     */
+    public List<MonthlyCount> findFirstOrderMonthCounts(LocalDate from, LocalDate to) throws SQLException {
+        String sql =
+                "SELECT strftime('%Y-%m', fo.firstOrder) AS month, COUNT(*) AS cnt FROM ( "
+                + "SELECT customerID, MIN(orderDate) AS firstOrder FROM \"orders\" GROUP BY customerID "
+                + ") fo "
+                + "WHERE (? IS NULL OR date(fo.firstOrder) >= date(?)) "
+                + "AND (? IS NULL OR date(fo.firstOrder) <= date(?)) "
+                + "GROUP BY month ORDER BY month";
+        List<MonthlyCount> list = new ArrayList<>();
+        try (Connection conn = FinanceDatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (from == null) {
+                ps.setNull(1, Types.VARCHAR);
+                ps.setNull(2, Types.VARCHAR);
+            } else {
+                ps.setString(1, from.toString());
+                ps.setString(2, from.toString());
+            }
+            if (to == null) {
+                ps.setNull(3, Types.VARCHAR);
+                ps.setNull(4, Types.VARCHAR);
+            } else {
+                ps.setString(3, to.toString());
+                ps.setString(4, to.toString());
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new MonthlyCount(rs.getString("month"), rs.getInt("cnt")));
+                }
+            }
+        }
+        return list;
+    }
+
+    public record ChurnStats(int customersWithOrders, int dormant90, int dormant180, int noOrders) {}
+
+    private String normalizeSearch(String search) {
+        if (search == null || search.isBlank()) return null;
+        return "%" + search.trim() + "%";
+    }
+
+    private String normalizeType(String typeFilter) {
+        if (typeFilter == null || typeFilter.isBlank()) return null;
+        if ("All".equalsIgnoreCase(typeFilter.trim()) || "All Types".equalsIgnoreCase(typeFilter.trim())) return null;
+        return typeFilter.trim();
+    }
+
+    private String normalizeCountry(String countryFilter) {
+        if (countryFilter == null || countryFilter.isBlank()) return null;
+        if ("All".equalsIgnoreCase(countryFilter.trim())) return null;
+        return "%" + countryFilter.trim() + "%";
+    }
+
+    private String normalizeValue(String settingValue) {
+        if (settingValue == null || settingValue.isBlank()) return null;
+        return settingValue.trim();
+    }
+}

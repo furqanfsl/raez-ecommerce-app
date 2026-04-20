@@ -1,0 +1,46 @@
+/* Sidebar.css — RAEZ filter panel */
+
+.sidebar-scroll {
+    -fx-background-color: white;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 1 0 0;
+    -fx-pref-width: 240;
+}
+
+.sidebar {
+    -fx-background-color: white;
+}
+
+.filter-section {
+    -fx-padding: 16 0 4 0;
+}
+
+.section-toggle {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #111827;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+    -fx-padding: 4 0 4 0;
+}
+
+.section-toggle:hover { -fx-text-fill: #374151; }
+
+.filter-panel {
+    -fx-padding: 4 0 0 4;
+}
+
+.filter-check {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4b5563;
+    -fx-cursor: hand;
+}
+
+.filter-check:hover { -fx-text-fill: #111827; }
+
+.section-divider {
+    -fx-background-color: #e5e7eb;
+    -fx-pref-height: 1;
+}
