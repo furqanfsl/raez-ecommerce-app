@@ -1,6 +1,7 @@
 package com.raez.model;
 
 import com.raez.controllers.CustomerAdminDashboardController;
+import com.raez.controllers.SuperAdminDashboardController;
 import com.raez.customer.model.CustomerUser;
 import com.raez.finance.model.FinanceUser;
 import com.raez.finance.model.FinanceUserRole;
@@ -78,7 +79,8 @@ public class NavigationRouter {
 
         String role = user.roleName != null ? user.roleName : "";
         switch (role) {
-            case "product_admin", "super_admin" -> navigateTo("/fxml/ProductAdminDashboard.fxml");
+            case "super_admin"                  -> navigateToSuperAdmin(user);
+            case "product_admin"                -> navigateTo("/fxml/ProductAdminDashboard.fxml");
             case "customer_admin"               -> navigateToCustomerAdmin(user);
             case "warehouse_admin"              -> navigateToWarehouseAdmin(user);
             case "delivery_admin"               -> navigateTo("/fxml/DeliveriesDashboard.fxml");
@@ -113,6 +115,20 @@ public class NavigationRouter {
     }
 
     // ── PRIVATE HELPERS ────────────────────────────────────────────────────
+
+    private void navigateToSuperAdmin(User user) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/SuperAdminDashboard.fxml"));
+            Parent view = loader.load();
+            SuperAdminDashboardController ctrl = loader.getController();
+            ctrl.setCurrentUser(user);
+            primaryStage.getScene().setRoot(view);
+        } catch (Exception e) {
+            System.err.println("NavigationRouter: failed to load SuperAdminDashboard");
+            e.printStackTrace();
+        }
+    }
 
     private void navigateToWarehouseAdmin(User user) {
         try {

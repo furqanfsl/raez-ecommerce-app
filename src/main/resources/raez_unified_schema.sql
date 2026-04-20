@@ -586,3 +586,21 @@ CREATE INDEX IF NOT EXISTS idx_reviews_customer          ON reviews_reviews(cust
 CREATE INDEX IF NOT EXISTS idx_reviews_status            ON reviews_reviews(status);
 CREATE INDEX IF NOT EXISTS idx_reviews_votes_review      ON reviews_votes(reviewID);
 CREATE INDEX IF NOT EXISTS idx_orders_history_order      ON orders_status_history(orderID);
+
+-- ================================================================
+--  SECTION 9 — SMTP SETTINGS (Super Admin configurable)
+--  Single-row config table — settingID is always 1
+-- ================================================================
+
+CREATE TABLE IF NOT EXISTS smtp_settings (
+    settingID    INTEGER PRIMARY KEY CHECK (settingID = 1),
+    host         TEXT    NOT NULL DEFAULT '',
+    port         INTEGER NOT NULL DEFAULT 587,
+    username     TEXT    NOT NULL DEFAULT '',
+    password     TEXT    NOT NULL DEFAULT '',
+    fromAddress  TEXT    NOT NULL DEFAULT '',
+    fromName     TEXT    NOT NULL DEFAULT 'RAEZ',
+    useTls       INTEGER NOT NULL DEFAULT 1,
+    isEnabled    INTEGER NOT NULL DEFAULT 0,
+    updatedAt    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

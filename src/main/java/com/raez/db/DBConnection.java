@@ -9,16 +9,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.stream.Collectors;
 
 /**
  * Singleton SQLite connection.
- * On every startup the DB file is deleted and rebuilt from:
+ * Applies the schema with CREATE IF NOT EXISTS on every startup and seeds
+ * only when the users table is empty, so data persists across restarts.
  *   /raez_unified_schema.sql  — table definitions
  *   /raez_seed_data.sql       — seed rows
  * Override DB path with {@code -Draez.db.path=C:/path/to/raez.db}.
+ * Force a clean rebuild with {@code -Draez.db.reset=true}.
  */
 public class DBConnection {
 
@@ -38,12 +41,29 @@ public class DBConnection {
     }
 
     private DBConnection() {
-        // Always start fresh so schema + seed are the single source of truth
-        deleteDatabaseFiles();
+        if (Boolean.getBoolean("raez.db.reset")) {
+            System.out.println("raez.db.reset=true → wiping DB file before boot.");
+            deleteDatabaseFiles();
+        }
         connect();
         executeSqlFile("/raez_unified_schema.sql");
-        executeSqlFile("/raez_seed_data.sql");
-        System.out.println("Database initialised from SQL resource files.");
+        if (isFirstBoot()) {
+            System.out.println("Empty DB detected — applying seed data.");
+            executeSqlFile("/raez_seed_data.sql");
+        } else {
+            System.out.println("DB already populated — skipping seed.");
+        }
+    }
+
+    /** @return true if users table has no rows (first boot, nothing to preserve). */
+    private boolean isFirstBoot() {
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM users")) {
+            return rs.next() && rs.getInt(1) == 0;
+        } catch (SQLException e) {
+            // users table missing → schema ran but empty → seed
+            return true;
+        }
     }
 
     public static DBConnection getInstance() {

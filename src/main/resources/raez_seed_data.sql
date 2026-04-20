@@ -471,4 +471,12 @@ INSERT INTO reviews_settings (settingKey, settingValue) VALUES
  ('max_flagged_before_removal', '3'),
  ('allow_guest_reviews',        'false');
 
+-- ================================================================
+--  SMTP SETTINGS (single row, Super Admin editable)
+-- ================================================================
+INSERT INTO smtp_settings
+ (settingID, host, port, username, password, fromAddress, fromName, useTls, isEnabled)
+VALUES
+ (1, 'smtp.gmail.com', 587, '', '', 'no-reply@raez.org.uk', 'RAEZ Support', 1, 0);
+
 COMMIT;
