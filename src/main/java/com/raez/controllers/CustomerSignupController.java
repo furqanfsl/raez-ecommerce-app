@@ -2,11 +2,10 @@ package com.raez.controllers;
 
 import com.raez.customer.dao.CustomerDAO;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
+import javafx.application.Platform;
 
 import java.io.File;
 
@@ -61,11 +60,9 @@ public class CustomerSignupController {
                 idCardPath
             );
             generalErrorLabel.setStyle("-fx-text-fill: green;");
-            generalErrorLabel.setText("Account created! Redirecting to login...");
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerLogin.fxml"));
+            generalErrorLabel.setText("Account created! You can now log in.");
             Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(loader.load(), stage.getWidth(), stage.getHeight()));
+            Platform.runLater(stage::close);
         } catch (Exception e) {
             generalErrorLabel.setStyle("-fx-text-fill: red;");
             generalErrorLabel.setText(e.getMessage());
@@ -74,13 +71,8 @@ public class CustomerSignupController {
 
     @FXML
     private void handleBack() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerLogin.fxml"));
-            Stage stage = (Stage) emailField.getScene().getWindow();
-            stage.setScene(new Scene(loader.load(), stage.getWidth(), stage.getHeight()));
-        } catch (Exception e) {
-            generalErrorLabel.setText("Navigation error: " + e.getMessage());
-        }
+        Stage stage = (Stage) emailField.getScene().getWindow();
+        stage.close();
     }
 
     private boolean validate() {

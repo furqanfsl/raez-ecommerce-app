@@ -5,6 +5,11 @@ import com.raez.customer.model.CustomerUser;
 import com.raez.finance.model.FinanceUser;
 import com.raez.finance.model.FinanceUserRole;
 import com.raez.finance.service.FinanceSessionManager;
+import com.raez.reviews.app.AppContext;
+import com.raez.reviews.app.ReviewsApplication;
+import com.raez.reviews.controller.AdminDashboardController;
+import com.raez.reviews.model.AdminUser;
+import com.raez.reviews.model.UserSession;
 import com.raez.warehouse.Warehouse_StaffDashboardController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -79,6 +84,7 @@ public class NavigationRouter {
             case "delivery_admin"               -> navigateTo("/fxml/DeliveriesDashboard.fxml");
             case "orders_admin", "orders_user"  -> navigateTo("/fxml/OrdersDashboard.fxml");
             case "finance_admin", "finance_user" -> navigateToFinanceAdmin(user);
+            case "reviews_admin"                 -> navigateToReviewsAdmin(user);
             // "customer" and any unknown role: remain on storefront — header updated above
         }
     }
@@ -153,6 +159,27 @@ public class NavigationRouter {
             navigateTo("/com/raez/finance/view/FinanceMainLayout.fxml");
         } catch (Exception e) {
             System.err.println("NavigationRouter: failed to load FinanceMainLayout");
+            e.printStackTrace();
+        }
+    }
+
+    private void navigateToReviewsAdmin(User user) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/reviews-admin-dashboard.fxml"));
+            Parent view = loader.load();
+            AdminDashboardController ctrl = loader.getController();
+            String name = ((user.firstName != null ? user.firstName : "") + " " +
+                           (user.lastName  != null ? user.lastName  : "")).trim();
+            AdminUser adminUser = new AdminUser(user.userID,
+                user.username != null ? user.username : user.email,
+                name.isEmpty() ? user.email : name, true);
+            UserSession session = UserSession.admin(adminUser);
+            ReviewsApplication reviewsApp = new ReviewsApplication(primaryStage.getScene().getWindow());
+            ctrl.init(reviewsApp, AppContext.getInstance(), session);
+            primaryStage.getScene().setRoot(view);
+        } catch (Exception e) {
+            System.err.println("NavigationRouter: failed to load reviews-admin-dashboard");
             e.printStackTrace();
         }
     }

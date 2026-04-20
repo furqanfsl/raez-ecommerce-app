@@ -4,8 +4,13 @@ import com.raez.model.NavigationRouter;
 import com.raez.model.User;
 import com.raez.service.AuthService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -104,7 +109,7 @@ public class ProductLoginModalController implements Initializable {
                     "customer_admin".equals(r) || "warehouse_admin".equals(r) ||
                     "delivery_admin".equals(r) || "orders_admin".equals(r) ||
                     "orders_user".equals(r) || "finance_admin".equals(r) ||
-                    "finance_user".equals(r));
+                    "finance_user".equals(r) || "reviews_admin".equals(r));
                 if (!allowed) { showError("No admin role found for this account."); return; }
             }
 
@@ -125,6 +130,24 @@ public class ProductLoginModalController implements Initializable {
     }
 
     @FXML private void handleClose() { if (onClose != null) onClose.run(); }
+
+    @FXML private void handleCreateAccount() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerSignup.fxml"));
+            Parent root = loader.load();
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            if (emailField != null && emailField.getScene() != null) {
+                dialog.initOwner(emailField.getScene().getWindow());
+            }
+            dialog.setTitle("Create Account");
+            dialog.setScene(new Scene(root));
+            dialog.showAndWait();
+        } catch (Exception e) {
+            showError("Could not open registration: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     // ── HELPERS ────────────────────────────────────────────────────────────
 

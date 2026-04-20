@@ -5,6 +5,10 @@ import com.raez.model.FavouritesManager;
 import com.raez.model.NavigationRouter;
 import com.raez.model.Product;
 import com.raez.model.User;
+import com.raez.reviews.app.AppContext;
+import com.raez.reviews.app.ReviewsApplication;
+import com.raez.reviews.model.Customer;
+import com.raez.reviews.model.UserSession;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,9 +34,12 @@ public class ProductHeaderController implements Initializable {
     @FXML private Label      cartBadge;
     @FXML private MenuButton userMenuBtn;
     @FXML private MenuItem   loginMenuItem;
+    @FXML private MenuItem   myReviewsMenuItem;
     @FXML private MenuItem   logoutMenuItem;
     @FXML private Button     heartBtn;
     @FXML private Label      heartBadge;
+
+    private User currentUser;
 
     private final FavouritesManager favManager  = FavouritesManager.getInstance();
     private final CartManager       cartManager = CartManager.getInstance();
@@ -181,10 +188,13 @@ public class ProductHeaderController implements Initializable {
     }
 
     private void updateUserState(User user) {
+        this.currentUser = user;
         if (user == null) { clearUserState(); return; }
-        if (loginMenuItem  != null) loginMenuItem.setVisible(false);
-        if (logoutMenuItem != null) logoutMenuItem.setVisible(true);
-        if (userMenuBtn    != null) userMenuBtn.setText(user.firstName);
+        if (loginMenuItem     != null) loginMenuItem.setVisible(false);
+        if (logoutMenuItem    != null) logoutMenuItem.setVisible(true);
+        if (userMenuBtn       != null) userMenuBtn.setText(user.firstName);
+        boolean isCustomer = "customer".equals(user.roleName);
+        if (myReviewsMenuItem != null) myReviewsMenuItem.setVisible(isCustomer);
         if (user.isAdmin() && adminBtn != null) {
             adminBtn.setVisible(true);
             adminBtn.setManaged(true);
@@ -192,10 +202,35 @@ public class ProductHeaderController implements Initializable {
     }
 
     private void clearUserState() {
-        if (loginMenuItem  != null) loginMenuItem.setVisible(true);
-        if (logoutMenuItem != null) logoutMenuItem.setVisible(false);
-        if (adminBtn       != null) { adminBtn.setVisible(false); adminBtn.setManaged(false); }
-        if (userMenuBtn    != null) userMenuBtn.setText("👤");
+        this.currentUser = null;
+        if (loginMenuItem     != null) loginMenuItem.setVisible(true);
+        if (logoutMenuItem    != null) logoutMenuItem.setVisible(false);
+        if (myReviewsMenuItem != null) myReviewsMenuItem.setVisible(false);
+        if (adminBtn          != null) { adminBtn.setVisible(false); adminBtn.setManaged(false); }
+        if (userMenuBtn       != null) userMenuBtn.setText("👤");
+    }
+
+    @FXML
+    private void handleMyReviews() {
+        if (currentUser == null) { handleOpenLogin(); return; }
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/reviews-customer-dashboard.fxml"));
+            Parent view = loader.load();
+            com.raez.reviews.controller.CustomerDashboardController ctrl = loader.getController();
+            String displayName = ((currentUser.firstName != null ? currentUser.firstName : "") + " " +
+                                  (currentUser.lastName  != null ? currentUser.lastName  : "")).trim();
+            if (displayName.isEmpty()) displayName = currentUser.email;
+            Customer cu = new Customer(currentUser.userID, displayName, currentUser.email, true);
+            UserSession session = UserSession.customer(cu);
+            ReviewsApplication reviewsApp =
+                new ReviewsApplication(logoBtn.getScene().getWindow());
+            ctrl.init(reviewsApp, AppContext.getInstance(), session);
+            logoBtn.getScene().setRoot(view);
+        } catch (Exception e) {
+            System.err.println("ProductHeaderController: failed to load reviews-customer-dashboard");
+            e.printStackTrace();
+        }
     }
 
     @FXML

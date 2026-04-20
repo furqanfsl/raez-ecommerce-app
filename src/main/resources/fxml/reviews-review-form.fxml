@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.raez.reviews.controller.ReviewFormController"
+      spacing="14" styleClass="panel-card">
+    <padding>
+        <Insets top="22" right="22" bottom="22" left="22" />
+    </padding>
+    <Label fx:id="titleLabel" styleClass="section-title" />
+    <Label fx:id="helperLabel" styleClass="muted-text" wrapText="true" />
+    <Label text="Rating (1-5)" />
+    <Spinner fx:id="ratingSpinner" editable="false" />
+    <Label text="Review text" />
+    <TextArea fx:id="commentArea" prefRowCount="8" promptText="Write your review here..." />
+    <Label fx:id="errorLabel" styleClass="error-text" wrapText="true" />
+    <HBox spacing="10">
+        <Button text="Save" onAction="#handleSave" styleClass="primary-button" />
+        <Button text="Cancel" onAction="#handleCancel" styleClass="secondary-button" />
+    </HBox>
+</VBox>

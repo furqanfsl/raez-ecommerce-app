@@ -85,8 +85,10 @@
                     style="-fx-background-color: transparent; -fx-border-color: transparent;
                            -fx-font-size: 20; -fx-text-fill: #374151; -fx-cursor: hand; -fx-padding: 0;">
             <items>
-                <MenuItem fx:id="loginMenuItem"  text="Login"  onAction="#handleOpenLogin" />
-                <MenuItem fx:id="logoutMenuItem" text="Logout" onAction="#handleLogout" />
+                <MenuItem fx:id="loginMenuItem"    text="Login"       onAction="#handleOpenLogin" />
+                <MenuItem fx:id="myReviewsMenuItem" text="My Reviews" onAction="#handleMyReviews"
+                          visible="false" />
+                <MenuItem fx:id="logoutMenuItem"   text="Logout"      onAction="#handleLogout" />
             </items>
         </MenuButton>
 

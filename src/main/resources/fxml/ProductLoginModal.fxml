@@ -99,5 +99,11 @@
                        -fx-font-size: 14; -fx-font-weight: bold;
                        -fx-padding: 12 0 12 0; -fx-background-radius: 8;
                        -fx-cursor: hand; -fx-border-color: transparent;" />
+
+        <HBox alignment="CENTER" spacing="4" fx:id="registerRow">
+            <Label text="New here?" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+            <Hyperlink text="Create an account" onAction="#handleCreateAccount"
+                       style="-fx-font-size: 13; -fx-text-fill: #2563eb; -fx-border-color: transparent;" />
+        </HBox>
     </VBox>
 </VBox>
