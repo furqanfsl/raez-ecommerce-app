@@ -2,6 +2,9 @@ package com.reaz.model;
 
 import Controllers.CustomerAdminDashboardController;
 import com.reaz.customer.model.CustomerUser;
+import com.raez.finance.model.FinanceUser;
+import com.raez.finance.model.FinanceUserRole;
+import com.raez.finance.service.FinanceSessionManager;
 import com.reaz.warehouse.Warehouse_StaffDashboardController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -75,6 +78,7 @@ public class NavigationRouter {
             case "warehouse_admin"              -> navigateToWarehouseAdmin(user);
             case "delivery_admin"               -> navigateTo("/fxml/DeliveriesDashboard.fxml");
             case "orders_admin", "orders_user"  -> navigateTo("/fxml/OrdersDashboard.fxml");
+            case "finance_admin", "finance_user" -> navigateToFinanceAdmin(user);
             // "customer" and any unknown role: remain on storefront — header updated above
         }
     }
@@ -129,6 +133,26 @@ public class NavigationRouter {
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
             System.err.println("NavigationRouter: failed to load CustomerAdminDashboard");
+            e.printStackTrace();
+        }
+    }
+
+    private void navigateToFinanceAdmin(User user) {
+        try {
+            FinanceUserRole role = "finance_admin".equals(user.roleName)
+                ? FinanceUserRole.ADMIN : FinanceUserRole.FINANCE_USER;
+            FinanceUser financeUser = new FinanceUser(
+                user.userID, user.email,
+                user.username != null ? user.username : user.email,
+                null, role,
+                user.firstName, user.lastName,
+                true, null
+            );
+            FinanceSessionManager.startSession(financeUser);
+            FinanceSessionManager.setOnTimeoutCallback(this::logout);
+            navigateTo("/com/raez/finance/view/FinanceMainLayout.fxml");
+        } catch (Exception e) {
+            System.err.println("NavigationRouter: failed to load FinanceMainLayout");
             e.printStackTrace();
         }
     }

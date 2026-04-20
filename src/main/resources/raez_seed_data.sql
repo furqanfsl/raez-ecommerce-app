@@ -98,7 +98,10 @@ INSERT INTO users (userID, email, username, passwordHash, firstName, lastName, p
       'Warehouse', 'Admin', NULL, 1),
  (19, 'adminDelivery@raez.org.uk',  'admindelivery',
       'af721e67f0b4eec58c574588b537ce1678dd0feab82d10e0ea0b853ba5c4a78d',
-      'Delivery', 'Admin', NULL, 1);
+      'Delivery', 'Admin', NULL, 1),
+ (20, 'adminFinance@raez.org.uk',  'adminfinance',
+      '7e6124db187ce1f4784454448ed1f60368d81f1fccfc8b00156715bf9f82a947',
+      'Finance', 'Admin', NULL, 1);
 
 -- ================================================================
 --  USER ROLES
@@ -122,7 +125,8 @@ INSERT INTO user_roles (userID, roleID) VALUES
  (16, 9),  -- adminProduct   → product_admin
  (17, 13), -- adminCustomer  → customer_admin
  (18, 6),  -- adminWarehouse → warehouse_admin
- (19, 8);  -- adminDelivery  → delivery_admin
+ (19, 8),  -- adminDelivery  → delivery_admin
+ (20, 4);  -- adminFinance   → finance_admin
 
 -- ================================================================
 --  CUSTOMERS

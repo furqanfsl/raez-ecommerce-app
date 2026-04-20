@@ -1,0 +1,366 @@
+package com.raez.finance.controller;
+
+import com.raez.finance.service.FinanceSessionManager;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
+import javafx.util.Duration;
+
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+public class FinanceSidebarController {
+
+    private static final String VIEW_PATH    = "/com/raez/finance/view/";
+    private static final String CHEVRON_DOWN = "M19 9l-7 7-7-7";
+    private static final String CHEVRON_UP   = "M5 15l7-7 7 7";
+
+    // ── Active / inactive styles ─────────────────────────────────────────
+    private static final String ACTIVE_STYLE =
+        "-fx-background-color: #1E2939; -fx-text-fill: white; " +
+        "-fx-background-radius: 8; -fx-cursor: hand;";
+    private static final String INACTIVE_STYLE =
+        "-fx-background-color: transparent; -fx-text-fill: #374151; " +
+        "-fx-background-radius: 8; -fx-cursor: hand;";
+    private static final String HOVER_STYLE =
+        "-fx-background-color: #F0F1F3; -fx-text-fill: #1E2939; " +
+        "-fx-background-radius: 8; -fx-cursor: hand;";
+
+    // ── FXML ────────────────────────────────────────────────────────────
+    @FXML private Button   btnDashboard;
+    @FXML private Button   btnReports;
+    @FXML private Button   btnAnalytics;
+    @FXML private VBox     analyticsChildBox;
+    @FXML private Button   btnInsights;
+    @FXML private Button   btnProfitability;
+    @FXML private Button   btnRevenueVat;
+    @FXML private Button   btnInventorySupplier;
+    @FXML private Button   btnAiInsights;
+    @FXML private Button   btnInvoices;
+    @FXML private Button   btnAuditLog;
+    @FXML private Button   btnSettings;
+    @FXML private Button   btnLogout;
+    @FXML private SVGPath  chevronIcon;
+
+    // ── State ────────────────────────────────────────────────────────────
+    private FinanceMainLayoutController mainLayoutController;
+    private boolean analyticsExpanded = false;
+    private Button  activeButton      = null;
+
+    // ── Debug log helpers (preserved from original) ───────────────────────
+    private static final String DEBUG_LOG_PATH   = "C:\\Users\\Projects\\Desktop\\Final GP\\debug-cd3c43.log";
+    private static final String DEBUG_SESSION_ID = "cd3c43";
+    private static final String DEBUG_RUN_ID     = "sidebar_topbar_pre_fix";
+
+    private static String esc(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"")
+                .replace("\n", " ").replace("\r", " ");
+    }
+
+    private static void agentLog(String hypothesisId, String location, String message, String data) {
+        try {
+            long ts = System.currentTimeMillis();
+            String json = "{\"sessionId\":\"" + esc(DEBUG_SESSION_ID) +
+                    "\",\"runId\":\"" + esc(DEBUG_RUN_ID) +
+                    "\",\"hypothesisId\":\"" + esc(hypothesisId) +
+                    "\",\"location\":\"" + esc(location) +
+                    "\",\"message\":\"" + esc(message) +
+                    "\",\"data\":\"" + esc(data) +
+                    "\",\"timestamp\":" + ts + "}";
+            Files.writeString(
+                    Path.of(DEBUG_LOG_PATH),
+                    json + System.lineSeparator(),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND
+            );
+        } catch (Exception e) {
+            System.err.println("[agentLog:FinanceSidebar] failed to write log: " + e.getMessage());
+        }
+    }
+
+    public void setMainLayoutController(FinanceMainLayoutController mlc) {
+        this.mainLayoutController = mlc;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════════════════════════════
+
+    @FXML
+    public void initialize() {
+        setActiveButton(btnDashboard);
+        applyRoleVisibility();
+        wireHoverAnimations();
+    }
+
+    private void applyRoleVisibility() {
+        if (!FinanceSessionManager.isAdmin()) {
+            hideNav(btnAuditLog);
+        }
+    }
+
+    private static void hideNav(Button b) {
+        if (b == null) return;
+        b.setVisible(false);
+        b.setManaged(false);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  HOVER ANIMATIONS
+    //  Each non-active button gets a smooth bg-fade + icon scale on hover.
+    //  Uses Timeline so the transition is interpolated, not instant.
+    // ══════════════════════════════════════════════════════════════════════
+
+    private void wireHoverAnimations() {
+        Button[] all = {
+            btnDashboard, btnReports, btnAnalytics,
+            btnInsights, btnProfitability, btnRevenueVat,
+            btnInventorySupplier, btnAiInsights,
+            btnInvoices, btnAuditLog, btnSettings
+        };
+        for (Button b : all) {
+            if (b != null) addHoverEffect(b);
+        }
+        if (btnLogout != null) addLogoutHover(btnLogout);
+    }
+
+    /**
+     * Smooth hover for nav buttons.
+     * On enter: fade bg to #F0F1F3, scale icon to 1.10.
+     * On exit:  restore inactive or active style.
+     */
+    private void addHoverEffect(Button btn) {
+        Node graphic = btn.getGraphic();
+
+        btn.setOnMouseEntered(e -> {
+            if (btn == activeButton) return;   // never override active style
+            btn.setStyle(HOVER_STYLE);
+            if (graphic != null) {
+                ScaleTransition st = new ScaleTransition(Duration.millis(120), graphic);
+                st.setToX(1.10); st.setToY(1.10); st.play();
+                setIconColor(btn, Color.web("#1E2939"));
+            }
+        });
+
+        btn.setOnMouseExited(e -> {
+            if (btn == activeButton) return;
+            btn.setStyle(INACTIVE_STYLE);
+            if (graphic != null) {
+                ScaleTransition st = new ScaleTransition(Duration.millis(120), graphic);
+                st.setToX(1.0); st.setToY(1.0); st.play();
+                setIconColor(btn, Color.web("#374151"));
+            }
+        });
+    }
+
+    /** Logout gets a subtle red tint hover instead. */
+    private void addLogoutHover(Button btn) {
+        btn.setOnMouseEntered(e ->
+            btn.setStyle("-fx-background-color: #FEF2F2; -fx-text-fill: #DC2626; " +
+                         "-fx-background-radius: 8; -fx-cursor: hand;"));
+        btn.setOnMouseExited(e ->
+            btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #4B5563; -fx-cursor: hand;"));
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ANALYTICS ACCORDION
+    // ══════════════════════════════════════════════════════════════════════
+
+    @FXML
+    public void handleToggleAnalytics(ActionEvent event) {
+        analyticsExpanded = !analyticsExpanded;
+        agentLog("H4", "FinanceSidebarController.handleToggleAnalytics",
+                 "toggle analytics",
+                 "analyticsExpanded=" + analyticsExpanded +
+                 ";analyticsChildBoxNull=" + (analyticsChildBox == null));
+        analyticsChildBox.setVisible(analyticsExpanded);
+        analyticsChildBox.setManaged(analyticsExpanded);
+        if (chevronIcon != null)
+            chevronIcon.setContent(analyticsExpanded ? CHEVRON_UP : CHEVRON_DOWN);
+    }
+
+    private void expandAnalytics() {
+        if (!analyticsExpanded && analyticsChildBox != null) {
+            analyticsExpanded = true;
+            analyticsChildBox.setVisible(true);
+            analyticsChildBox.setManaged(true);
+            if (chevronIcon != null) chevronIcon.setContent(CHEVRON_UP);
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  NAV HANDLERS
+    //  Note: "Support & Alerts" (btnAlerts) removed per redesign spec.
+    // ══════════════════════════════════════════════════════════════════════
+
+    @FXML public void handleNavDashboard(ActionEvent e)      { load("FinanceOverview.fxml",            btnDashboard); }
+    @FXML public void handleNavReports(ActionEvent e)        { load("FinanceDetailedReports.fxml",     btnReports);   }
+    @FXML public void handleNavAuditLog(ActionEvent e)       { load("FinanceAuditLog.fxml",            btnAuditLog);  }
+    @FXML public void handleNavSettings(ActionEvent e)       { load("FinanceSettings.fxml",            btnSettings);  }
+    @FXML public void handleNavInvoices(ActionEvent e)       { load("FinanceInvoices.fxml",            btnInvoices);  }
+
+    @FXML
+    public void handleNavInsights(ActionEvent e) {
+        expandAnalytics();
+        load("FinanceCustomerInsights.fxml", btnInsights);
+    }
+
+    @FXML
+    public void handleNavProfitability(ActionEvent e) {
+        expandAnalytics();
+        load("FinanceProductProfitability.fxml", btnProfitability);
+    }
+
+    @FXML
+    public void handleNavRevenueVat(ActionEvent e) {
+        expandAnalytics();
+        load("FinanceRevenueVatSummary.fxml", btnRevenueVat);
+    }
+
+    @FXML
+    public void handleNavInventorySupplier(ActionEvent e) {
+        expandAnalytics();
+        load("FinanceInventorySupplier.fxml", btnInventorySupplier);
+    }
+
+    @FXML
+    public void handleNavAiInsights(ActionEvent e) {
+        expandAnalytics();
+        load("FinanceAiInsights.fxml", btnAiInsights);
+    }
+
+    @FXML
+    public void handleLogout(ActionEvent e) {
+        if (mainLayoutController != null) mainLayoutController.handleLogout();
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  CONTENT LOADER
+    // ══════════════════════════════════════════════════════════════════════
+
+    private void load(String fxmlName, Button activeBtn) {
+        agentLog("H1", "FinanceSidebarController.load", "enter load()",
+                 "fxmlName=" + fxmlName +
+                 ";mainLayoutControllerNull=" + (mainLayoutController == null) +
+                 ";activeBtnText=" + (activeBtn == null ? "" : activeBtn.getText()));
+
+        if (mainLayoutController == null) return;
+        FinanceSessionManager.extendSession();
+
+        try {
+            URL url = resolveUrl(fxmlName);
+            agentLog("H2", "FinanceSidebarController.resolveUrl", "url resolution",
+                     "fxmlName=" + fxmlName + ";urlNull=" + (url == null));
+
+            if (url == null) {
+                System.err.println("[FinanceSidebar] Resource not found: " + fxmlName);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            Object ctrl = loader.getController();
+
+            String wired = "none";
+            if (ctrl instanceof FinanceOverviewController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceOverviewController";
+            } else if (ctrl instanceof FinanceDetailedReportsController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceDetailedReportsController";
+            } else if (ctrl instanceof FinanceCustomerInsightsController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceCustomerInsightsController";
+            } else if (ctrl instanceof FinanceProductProfitabilityController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceProductProfitabilityController";
+            } else if (ctrl instanceof FinanceRevenueVatSummaryController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceRevenueVatSummaryController";
+            } else if (ctrl instanceof FinanceInventorySupplierController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceInventorySupplierController";
+            } else if (ctrl instanceof FinanceNotificationsAlertsController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceNotificationsAlertsController";
+            } else if (ctrl instanceof FinanceAuditLogController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceAuditLogController";
+            } else if (ctrl instanceof FinanceSettingsController sc) {
+                sc.setMainLayoutController(mainLayoutController); root.setUserData(sc); wired = "FinanceSettingsController";
+            } else if (ctrl instanceof FinanceInvoicesController ic) {
+                ic.setMainLayoutController(mainLayoutController); root.setUserData(ic); wired = "FinanceInvoicesController";
+            } else if (ctrl instanceof FinanceAiInsightsController c) {
+                c.setMainLayoutController(mainLayoutController); root.setUserData(c); wired = "FinanceAiInsightsController";
+            }
+
+            agentLog("H3", "FinanceSidebarController.load", "loaded controller",
+                     "ctrlClass=" + (ctrl == null ? "" : ctrl.getClass().getSimpleName()) + ";wired=" + wired);
+
+            root.setOpacity(0);
+            FadeTransition ft = new FadeTransition(Duration.millis(200), root);
+            ft.setFromValue(0); ft.setToValue(1); ft.play();
+
+            mainLayoutController.setContent(root);
+            setActiveButton(activeBtn);
+
+        } catch (Exception ex) {
+            System.err.println("[FinanceSidebar] Failed to load " + fxmlName + ": " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private URL resolveUrl(String fxmlName) {
+        URL url = FinanceMainLayoutController.class.getResource(VIEW_PATH + fxmlName);
+        if (url == null) url = getClass().getResource(VIEW_PATH + fxmlName);
+        if (url == null) url = getClass().getClassLoader()
+            .getResource("com/raez/finance/view/" + fxmlName);
+        return url;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  ACTIVE BUTTON STYLING
+    // ══════════════════════════════════════════════════════════════════════
+
+    private void setActiveButton(Button active) {
+        Button[] all = {
+            btnDashboard, btnReports, btnAnalytics,
+            btnInsights, btnProfitability, btnRevenueVat,
+            btnInventorySupplier, btnAiInsights,
+            btnInvoices, btnAuditLog, btnSettings
+        };
+        for (Button b : all) {
+            if (b == null) continue;
+            boolean isActive = (b == active);
+            b.setStyle(isActive ? ACTIVE_STYLE : INACTIVE_STYLE);
+            setIconColor(b, isActive ? Color.WHITE : Color.web("#374151"));
+        }
+        activeButton = active;
+    }
+
+    private void setIconColor(Button btn, Color color) {
+        Node g = btn.getGraphic();
+        if (g == null) return;
+        applyColor(g, color);
+    }
+
+    private void applyColor(Node node, Color color) {
+        if (node instanceof SVGPath s) {
+            s.setStroke(color);
+        } else if (node instanceof StackPane sp) {
+            sp.getChildren().forEach(child -> applyColor(child, color));
+        } else if (node instanceof HBox hb) {
+            hb.getChildren().forEach(child -> applyColor(child, color));
+        } else if (node instanceof VBox vb) {
+            vb.getChildren().forEach(child -> applyColor(child, color));
+        }
+    }
+}

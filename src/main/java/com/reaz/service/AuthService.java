@@ -78,7 +78,7 @@ public final class AuthService {
      * Priority: super_admin &gt; product_admin &gt; customer_admin &gt; customer
      */
     public static String pickRoleForRouting(Set<String> roles) {
-        for (String r : new String[]{"super_admin", "product_admin", "customer_admin", "warehouse_admin", "delivery_admin", "orders_admin", "orders_user", "customer"}) {
+        for (String r : new String[]{"super_admin", "product_admin", "customer_admin", "warehouse_admin", "delivery_admin", "orders_admin", "orders_user", "finance_admin", "finance_user", "customer"}) {
             if (roles.contains(r)) return r;
         }
         return roles.isEmpty() ? "customer" : roles.iterator().next();
