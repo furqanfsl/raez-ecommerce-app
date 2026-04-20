@@ -12,7 +12,7 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controllers.ProductSideBarController"
+            fx:controller="com.raez.controllers.ProductSideBarController"
             fitToWidth="true" prefWidth="240" minWidth="240"
             style="-fx-background-color: white; -fx-background: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0;">
 

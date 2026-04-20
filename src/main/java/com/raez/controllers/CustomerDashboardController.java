@@ -1,0 +1,267 @@
+package com.raez.controllers;
+
+import com.raez.customer.dao.CustomerDAO;
+import com.raez.customer.dao.CustomerOrderDAO;
+import com.raez.customer.dao.CustomerPreferenceDAO;
+import com.raez.customer.model.CustomerOrder;
+import com.raez.customer.model.CustomerPreference;
+import com.raez.customer.model.CustomerProfile;
+import com.raez.customer.model.CustomerUser;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class CustomerDashboardController {
+
+    // Header
+    @FXML private Label customerNameLabel;
+    @FXML private Label customerIdLabel;
+    @FXML private Label customerStatusLabel;
+
+    // Tab buttons
+    @FXML private Button tabProfile;
+    @FXML private Button tabPreferences;
+    @FXML private Button tabOrders;
+
+    // Panes
+    @FXML private VBox profilePane;
+    @FXML private VBox preferencesPane;
+    @FXML private VBox ordersPane;
+
+    // Profile tab
+    @FXML private Label         profileMessageLabel;
+    @FXML private TextField     firstNameField;
+    @FXML private TextField     lastNameField;
+    @FXML private TextField     emailField;
+    @FXML private TextField     phoneField;
+    @FXML private Label         phoneErrorLabel;
+    @FXML private TextArea      addressField;
+    @FXML private Button        toggleAccountBtn;
+
+    // Preferences tab
+    @FXML private Label         preferencesMessageLabel;
+    @FXML private FlowPane      categoriesPane;
+    @FXML private ComboBox<String> notificationsCombo;
+    @FXML private TextArea      deliveryInstructionsField;
+
+    // Orders tab
+    @FXML private TableView<CustomerOrder>     ordersTable;
+    @FXML private TableColumn<CustomerOrder, Integer> colOrderId;
+    @FXML private TableColumn<CustomerOrder, String>  colRobotType;
+    @FXML private TableColumn<CustomerOrder, String>  colDate;
+    @FXML private TableColumn<CustomerOrder, String>  colStatus;
+    @FXML private TableColumn<CustomerOrder, String>  colAmount;
+
+    private final CustomerDAO            customerDAO    = new CustomerDAO();
+    private final CustomerPreferenceDAO  preferenceDAO  = new CustomerPreferenceDAO();
+    private final CustomerOrderDAO       orderDAO       = new CustomerOrderDAO();
+
+    private CustomerUser    currentUser;
+    private CustomerProfile currentProfile;
+
+    private static final List<String> CATEGORIES = Arrays.asList(
+        "Home Assistants", "Security Bots", "Educational", "Companions", "Industrial"
+    );
+    private static final List<String> NOTIFICATION_OPTIONS = Arrays.asList("EMAIL", "SMS", "NONE");
+
+    public void setUser(CustomerUser user) {
+        this.currentUser = user;
+        loadData();
+    }
+
+    @FXML
+    public void initialize() {
+        notificationsCombo.setItems(FXCollections.observableArrayList(NOTIFICATION_OPTIONS));
+
+        colOrderId.setCellValueFactory(new PropertyValueFactory<>("orderId"));
+        colRobotType.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colAmount.setCellValueFactory(new PropertyValueFactory<>("formattedAmount"));
+
+        buildCategoryCheckboxes(new HashSet<>());
+    }
+
+    private void loadData() {
+        customerNameLabel.setText(currentUser.getName());
+        customerIdLabel.setText("ID: " + currentUser.getId());
+        boolean active = currentUser.isActive();
+        customerStatusLabel.setText(active ? "Active" : "Inactive");
+        customerStatusLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 6 16; " +
+            "-fx-background-radius: 20; -fx-background-color: " + (active ? "#DCFCE7;" : "#FEE2E2;") +
+            " -fx-text-fill: " + (active ? "#166534;" : "#991B1B;"));
+        toggleAccountBtn.setText(active ? "Deactivate Account" : "Activate Account");
+
+        // Load users.firstName / lastName for edit fields
+        try {
+            CustomerUser fresh = customerDAO.getById(currentUser.getId());
+            if (fresh != null) {
+                String[] parts = fresh.getName().split(" ", 2);
+                firstNameField.setText(parts[0]);
+                lastNameField.setText(parts.length > 1 ? parts[1] : "");
+            }
+            emailField.setText(currentUser.getEmail());
+        } catch (Exception e) { e.printStackTrace(); }
+
+        // Load profile (phone, address)
+        try {
+            currentProfile = customerDAO.getProfile(currentUser.getId());
+            if (currentProfile != null) {
+                phoneField.setText(nvl(currentProfile.getPhone()));
+                addressField.setText(nvl(currentProfile.getAddress()));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        // Load preferences
+        try {
+            CustomerPreference prefs = preferenceDAO.getByUserId(currentUser.getId());
+            if (prefs != null) {
+                String saved = nvl(prefs.getPreferredCategories());
+                Set<String> selected = new HashSet<>(Arrays.asList(saved.split(",")));
+                buildCategoryCheckboxes(selected);
+                String notif = prefs.getNotificationSettings();
+                if (notif != null && NOTIFICATION_OPTIONS.contains(notif))
+                    notificationsCombo.setValue(notif);
+                deliveryInstructionsField.setText(nvl(prefs.getDeliveryInstructions()));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        // Load orders
+        try {
+            ordersTable.setItems(FXCollections.observableArrayList(
+                orderDAO.getOrdersByUserId(currentUser.getId())));
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // ── TAB SWITCHING ──────────────────────────────────────────────────────
+    @FXML private void handleTabProfile() {
+        setActiveTab(profilePane, tabProfile);
+        setInactiveTab(preferencesPane, tabPreferences);
+        setInactiveTab(ordersPane, tabOrders);
+    }
+
+    @FXML private void handleTabPreferences() {
+        setActiveTab(preferencesPane, tabPreferences);
+        setInactiveTab(profilePane, tabProfile);
+        setInactiveTab(ordersPane, tabOrders);
+    }
+
+    @FXML private void handleTabOrders() {
+        setActiveTab(ordersPane, tabOrders);
+        setInactiveTab(profilePane, tabProfile);
+        setInactiveTab(preferencesPane, tabPreferences);
+    }
+
+    // ── SAVE PROFILE ───────────────────────────────────────────────────────
+    @FXML
+    private void handleSaveProfile() {
+        profileMessageLabel.setText("");
+        phoneErrorLabel.setText("");
+        try {
+            customerDAO.saveProfile(
+                currentUser.getId(),
+                firstNameField.getText().trim(),
+                lastNameField.getText().trim(),
+                phoneField.getText().trim(),
+                addressField.getText().trim()
+            );
+            profileMessageLabel.setStyle("-fx-text-fill: green;");
+            profileMessageLabel.setText("Profile saved successfully.");
+            currentUser.setName(firstNameField.getText().trim() + " " + lastNameField.getText().trim());
+            customerNameLabel.setText(currentUser.getName());
+        } catch (Exception e) {
+            profileMessageLabel.setStyle("-fx-text-fill: red;");
+            profileMessageLabel.setText("Save failed: " + e.getMessage());
+        }
+    }
+
+    // ── TOGGLE ACCOUNT ─────────────────────────────────────────────────────
+    @FXML
+    private void handleToggleAccount() {
+        try {
+            customerDAO.toggleAccountStatus(currentUser.getId());
+            boolean nowActive = !currentUser.isActive();
+            currentUser.setStatus(nowActive ? "ACTIVE" : "INACTIVE");
+            toggleAccountBtn.setText(nowActive ? "Deactivate Account" : "Activate Account");
+            customerStatusLabel.setText(nowActive ? "Active" : "Inactive");
+            profileMessageLabel.setStyle("-fx-text-fill: green;");
+            profileMessageLabel.setText("Account status updated.");
+        } catch (Exception e) {
+            profileMessageLabel.setStyle("-fx-text-fill: red;");
+            profileMessageLabel.setText("Error: " + e.getMessage());
+        }
+    }
+
+    // ── SAVE PREFERENCES ───────────────────────────────────────────────────
+    @FXML
+    private void handleSavePreferences() {
+        preferencesMessageLabel.setText("");
+        try {
+            StringBuilder selected = new StringBuilder();
+            for (javafx.scene.Node node : categoriesPane.getChildren()) {
+                if (node instanceof CheckBox cb && cb.isSelected()) {
+                    if (selected.length() > 0) selected.append(",");
+                    selected.append(cb.getText());
+                }
+            }
+            String notification = notificationsCombo.getValue() != null
+                ? notificationsCombo.getValue() : "NONE";
+            preferenceDAO.savePreferences(
+                currentUser.getId(),
+                selected.toString(),
+                notification,
+                deliveryInstructionsField.getText().trim()
+            );
+            preferencesMessageLabel.setStyle("-fx-text-fill: green;");
+            preferencesMessageLabel.setText("Preferences saved.");
+        } catch (Exception e) {
+            preferencesMessageLabel.setStyle("-fx-text-fill: red;");
+            preferencesMessageLabel.setText("Save failed: " + e.getMessage());
+        }
+    }
+
+    // ── LOGOUT ─────────────────────────────────────────────────────────────
+    @FXML
+    private void handleLogout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerWelcome.fxml"));
+            Stage stage = (Stage) customerNameLabel.getScene().getWindow();
+            stage.setScene(new Scene(loader.load(), stage.getWidth(), stage.getHeight()));
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // ── HELPERS ────────────────────────────────────────────────────────────
+    private void buildCategoryCheckboxes(Set<String> selected) {
+        categoriesPane.getChildren().clear();
+        for (String cat : CATEGORIES) {
+            CheckBox cb = new CheckBox(cat);
+            cb.setSelected(selected.contains(cat));
+            cb.setStyle("-fx-padding: 4 10; -fx-border-color: #E5E7EB; -fx-border-radius: 4; " +
+                        "-fx-background-color: white; -fx-background-radius: 4;");
+            categoriesPane.getChildren().add(cb);
+        }
+    }
+
+    private void setActiveTab(VBox pane, Button btn) {
+        pane.setVisible(true); pane.setManaged(true);
+        btn.setStyle("-fx-background-color: #2563EB; -fx-text-fill: white; -fx-padding: 8 20; -fx-cursor: hand;");
+    }
+
+    private void setInactiveTab(VBox pane, Button btn) {
+        pane.setVisible(false); pane.setManaged(false);
+        btn.setStyle("-fx-background-color: transparent; -fx-border-color: #E5E7EB; -fx-padding: 8 20; -fx-cursor: hand;");
+    }
+
+    private String nvl(String s) { return s != null ? s : ""; }
+}

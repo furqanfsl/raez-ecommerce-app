@@ -6,7 +6,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/13"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.reaz.warehouse.Warehouse_UserDashboardController"
+            fx:controller="com.raez.warehouse.Warehouse_UserDashboardController"
             styleClass="root">
 
     <!-- Top header -->

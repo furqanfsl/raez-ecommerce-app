@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controllers.CustomerStaffLoginController"
+            fx:controller="com.raez.controllers.CustomerStaffLoginController"
             style="-fx-background-color: white;">
 
     <center>

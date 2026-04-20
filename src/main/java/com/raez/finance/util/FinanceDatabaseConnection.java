@@ -1,6 +1,6 @@
 package com.raez.finance.util;
 
-import com.reaz.db.DBConnection;
+import com.raez.db.DBConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;

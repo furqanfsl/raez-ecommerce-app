@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controllers.CustomerSuperAdminDashboardController"
+            fx:controller="com.raez.controllers.CustomerSuperAdminDashboardController"
             style="-fx-background-color: white;">
 
     <top>

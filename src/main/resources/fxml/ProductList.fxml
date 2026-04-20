@@ -9,7 +9,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.ProductListController"
+      fx:controller="com.raez.controllers.ProductListController"
       style="-fx-background-color: white; -fx-padding: 24 32 24 32;"
       spacing="16"
       HBox.hgrow="ALWAYS">

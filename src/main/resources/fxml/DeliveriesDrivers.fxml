@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.reaz.delivery.controller.DeliveryDriversController"
+            fx:controller="com.raez.delivery.controller.DeliveryDriversController"
             style="-fx-background-color: #f8fafc;">
 
     <top>

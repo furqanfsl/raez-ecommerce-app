@@ -11,7 +11,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.ProductAdminDashboardController"
+      fx:controller="com.raez.controllers.ProductAdminDashboardController"
       style="-fx-background-color: #f9fafb;">
 
     <!-- Back to Home bar -->

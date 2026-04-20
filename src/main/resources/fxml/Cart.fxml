@@ -6,7 +6,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controllers.CartController"
+            fx:controller="com.raez.controllers.CartController"
             style="-fx-background-color: #f9fafb;">
 
     <top>

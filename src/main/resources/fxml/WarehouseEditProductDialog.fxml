@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.reaz.warehouse.Warehouse_EditProductDialogController">
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.raez.warehouse.Warehouse_EditProductDialogController">
 
     <top>
         <HBox spacing="10" styleClass="dialog-header" BorderPane.alignment="CENTER_LEFT">

@@ -11,7 +11,7 @@
 
 <HBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.ProductHeaderController"
+      fx:controller="com.raez.controllers.ProductHeaderController"
       prefHeight="64"
       alignment="CENTER_LEFT"
       style="-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0; -fx-padding: 0 32 0 32;">

@@ -6,7 +6,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/13"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.reaz.warehouse.AddWarehouseDialogController"
+      fx:controller="com.raez.warehouse.AddWarehouseDialogController"
       spacing="12"
       style="-fx-background-color: white;">
 

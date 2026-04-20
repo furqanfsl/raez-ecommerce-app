@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="12" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.reaz.warehouse.Warehouse_TransferStockDialogController">
+<VBox spacing="12" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.raez.warehouse.Warehouse_TransferStockDialogController">
 
     <padding>
         <Insets bottom="16" left="16" right="16" top="16" />

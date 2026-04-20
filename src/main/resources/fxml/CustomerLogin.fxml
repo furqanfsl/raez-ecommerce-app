@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controllers.CustomerLoginController"
+            fx:controller="com.raez.controllers.CustomerLoginController"
             style="-fx-background-color: white;">
 
     <center>

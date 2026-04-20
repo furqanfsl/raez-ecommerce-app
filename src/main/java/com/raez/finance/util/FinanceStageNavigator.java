@@ -121,7 +121,7 @@ public final class FinanceStageNavigator {
     public static void navigateToLogin(Stage stage) {
         // Route back through master navigation (logout to storefront)
         javafx.application.Platform.runLater(() ->
-            com.reaz.model.NavigationRouter.getInstance().logout());
+            com.raez.model.NavigationRouter.getInstance().logout());
     }
 
     /**
