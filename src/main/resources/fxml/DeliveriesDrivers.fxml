@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.reaz.delivery.controller.DeliveryDriversController"
+            style="-fx-background-color: #f8fafc;">
+
+    <top>
+        <HBox spacing="10" style="-fx-background-color: white; -fx-border-color: #e5e7eb;">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+            <Label text="Drivers Management" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Button text="Back to Dashboard" onAction="#goBack"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="16">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <HBox spacing="10">
+                <TextField fx:id="searchField" promptText="Search drivers by ID, name, or license number..." HBox.hgrow="ALWAYS"/>
+                <Button text="Add Driver" onAction="#toggleForm"/>
+                <Button text="Delete Selected" onAction="#deleteSelectedDriver"/>
+            </HBox>
+
+            <VBox fx:id="addFormBox" spacing="10"
+                  style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 16; -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                <Label text="Add New Driver" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <TextField fx:id="nameField" promptText="Name"/>
+                <TextField fx:id="licenseField" promptText="License Number"/>
+                <TextField fx:id="phoneField" promptText="Phone"/>
+                <TextField fx:id="emailField" promptText="Email"/>
+                <HBox spacing="10">
+                    <Button text="Add" onAction="#addDriver"/>
+                    <Button text="Cancel" onAction="#toggleForm"/>
+                </HBox>
+            </VBox>
+
+            <TableView fx:id="driversTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="idCol" text="Driver ID" prefWidth="120"/>
+                    <TableColumn fx:id="nameCol" text="Name" prefWidth="180"/>
+                    <TableColumn fx:id="licenseCol" text="License Number" prefWidth="180"/>
+                    <TableColumn fx:id="phoneCol" text="Phone" prefWidth="180"/>
+                    <TableColumn fx:id="emailCol" text="Email" prefWidth="260"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

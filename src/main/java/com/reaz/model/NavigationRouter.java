@@ -2,6 +2,7 @@ package com.reaz.model;
 
 import Controllers.CustomerAdminDashboardController;
 import com.reaz.customer.model.CustomerUser;
+import com.reaz.warehouse.Warehouse_StaffDashboardController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
@@ -71,6 +72,9 @@ public class NavigationRouter {
         switch (role) {
             case "product_admin", "super_admin" -> navigateTo("/fxml/ProductAdminDashboard.fxml");
             case "customer_admin"               -> navigateToCustomerAdmin(user);
+            case "warehouse_admin"              -> navigateToWarehouseAdmin(user);
+            case "delivery_admin"               -> navigateTo("/fxml/DeliveriesDashboard.fxml");
+            case "orders_admin", "orders_user"  -> navigateTo("/fxml/OrdersDashboard.fxml");
             // "customer" and any unknown role: remain on storefront — header updated above
         }
     }
@@ -99,6 +103,21 @@ public class NavigationRouter {
     }
 
     // ── PRIVATE HELPERS ────────────────────────────────────────────────────
+
+    private void navigateToWarehouseAdmin(User user) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/WarehouseStaffDashboard.fxml"));
+            Parent view = loader.load();
+            Warehouse_StaffDashboardController ctrl = loader.getController();
+            ctrl.setCurrentUserID(user.userID);
+            ctrl.setOnLogout(() -> logout());
+            primaryStage.getScene().setRoot(view);
+        } catch (Exception e) {
+            System.err.println("NavigationRouter: failed to load WarehouseStaffDashboard");
+            e.printStackTrace();
+        }
+    }
 
     private void navigateToCustomerAdmin(User user) {
         try {

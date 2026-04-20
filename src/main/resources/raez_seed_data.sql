@@ -92,7 +92,13 @@ INSERT INTO users (userID, email, username, passwordHash, firstName, lastName, p
       'Product', 'Admin', NULL, 1),
  (17, 'adminCustomer@raez.org.uk',  'admincustomer',
       '51830a2250dbb5b97236ecfa4bd5bf4d4530a1d32e647d43791526e543b11f88',
-      'Customer', 'Admin', NULL, 1);
+      'Customer', 'Admin', NULL, 1),
+ (18, 'adminWarehouse@raez.org.uk', 'adminwarehouse',
+      '88695e1b7ceb24f40abe7961bfa32acfdfee5c2ee19a6dd19aa5101623d2f84f',
+      'Warehouse', 'Admin', NULL, 1),
+ (19, 'adminDelivery@raez.org.uk',  'admindelivery',
+      'af721e67f0b4eec58c574588b537ce1678dd0feab82d10e0ea0b853ba5c4a78d',
+      'Delivery', 'Admin', NULL, 1);
 
 -- ================================================================
 --  USER ROLES
@@ -113,8 +119,10 @@ INSERT INTO user_roles (userID, roleID) VALUES
  (13, 2),  -- sara         → customer
  (14, 2),  -- maya         → customer
  (15, 2),  -- zaid          → customer
- (16, 9),  -- adminProduct  → product_admin
- (17, 13); -- adminCustomer → customer_admin
+ (16, 9),  -- adminProduct   → product_admin
+ (17, 13), -- adminCustomer  → customer_admin
+ (18, 6),  -- adminWarehouse → warehouse_admin
+ (19, 8);  -- adminDelivery  → delivery_admin
 
 -- ================================================================
 --  CUSTOMERS
@@ -363,7 +371,7 @@ INSERT INTO delivery_drivers (driverID, licenceNumber, phoneNum, email, driverNa
 INSERT INTO delivery_deliveries (deliveryID, orderID, customerAddress, orderStatus, orderDate, numOfItems, driverID, warehouseID) VALUES
  (1, 1,  'London, UK',         'Delivered',   '2026-03-10', 2, 1, 1),
  (2, 2,  'Birmingham, UK',     'Delivered',   '2026-03-10', 3, 2, 2),
- (3, 3,  'Leeds, UK',          'In Transit',  '2026-03-22', 2, 3, 1),
+ (3, 3,  'Leeds, UK',          'Pending',     '2026-03-22', 2, 3, 1),
  (4, 6,  '123 High St, London','Delivered',   '2026-03-09', 1, 1, 1),
  (5, 7,  '45 Baker St, Manch', 'Delivered',   '2026-03-12', 1, 2, 2),
  (6, 8,  '78 Park Lane, Bham', 'Delivered',   '2026-03-13', 1, 3, 3),

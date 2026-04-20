@@ -1,0 +1,196 @@
+.root {
+    -fx-padding: 16;
+    -fx-background-color: #f9fafb;
+}
+
+.card {
+    -fx-background-color: white;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0.2, 0, 4);
+}
+
+.tabs {
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.tab-button {
+    -fx-background-color: transparent;
+    -fx-padding: 12 16;
+    -fx-cursor: hand;
+}
+
+.content {
+    -fx-padding: 20;
+}
+
+.title {
+    -fx-text-fill: #111827;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+}
+
+.label {
+    -fx-text-fill: #374151;
+}
+
+.text-field, .password-field {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #d1d5db;
+    -fx-padding: 8 10;
+}
+
+.error {
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 12px;
+}
+
+.footer {
+    -fx-fill: #6b7280;
+    -fx-font-size: 12px;
+}
+
+.topbar {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.h1 {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111827;
+}
+
+.h2 {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111827;
+}
+
+/* ── Brunel University London Theme Buttons ── */
+
+/* Primary — Brunel Dark Navy */
+.primary-button {
+    -fx-background-color: #002951;
+    -fx-text-fill: white;
+    -fx-padding: 10 14;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+}
+
+/* Success — Brunel Light Blue */
+.success-button {
+    -fx-background-color: #4C8DCB;
+    -fx-text-fill: white;
+    -fx-padding: 10 14;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+}
+
+/* Danger — Keep Red */
+.danger-button {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-padding: 10 14;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+}
+
+/* Neutral — Brunel Mid Navy */
+.neutral-button {
+    -fx-background-color: #1a3a5c;
+    -fx-text-fill: white;
+    -fx-padding: 10 14;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+}
+
+.alert-title {
+    -fx-text-fill: #991b1b;
+    -fx-font-weight: 700;
+}
+
+.low-stock-cell {
+    -fx-background-color: #fee2e2;
+}
+
+/* Alert card */
+.alert-card {
+    -fx-background-color: #fff1f2;
+    -fx-border-color: #fecaca;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+}
+
+.low-stock-row {
+    -fx-background-color: #fee2e2;
+}
+
+.link-label {
+    -fx-text-fill: #4C8DCB;
+    -fx-cursor: hand;
+}
+
+/* Table header styling */
+.table-view .column-header {
+    -fx-background-color: #f9fafb;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+}
+
+.table-view:focused {
+    -fx-border-color: transparent;
+}
+
+/* Status badge styles */
+.status-low {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #dc2626;
+    -fx-font-weight: bold;
+    -fx-padding: 3 10;
+    -fx-background-radius: 12;
+}
+
+.status-ok {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #16a34a;
+    -fx-font-weight: bold;
+    -fx-padding: 3 10;
+    -fx-background-radius: 12;
+}
+
+/* Table row hover */
+.table-row-cell:hover {
+    -fx-background-color: #e8f0f8;
+}
+
+/* Table selected row */
+.table-row-cell:selected {
+    -fx-background-color: #cce0f5;
+}
+
+/* Search field styling */
+.text-field {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #d1d5db;
+    -fx-padding: 8 12;
+    -fx-font-size: 13px;
+}
+
+/* ComboBox styling */
+.combo-box {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #d1d5db;
+    -fx-padding: 4 8;
+}

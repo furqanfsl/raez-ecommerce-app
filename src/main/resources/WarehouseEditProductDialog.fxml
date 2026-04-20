@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Ecommerce1.Ecommerce1.Warehouse_EditProductDialogController">
+
+    <top>
+        <HBox spacing="10" styleClass="dialog-header" BorderPane.alignment="CENTER_LEFT">
+            <padding>
+                <Insets bottom="14" left="16" right="16" top="14" />
+            </padding>
+            <Label styleClass="h2" text="Edit Product" />
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button onAction="#onClose" styleClass="neutral-button" text="X" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="10">
+            <padding>
+                <Insets bottom="16" left="16" right="16" top="16" />
+            </padding>
+
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="35" />
+                    <ColumnConstraints percentWidth="65" />
+                </columnConstraints>
+
+                <Label text="Product Name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="SKU" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="skuField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Quantity" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="quantityField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="Minimum Threshold" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <TextField fx:id="minThresholdField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <Label text="Reorder Level" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <TextField fx:id="reorderLevelField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
+            </GridPane>
+
+            <Label fx:id="errorLabel" managed="false" style="-fx-text-fill: #cc0000;" text="" visible="false" />
+
+            <HBox spacing="10.0">
+                <Button graphicTextGap="10.0" maxWidth="100.0" onAction="#onSubmit" prefHeight="26.0" prefWidth="100.0" styleClass="primary-button" text="Save Changes" HBox.hgrow="ALWAYS" />
+                <Button maxWidth="64.0" onAction="#onClose" prefHeight="26.0" prefWidth="64.0" styleClass="neutral-button" text="Cancel" HBox.hgrow="ALWAYS" />
+            <VBox.margin>
+               <Insets />
+            </VBox.margin>
+            </HBox>
+
+        </VBox>
+    </center>
+</BorderPane>

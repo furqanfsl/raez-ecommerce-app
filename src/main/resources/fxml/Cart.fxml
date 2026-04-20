@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.CartController"
+            style="-fx-background-color: #f9fafb;">
+
+    <top>
+        <HBox spacing="16" alignment="CENTER_LEFT"
+              style="-fx-background-color:white;-fx-border-color:#e5e7eb;-fx-border-width:0 0 1 0;-fx-padding:0 32 0 32;"
+              prefHeight="64">
+            <Button text="← Back to Shop" onAction="#handleBack"
+                    style="-fx-background-color:transparent;-fx-border-color:#e5e7eb;-fx-border-radius:6;-fx-background-radius:6;-fx-padding:8 16;-fx-cursor:hand;-fx-font-size:13;"/>
+            <Label text="Your Cart" style="-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:#111827;"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="loginStatusLabel" style="-fx-font-size:13;-fx-text-fill:#6b7280;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <HBox spacing="24">
+            <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+
+            <!-- Cart items list -->
+            <VBox spacing="12" HBox.hgrow="ALWAYS">
+                <Label fx:id="emptyLabel" text="Your cart is empty."
+                       style="-fx-font-size:16;-fx-text-fill:#6b7280;"
+                       visible="false" managed="false"/>
+                <VBox fx:id="itemsBox" spacing="10"/>
+            </VBox>
+
+            <!-- Order summary panel -->
+            <VBox spacing="16" prefWidth="340" minWidth="280"
+                  style="-fx-background-color:white;-fx-border-color:#e5e7eb;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:24;">
+                <Label text="Order Summary" style="-fx-font-size:17;-fx-font-weight:bold;-fx-text-fill:#111827;"/>
+
+                <HBox>
+                    <Label text="Subtotal" style="-fx-font-size:14;-fx-text-fill:#374151;"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="subtotalLabel" text="£0.00" style="-fx-font-size:14;-fx-font-weight:bold;"/>
+                </HBox>
+                <HBox>
+                    <Label text="Delivery" style="-fx-font-size:14;-fx-text-fill:#374151;"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Label text="Free" style="-fx-font-size:14;-fx-text-fill:#16a34a;-fx-font-weight:bold;"/>
+                </HBox>
+                <Separator/>
+                <HBox>
+                    <Label text="Total" style="-fx-font-size:16;-fx-font-weight:bold;-fx-text-fill:#111827;"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="totalLabel" text="£0.00" style="-fx-font-size:16;-fx-font-weight:bold;-fx-text-fill:#111827;"/>
+                </HBox>
+
+                <TextField fx:id="addressField" promptText="Delivery address (optional)"
+                           style="-fx-border-color:#e5e7eb;-fx-border-radius:6;-fx-background-radius:6;-fx-padding:8 12;-fx-font-size:13;"/>
+
+                <Button text="Checkout" onAction="#handleCheckout" maxWidth="Infinity"
+                        fx:id="checkoutBtn"
+                        style="-fx-background-color:#111827;-fx-text-fill:white;-fx-font-size:15;-fx-font-weight:bold;-fx-padding:14 0;-fx-background-radius:8;-fx-cursor:hand;"/>
+
+                <Button text="Clear Cart" onAction="#handleClear" maxWidth="Infinity"
+                        style="-fx-background-color:transparent;-fx-border-color:#e5e7eb;-fx-border-radius:8;-fx-background-radius:8;-fx-text-fill:#dc2626;-fx-padding:10 0;-fx-cursor:hand;-fx-font-size:13;"/>
+
+                <Label fx:id="statusLabel" wrapText="true"
+                       style="-fx-font-size:13;-fx-text-fill:#6b7280;" text=""/>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

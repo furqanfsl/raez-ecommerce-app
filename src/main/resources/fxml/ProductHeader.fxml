@@ -70,7 +70,7 @@
         </StackPane>
 
         <StackPane>
-            <Button text="&#128722;"
+            <Button text="&#128722;" onAction="#handleCartClick"
                     style="-fx-background-color: transparent; -fx-border-color: transparent;
                            -fx-font-size: 20; -fx-text-fill: #374151; -fx-cursor: hand; -fx-padding: 0;" />
             <Label fx:id="cartBadge" text="0"

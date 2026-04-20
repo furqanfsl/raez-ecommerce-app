@@ -1,5 +1,6 @@
 package Controllers;
 
+import com.reaz.model.CartManager;
 import com.reaz.model.FavouritesManager;
 import com.reaz.model.NavigationRouter;
 import com.reaz.model.Product;
@@ -33,7 +34,8 @@ public class ProductHeaderController implements Initializable {
     @FXML private Button     heartBtn;
     @FXML private Label      heartBadge;
 
-    private final FavouritesManager favManager = FavouritesManager.getInstance();
+    private final FavouritesManager favManager  = FavouritesManager.getInstance();
+    private final CartManager       cartManager = CartManager.getInstance();
     private Popup favouritesPopup;
 
     @Override
@@ -44,8 +46,17 @@ public class ProductHeaderController implements Initializable {
         favManager.addListener(products -> Platform.runLater(() -> updateFavBadge(products)));
         updateFavBadge(favManager.getAll());
 
-        // Register with NavigationRouter — fires updateUserState immediately with current user
+        cartManager.addListener(items -> Platform.runLater(() -> updateCartBadge(items)));
+
         NavigationRouter.getInstance().setHeaderLoginListener(this::updateUserState);
+    }
+
+    private void updateCartBadge(java.util.Map<Integer, CartManager.CartItem> items) {
+        if (cartBadge == null) return;
+        int count = items.values().stream().mapToInt(i -> i.quantity).sum();
+        cartBadge.setText(String.valueOf(count));
+        cartBadge.setVisible(count > 0);
+        cartBadge.setManaged(count > 0);
     }
 
     private void updateFavBadge(List<Product> products) {
@@ -154,8 +165,12 @@ public class ProductHeaderController implements Initializable {
     }
 
     @FXML
+    private void handleCartClick() {
+        navigateTo("/fxml/Cart.fxml");
+    }
+
+    @FXML
     private void handleOpenLogin() {
-        // NavigationRouter handles post-login routing; no callback needed here
         ProductLoginModalLauncher.show(null);
     }
 

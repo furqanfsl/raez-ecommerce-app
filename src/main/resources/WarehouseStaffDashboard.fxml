@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/13"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Ecommerce1.Ecommerce1.Warehouse_StaffDashboardController"
+            styleClass="root">
+
+    <top>
+        <HBox spacing="12" styleClass="topbar" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="16" right="24" bottom="16" left="24"/>
+            </padding>
+            <Label text="Inventory &amp; Warehousing Dashboard" styleClass="h1"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button text="Log Out" onAction="#onLogout" styleClass="danger-button"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="16">
+                <padding>
+                    <Insets top="20" right="24" bottom="20" left="24"/>
+                </padding>
+
+                <!-- Action buttons -->
+                <FlowPane hgap="8" vgap="8">
+                    <Button fx:id="toggleWarehousesBtn" text="Hide Warehouses" onAction="#onToggleWarehouses" styleClass="primary-button"/>
+                    <Button text="Add Warehouse"  onAction="#onAddWarehouse"  styleClass="success-button"/>
+                    <Button text="Add Product"    onAction="#onAddProduct"    styleClass="success-button"/>
+                    <Button text="Transfer Stock" onAction="#onTransferStock" styleClass="primary-button"/>
+                    <Button fx:id="toggleReportBtn" text="Generate Report" onAction="#onToggleReport" styleClass="primary-button"/>
+                    <Button text="Reset Data"     onAction="#onResetData"     styleClass="neutral-button"/>
+                </FlowPane>
+
+                <!-- Low stock card -->
+                <VBox fx:id="lowStockCard" spacing="8" styleClass="alert-card">
+                    <Label text="⚠  Urgent Stock Items – Immediate Attention Required" styleClass="alert-title"/>
+                    <TableView fx:id="lowStockTable" prefHeight="300">
+                        <columns>
+                            <TableColumn fx:id="lsProductCol"   text="Product Name"       prefWidth="260"/>
+                            <TableColumn fx:id="lsSkuCol"       text="SKU"                prefWidth="160"/>
+                            <TableColumn fx:id="lsQtyCol"       text="Current Stock"      prefWidth="130"/>
+                            <TableColumn fx:id="lsWarehouseCol" text="Warehouse Location" prefWidth="240"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+
+                <!-- Report card -->
+                <VBox fx:id="reportCard" spacing="10" styleClass="card" visible="false" managed="false">
+                    <Label text="Inventory Report" styleClass="h2"/>
+                    <GridPane hgap="10" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="70"/>
+                            <ColumnConstraints percentWidth="30"/>
+                        </columnConstraints>
+                        <Label text="Total Stock Across All Warehouses:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label fx:id="totalStockLabel"     text="0 units" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="Number of Low-Stock Items:"          GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label fx:id="lowStockCountLabel"  text="0"       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Warehouse Capacity Usage:"           GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <Label fx:id="capacityUsageLabel"  text="0%"      GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <Button text="Download Report (PDF)" onAction="#onDownloadReport" styleClass="primary-button"/>
+                </VBox>
+
+                <!-- Delivery Confirmation Section -->
+                <VBox fx:id="deliveryCard" spacing="8" styleClass="card">
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+    					<Label text="Pending Deliveries" styleClass="h2"/>
+   						<Pane HBox.hgrow="ALWAYS"/>
+    					<Button text="+ Add Demo Deliveries" onAction="#onAddDemoDeliveries"
+           				style="-fx-background-color: #7c3aed; -fx-text-fill: white; -fx-padding: 8 14; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: bold;"/>
+    					<Button text="Refresh" onAction="#onRefreshDeliveries" styleClass="neutral-button"/>
+					</HBox>
+                    <TableView fx:id="deliveryTable" prefHeight="220">
+                        <columns>
+                            <TableColumn fx:id="delIdCol"          text="Delivery ID"      prefWidth="90"/>
+                            <TableColumn fx:id="delOrderCol"       text="Order ID"         prefWidth="80"/>
+                            <TableColumn fx:id="delAddressCol"     text="Customer Address" prefWidth="200"/>
+                            <TableColumn fx:id="delItemsCol"       text="Items"            prefWidth="60"/>
+                            <TableColumn fx:id="delDriverCol"      text="Driver"           prefWidth="120"/>
+                            <TableColumn fx:id="delWarehouseCol"   text="Delivering To"    prefWidth="150"/>
+                            <TableColumn fx:id="delDateCol"        text="Order Date"       prefWidth="100"/>
+                            <TableColumn fx:id="delActionsCol"     text="Actions"          prefWidth="160"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+
+                <!-- Warehouses table -->
+                <VBox fx:id="tablesSplit" spacing="8">
+                    <Label text="Warehouses" styleClass="h2"/>
+                    <TableView fx:id="warehousesTable" prefHeight="260">
+                        <columns>
+                            <TableColumn fx:id="wIdCol"       text="Warehouse ID"    prefWidth="110"/>
+                            <TableColumn fx:id="wNameCol"     text="Warehouse Name"  prefWidth="190"/>
+                            <TableColumn fx:id="wLocationCol" text="Location"        prefWidth="140"/>
+                            <TableColumn fx:id="wLineCol"     text="Product Line"    prefWidth="180"/>
+                            <TableColumn fx:id="wCapacityCol" text="Capacity"        prefWidth="180"/>
+                            <TableColumn fx:id="wLowCountCol" text="Low Stock Count" prefWidth="120"/>
+                            <TableColumn fx:id="wActionsCol"  text="Actions"         prefWidth="220"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+
+                <!-- Products table -->
+                <VBox spacing="8">
+                    <Label fx:id="productsTitle" text="Products" styleClass="h2"/>
+                    <TableView fx:id="productsTable" prefHeight="220">
+                        <columns>
+                            <TableColumn fx:id="pNameCol"    text="Product Name"      prefWidth="200"/>
+                            <TableColumn fx:id="pSkuCol"     text="SKU"               prefWidth="140"/>
+                            <TableColumn fx:id="pQtyCol"     text="Quantity On Hand"  prefWidth="140"/>
+                            <TableColumn fx:id="pMinCol"     text="Min Threshold"     prefWidth="130"/>
+                            <TableColumn fx:id="pRestockCol" text="Last Restock Date" prefWidth="140"/>
+                            <TableColumn fx:id="pReorderCol" text="Reorder Level"     prefWidth="120"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        </columnResizePolicy>
+                    </TableView>
+                    <HBox spacing="8">
+                        <Button text="Edit Selected Product"   onAction="#onEditProduct"   styleClass="neutral-button"/>
+                        <Button text="Delete Selected Product" onAction="#onDeleteProduct" styleClass="danger-button"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

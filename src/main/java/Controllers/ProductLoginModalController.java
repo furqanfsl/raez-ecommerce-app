@@ -100,7 +100,10 @@ public class ProductLoginModalController implements Initializable {
             // ── Admin tab: only admin roles allowed ────────────────────────
             if ("admin".equals(activeTab)) {
                 boolean allowed = roleNames.stream().anyMatch(r ->
-                    "product_admin".equals(r) || "super_admin".equals(r) || "customer_admin".equals(r));
+                    "product_admin".equals(r) || "super_admin".equals(r) ||
+                    "customer_admin".equals(r) || "warehouse_admin".equals(r) ||
+                    "delivery_admin".equals(r) || "orders_admin".equals(r) ||
+                    "orders_user".equals(r));
                 if (!allowed) { showError("No admin role found for this account."); return; }
             }
 

@@ -1,5 +1,6 @@
 package Controllers;
 
+import com.reaz.model.CartManager;
 import com.reaz.model.FavouritesManager;
 import com.reaz.model.Product;
 import com.reaz.service.ProductService;
@@ -27,8 +28,9 @@ public class ProductListController implements Initializable {
     @FXML private VBox  productContainer;
     @FXML private Label itemCountLabel;
 
-    private final ProductService service    = new ProductService();
-    private final FavouritesManager favManager = FavouritesManager.getInstance();
+    private final ProductService    service     = new ProductService();
+    private final FavouritesManager favManager  = FavouritesManager.getInstance();
+    private final CartManager       cartManager = CartManager.getInstance();
 
     private Set<String> categoryFilters = new HashSet<>();
     private double      minPrice        = 0;
@@ -243,10 +245,35 @@ public class ProductListController implements Initializable {
         Label priceLabel = new Label(String.format("£%.2f", product.price));
         priceLabel.setStyle("-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #111827;");
 
-        Label stockLabel = new Label(product.stock > 0 ? "In Stock" : "Check Availability");
-        stockLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #16a34a;");
+        Label stockLabel = new Label(product.stock > 0 ? "In Stock" : "Out of Stock");
+        stockLabel.setStyle("-fx-font-size: 11; -fx-text-fill: " +
+                (product.stock > 0 ? "#16a34a" : "#dc2626") + ";");
 
-        VBox info = new VBox(4, nameLabel, categoryLabel, ratingLabel, priceLabel, stockLabel);
+        Button cartBtn = new Button(product.stock > 0 ? "Add to Cart" : "Out of Stock");
+        cartBtn.setDisable(product.stock <= 0);
+        cartBtn.setMaxWidth(Double.MAX_VALUE);
+        cartBtn.setStyle("-fx-background-color: #111827; -fx-text-fill: white; -fx-font-size: 12;" +
+                "-fx-padding: 8 0; -fx-background-radius: 6; -fx-cursor: hand;");
+        final int pid   = product.productID;
+        final String pn = product.name;
+        final double pp = product.price;
+        cartBtn.setOnAction(e -> {
+            cartManager.addItem(pid, pn, pp);
+            cartBtn.setText("Added ✓");
+            cartBtn.setStyle("-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-size: 12;" +
+                    "-fx-padding: 8 0; -fx-background-radius: 6; -fx-cursor: hand;");
+            new java.util.Timer().schedule(new java.util.TimerTask() {
+                @Override public void run() {
+                    javafx.application.Platform.runLater(() -> {
+                        cartBtn.setText("Add to Cart");
+                        cartBtn.setStyle("-fx-background-color: #111827; -fx-text-fill: white;" +
+                                "-fx-font-size: 12; -fx-padding: 8 0; -fx-background-radius: 6; -fx-cursor: hand;");
+                    });
+                }
+            }, 1500);
+        });
+
+        VBox info = new VBox(6, nameLabel, categoryLabel, ratingLabel, priceLabel, stockLabel, cartBtn);
         info.setPadding(new Insets(10, 4, 4, 4));
         info.setStyle("-fx-background-color: white;");
 

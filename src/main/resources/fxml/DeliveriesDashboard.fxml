@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.reaz.delivery.controller.DeliveryDashboardController"
+            style="-fx-background-color: #f8fafc;">
+
+    <top>
+        <HBox spacing="10" style="-fx-background-color: white; -fx-border-color: #e5e7eb;">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+            <Label text="Dashboard" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Button text="Drivers" onAction="#goToDrivers"/>
+            <Button text="Deliveries" onAction="#goToOrders"/>
+            <Button text="Logout" onAction="#logout"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Overview of your logistics database" style="-fx-text-fill: #6b7280;"/>
+
+            <HBox spacing="16">
+                <VBox spacing="8" prefWidth="250" style="-fx-background-color: #3b82f6; -fx-background-radius: 10; -fx-padding: 18;">
+                    <Label text="Total Deliveries" style="-fx-text-fill: white;"/>
+                    <Label fx:id="totalOrdersLabel" style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox spacing="8" prefWidth="250" style="-fx-background-color: #f97316; -fx-background-radius: 10; -fx-padding: 18;">
+                    <Label text="In Transit" style="-fx-text-fill: white;"/>
+                    <Label fx:id="inTransitLabel" style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox spacing="8" prefWidth="250" style="-fx-background-color: #22c55e; -fx-background-radius: 10; -fx-padding: 18;">
+                    <Label text="Delivered" style="-fx-text-fill: white;"/>
+                    <Label fx:id="deliveredTodayLabel" style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <VBox spacing="8" prefWidth="250" style="-fx-background-color: #eab308; -fx-background-radius: 10; -fx-padding: 18;">
+                    <Label text="Pending" style="-fx-text-fill: white;"/>
+                    <Label fx:id="pendingLabel" style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+            <HBox spacing="20" VBox.vgrow="ALWAYS">
+                <VBox spacing="10" prefWidth="700" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 18; -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                    <Label text="Recent Deliveries" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    <ListView fx:id="recentOrdersList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+
+                <VBox spacing="10" prefWidth="300" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 18; -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                    <Label text="Database Summary" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    <ListView fx:id="alertsList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
