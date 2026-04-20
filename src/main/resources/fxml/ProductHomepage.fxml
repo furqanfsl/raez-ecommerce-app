@@ -27,6 +27,8 @@
                         <fx:include fx:id="productList" source="ProductList.fxml" />
                     </HBox>
 
+                    <fx:include source="AppFooter.fxml" />
+
                 </VBox>
             </content>
         </ScrollPane>

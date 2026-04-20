@@ -235,17 +235,28 @@ public class ProductHeaderController implements Initializable {
 
     @FXML
     private void handleNavigateAdmin() {
-        navigateTo("/fxml/ProductAdminDashboard.fxml");
+        User user = NavigationRouter.getInstance().getCurrentUser();
+        if (user != null && "super_admin".equals(user.roleName)) {
+            NavigationRouter.getInstance().routeAfterLogin(user);
+        } else {
+            navigateTo("/fxml/ProductAdminDashboard.fxml");
+        }
     }
 
     @FXML
-    private void handleNavigateHome() {
-        navigateTo("/fxml/ProductHomepage.fxml");
-    }
+    private void handleNavigateHome() { routeHome(); }
 
     @FXML
-    private void handleLogoClick() {
-        navigateTo("/fxml/ProductHomepage.fxml");
+    private void handleLogoClick() { routeHome(); }
+
+    /** Super admins return to their command center; everyone else to the storefront. */
+    private void routeHome() {
+        User user = NavigationRouter.getInstance().getCurrentUser();
+        if (user != null && "super_admin".equals(user.roleName)) {
+            NavigationRouter.getInstance().routeAfterLogin(user);
+        } else {
+            navigateTo("/fxml/ProductHomepage.fxml");
+        }
     }
 
     private void navigateTo(String fxmlPath) {
