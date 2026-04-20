@@ -1,9 +1,9 @@
-package com.reaz.test;
+package com.raez.test;
 
-import com.reaz.dao.InventoryDAO;
-import com.reaz.dao.ProductDAO;
-import com.reaz.model.Product;
-import com.reaz.service.ProductService;
+import com.raez.dao.InventoryDAO;
+import com.raez.dao.ProductDAO;
+import com.raez.model.Product;
+import com.raez.service.ProductService;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
