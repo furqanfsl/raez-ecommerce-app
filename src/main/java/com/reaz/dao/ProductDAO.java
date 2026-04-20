@@ -24,6 +24,7 @@ public class ProductDAO {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
             System.err.println("ProductDAO.getAll: " + e.getMessage());
+            e.printStackTrace();
         }
         return list;
     }

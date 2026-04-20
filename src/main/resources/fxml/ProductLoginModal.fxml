@@ -52,13 +52,13 @@
         <VBox style="-fx-background-color: #eff6ff; -fx-border-color: #bfdbfe;
                      -fx-border-radius: 8; -fx-background-radius: 8;
                      -fx-padding: 14;" spacing="4">
-            <Label text="Demo Credentials:"
+            <Label text="Sign-in"
                    style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1e3a8a;" />
             <Label fx:id="demoEmailLabel" text="Use an email and password from your database seed."
                    style="-fx-font-size: 12; -fx-text-fill: #4b5563;" />
             <Label fx:id="demoPasswordLabel" text="Passwords are verified with passwordHash in the users table."
                    style="-fx-font-size: 12; -fx-text-fill: #4b5563;" />
-            <Button text="Fill Demo Credentials" onAction="#handleFillDemo"
+            <Button text="Clear fields" onAction="#handleFillDemo"
                     style="-fx-background-color: transparent; -fx-border-color: transparent;
                            -fx-font-size: 12; -fx-text-fill: #2563eb; -fx-padding: 2 0 0 0;
                            -fx-underline: true; -fx-cursor: hand;" />

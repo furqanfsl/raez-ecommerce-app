@@ -21,9 +21,9 @@ public class CustomerStaffLoginController {
     private final CustomerAdminDAO adminDAO = new CustomerAdminDAO();
 
     @FXML
-    private void handleAutofill() {
-        emailField.setText("admin@raez.com");
-        passwordField.setText("admin123");
+    private void handleClearFields() {
+        emailField.clear();
+        passwordField.clear();
         errorLabel.setText("");
     }
 

@@ -11,13 +11,16 @@ import java.sql.*;
 public class InventoryDAO {
 
     private static final String DEFAULT_WAREHOUSE = "Main Warehouse";
-    private final Connection conn = DBConnection.getInstance().getConnection();
+
+    private Connection conn() {
+        return DBConnection.getInstance().getConnection();
+    }
 
     /** Get or create the default warehouse, returns its id */
     public int getOrCreateDefaultWarehouse() {
         // Try to find existing
         String find = "SELECT warehouseID FROM warehouse_warehouses WHERE warehouseName = ?";
-        try (PreparedStatement ps = conn.prepareStatement(find)) {
+        try (PreparedStatement ps = conn().prepareStatement(find)) {
             ps.setString(1, DEFAULT_WAREHOUSE);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt("warehouseID");
@@ -27,7 +30,7 @@ public class InventoryDAO {
 
         // Create it
         String insert = "INSERT INTO warehouse_warehouses (warehouseName, location, warehouseCode) VALUES (?, 'Main', 'WH-DEFAULT')";
-        try (PreparedStatement ps = conn.prepareStatement(insert,
+        try (PreparedStatement ps = conn().prepareStatement(insert,
                 Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, DEFAULT_WAREHOUSE);
             ps.executeUpdate();
@@ -41,8 +44,9 @@ public class InventoryDAO {
 
     /** Get stock quantity for a product (sum across all warehouses) */
     public int getStock(int productId) {
-        String sql = "SELECT quantityOnHand FROM warehouse_inventory WHERE productID = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql =
+            "SELECT COALESCE(SUM(quantityOnHand), 0) FROM warehouse_inventory WHERE productID = ?";
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setInt(1, productId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
@@ -58,15 +62,15 @@ public class InventoryDAO {
         if (warehouseId < 0) return;
 
         String sql = """
-            INSERT INTO warehouse_inventory (productID, warehouseID, quantityOnHand, minStockThreshold)
+            INSERT INTO warehouse_inventory (warehouseID, productID, quantityOnHand, minStockThreshold)
             VALUES (?, ?, ?, 0)
-            ON CONFLICT(productID, warehouseID)
+            ON CONFLICT(warehouseID, productID)
             DO UPDATE SET quantityOnHand = excluded.quantityOnHand,
                           lastRestockDate = CURRENT_TIMESTAMP
             """;
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, productId);
-            ps.setInt(2, warehouseId);
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
+            ps.setInt(1, warehouseId);
+            ps.setInt(2, productId);
             ps.setInt(3, Math.max(0, quantity));
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -77,7 +81,7 @@ public class InventoryDAO {
     /** Delete stock record when product is deleted */
     public void deleteForProduct(int productId) {
         String sql = "DELETE FROM warehouse_inventory WHERE productID = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.executeUpdate();
         } catch (SQLException e) {

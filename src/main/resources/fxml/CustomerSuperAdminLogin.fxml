@@ -19,25 +19,22 @@
                 <Label text="Super Admin Access"
                        style="-fx-text-fill: #7C3AED; -fx-font-size: 13px; -fx-font-weight: bold;"/>
 
-                <Button text="⚡ Autofill Demo Credentials"
-                        onAction="#handleAutofill"
+                <Button text="Clear fields"
+                        onAction="#handleClearFields"
                         maxWidth="Infinity"
                         style="-fx-background-color: #FAF5FF; -fx-text-fill: #7C3AED;
                                -fx-border-color: #E9D5FF; -fx-border-radius: 6; -fx-padding: 8; -fx-font-size: 12px;"/>
 
                 <VBox spacing="3"
                       style="-fx-background-color: #FAF5FF; -fx-border-color: #E9D5FF; -fx-border-radius: 6; -fx-padding: 10;">
-                    <Label text="Demo Super Admin:"
-                           style="-fx-text-fill: #581C87; -fx-font-size: 12px; -fx-font-weight: bold;"/>
-                    <Label text="Email: admin@raez.com"
-                           style="-fx-text-fill: #7C3AED; -fx-font-size: 11px;"/>
-                    <Label text="Password: admin123"
-                           style="-fx-text-fill: #7C3AED; -fx-font-size: 11px;"/>
+                    <Label text="Super admin — use an account from your database."
+                           wrapText="true"
+                           style="-fx-text-fill: #581C87; -fx-font-size: 12px;"/>
                 </VBox>
 
                 <VBox spacing="5" maxWidth="Infinity">
                     <Label text="Email"/>
-                    <TextField fx:id="emailField" promptText="admin@raez.com" maxWidth="Infinity"/>
+                    <TextField fx:id="emailField" promptText="your.email@example.com" maxWidth="Infinity"/>
                     <Label fx:id="emailErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;" wrapText="true"/>
                 </VBox>
 

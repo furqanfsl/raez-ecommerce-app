@@ -12,13 +12,15 @@ import java.util.List;
  */
 public class CategoryDAO {
 
-    private final Connection conn = DBConnection.getInstance().getConnection();
+    private Connection conn() {
+        return DBConnection.getInstance().getConnection();
+    }
 
     /** Get all active categories */
     public List<Category> getAll() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories WHERE isActive = 1 ORDER BY categoryName";
-        try (Statement st = conn.createStatement();
+        try (Statement st = conn().createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
@@ -35,7 +37,7 @@ public class CategoryDAO {
             JOIN product_categories pc ON pc.categoryID = c.categoryID
             WHERE pc.productID = ?
             """;
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setInt(1, productId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(map(rs));
@@ -49,7 +51,7 @@ public class CategoryDAO {
     public int insert(Category c) {
         String sql =
             "INSERT INTO categories (categoryName, description, isActive) VALUES (?,?,?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql,
+        try (PreparedStatement ps = conn().prepareStatement(sql,
                 Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, c.categoryName);
             ps.setString(2, c.description);
@@ -66,7 +68,7 @@ public class CategoryDAO {
     /** Find category by name, returns null if not found */
     public Category findByName(String name) {
         String sql = "SELECT * FROM categories WHERE categoryName = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return map(rs);
@@ -79,7 +81,7 @@ public class CategoryDAO {
     /** Link a product to a category */
     public void linkProductCategory(int productId, int categoryId) {
         String sql = "INSERT OR IGNORE INTO product_categories (productID, categoryID) VALUES (?,?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.setInt(2, categoryId);
             ps.executeUpdate();
@@ -91,7 +93,7 @@ public class CategoryDAO {
     /** Remove all category links for a product */
     public void unlinkAllForProduct(int productId) {
         String sql = "DELETE FROM product_categories WHERE productID = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.executeUpdate();
         } catch (SQLException e) {

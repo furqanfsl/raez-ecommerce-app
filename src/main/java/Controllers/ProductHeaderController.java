@@ -1,6 +1,7 @@
 package Controllers;
 
 import com.reaz.model.FavouritesManager;
+import com.reaz.model.NavigationRouter;
 import com.reaz.model.Product;
 import com.reaz.model.User;
 import javafx.application.Platform;
@@ -42,6 +43,9 @@ public class ProductHeaderController implements Initializable {
 
         favManager.addListener(products -> Platform.runLater(() -> updateFavBadge(products)));
         updateFavBadge(favManager.getAll());
+
+        // Register with NavigationRouter — fires updateUserState immediately with current user
+        NavigationRouter.getInstance().setHeaderLoginListener(this::updateUserState);
     }
 
     private void updateFavBadge(List<Product> products) {
@@ -151,12 +155,14 @@ public class ProductHeaderController implements Initializable {
 
     @FXML
     private void handleOpenLogin() {
-        ProductLoginModalLauncher.show(user -> updateUserState(user));
+        // NavigationRouter handles post-login routing; no callback needed here
+        ProductLoginModalLauncher.show(null);
     }
 
     @FXML
     private void handleLogout() {
-        clearUserState();
+        NavigationRouter.getInstance().logout();
+        // Scene root is replaced; this controller instance is discarded
     }
 
     private void updateUserState(User user) {

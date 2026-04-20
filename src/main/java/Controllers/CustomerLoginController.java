@@ -19,9 +19,9 @@ public class CustomerLoginController {
     private final CustomerDAO customerDAO = new CustomerDAO();
 
     @FXML
-    private void handleAutofill() {
-        emailField.setText("customer@example.com");
-        passwordField.setText("customer123");
+    private void handleClearFields() {
+        emailField.clear();
+        passwordField.clear();
         clearErrors();
     }
 

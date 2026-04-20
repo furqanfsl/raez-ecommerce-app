@@ -9,9 +9,11 @@ import java.util.List;
 
 public class CustomerAdminDAO {
 
-    // ── STAFF LOGIN (super_admin role) ─────────────────────────────────────
+    // ── STAFF LOGIN (Customer module: super_admin or customer_admin) ─────────
     public CustomerUser staffLogin(String email, String password) throws SQLException {
-        return loginWithRole(email, password, "super_admin");
+        CustomerUser u = loginWithRole(email, password, "super_admin");
+        if (u != null) return u;
+        return loginWithRole(email, password, "customer_admin");
     }
 
     // ── SUPER ADMIN LOGIN ──────────────────────────────────────────────────
@@ -26,17 +28,15 @@ public class CustomerAdminDAO {
             "FROM users u " +
             "JOIN user_roles ur ON ur.userID = u.userID " +
             "JOIN roles r ON r.roleID = ur.roleID " +
-            "WHERE u.email = ? AND r.roleName = ? AND u.isActive = 1";
+            "WHERE u.email = ? AND u.passwordHash = ? AND r.roleName = ? AND u.isActive = 1";
         try (Connection conn = DBConnection.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
-            ps.setString(2, roleName);
+            ps.setString(1, email.trim());
+            ps.setString(2, DBConnection.hashPassword(password));
+            ps.setString(3, roleName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                CustomerUser user = mapUser(rs);
-                String hashed = DBConnection.hashPassword(password);
-                if (!hashed.equals(user.getPasswordHash())) return null;
-                return user;
+                return mapUser(rs);
             }
         }
         return null;

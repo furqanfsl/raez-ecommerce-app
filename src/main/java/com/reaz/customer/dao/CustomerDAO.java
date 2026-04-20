@@ -17,17 +17,15 @@ public class CustomerDAO {
             "FROM users u " +
             "JOIN user_roles ur ON ur.userID = u.userID " +
             "JOIN roles r ON r.roleID = ur.roleID " +
-            "WHERE u.email = ? AND r.roleName = 'customer' AND u.isActive = 1";
+            "WHERE u.email = ? AND u.passwordHash = ? AND r.roleName = 'customer' AND u.isActive = 1";
 
         try (Connection conn = DBConnection.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
+            stmt.setString(1, email.trim());
+            stmt.setString(2, DBConnection.hashPassword(password));
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                CustomerUser user = mapUser(rs);
-                String hashed = DBConnection.hashPassword(password);
-                if (!hashed.equals(user.getPasswordHash())) return null;
-                return user;
+                return mapUser(rs);
             }
         }
         return null;

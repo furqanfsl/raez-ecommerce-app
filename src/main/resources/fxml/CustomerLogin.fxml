@@ -30,8 +30,8 @@
                     <Label text="Customer Login"
                            style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
 
-                    <Button text="⚡ Autofill Demo Credentials"
-                            onAction="#handleAutofill"
+                    <Button text="Clear fields"
+                            onAction="#handleClearFields"
                             maxWidth="Infinity"
                             style="-fx-background-color: #EFF6FF; -fx-text-fill: #2563EB;
                                    -fx-border-color: #BFDBFE; -fx-border-radius: 6;
@@ -41,12 +41,9 @@
                     <VBox spacing="3"
                           style="-fx-background-color: #EFF6FF; -fx-padding: 10;
                                  -fx-border-color: #BFDBFE; -fx-border-radius: 6; -fx-background-radius: 6;">
-                        <Label text="Demo Credentials:"
-                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1E3A8A;"/>
-                        <Label text="Email: customer@example.com"
-                               style="-fx-font-size: 11px; -fx-text-fill: #1D4ED8;"/>
-                        <Label text="Password: customer123"
-                               style="-fx-font-size: 11px; -fx-text-fill: #1D4ED8;"/>
+                        <Label text="Use an account from your SQLite database (seeded on first run)."
+                               wrapText="true"
+                               style="-fx-font-size: 12px; -fx-text-fill: #1E3A8A;"/>
                     </VBox>
 
                     <Label text="Email" style="-fx-text-fill: #0F172A;"/>

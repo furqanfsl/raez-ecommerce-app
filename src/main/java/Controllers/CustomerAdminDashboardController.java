@@ -3,6 +3,7 @@ package Controllers;
 import com.reaz.customer.dao.CustomerAdminDAO;
 import com.reaz.customer.dao.CustomerOrderDAO;
 import com.reaz.customer.model.CustomerUser;
+import com.reaz.model.NavigationRouter;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+// FXMLLoader/Scene/Stage retained for openEdit() navigation
 
 import java.util.List;
 
@@ -98,11 +100,7 @@ public class CustomerAdminDashboardController {
 
     @FXML
     private void handleLogout() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerWelcome.fxml"));
-            Stage stage = (Stage) customersTable.getScene().getWindow();
-            stage.setScene(new Scene(loader.load(), stage.getWidth(), stage.getHeight()));
-        } catch (Exception e) { e.printStackTrace(); }
+        NavigationRouter.getInstance().logout();
     }
 
     private void openEdit(CustomerUser customer) {
