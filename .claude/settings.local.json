@@ -43,7 +43,9 @@
       "Bash(cp -r src/main/java/com/reaz/dao      src/main/java/com/raez/)",
       "Bash(cp -r src/main/java/com/reaz/db       src/main/java/com/raez/)",
       "Bash(cp -r src/main/java/com/reaz/delivery src/main/java/com/raez/)",
-      "Bash(cp -r src/main/java/com/reaz/model    src/main/java/com/raez/)"
+      "Bash(cp -r src/main/java/com/reaz/model    src/main/java/com/raez/)",
+      "Bash(/c/Users/2522724/AppData/Local/apache-maven-3.9.6/bin/mvn javafx:run *)",
+      "Bash(mvn clean *)"
     ]
   }
 }
