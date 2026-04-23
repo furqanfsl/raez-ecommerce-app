@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.raez.controllers.ProductDetailController"
+            style="-fx-background-color: #f9fafb;">
+
+    <ScrollPane fx:id="mainScrollPane"
+                fitToWidth="true"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED"
+                AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0"
+                style="-fx-background-color: transparent; -fx-background: transparent;
+                       -fx-border-color: transparent;">
+        <content>
+            <VBox spacing="0" maxWidth="Infinity" style="-fx-background-color: #f9fafb;">
+
+                <fx:include source="ProductHeader.fxml" />
+
+                <!-- Back navigation bar -->
+                <HBox alignment="CENTER_LEFT" spacing="8" maxWidth="Infinity"
+                      style="-fx-background-color: white; -fx-padding: 14 40 14 40;
+                             -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;">
+                    <Button text="← Back to Shop" onAction="#handleBack"
+                            style="-fx-background-color: transparent;
+                                   -fx-border-color: #d1d5db; -fx-border-radius: 6;
+                                   -fx-background-radius: 6; -fx-padding: 7 16;
+                                   -fx-font-size: 13; -fx-cursor: hand;" />
+                </HBox>
+
+                <!-- Main product area: stacked top-to-bottom (no side-by-side hero/content) -->
+                <VBox spacing="24" maxWidth="Infinity"
+                      style="-fx-background-color: white; -fx-padding: 40 32 40 32;">
+
+                    <StackPane maxWidth="Infinity" minHeight="280" prefHeight="400"
+                               alignment="CENTER"
+                               style="-fx-background-color: #f3f4f6; -fx-background-radius: 12;">
+                        <Label fx:id="imagePlaceholder" text="🤖"
+                               style="-fx-font-size: 100; -fx-text-fill: #9ca3af;" />
+                        <ImageView fx:id="productImageView"
+                                   fitWidth="480" fitHeight="520"
+                                   preserveRatio="true" smooth="true"
+                                   visible="false" />
+                    </StackPane>
+
+                    <VBox spacing="16" maxWidth="Infinity">
+
+                        <Label fx:id="categoryLabel" text=""
+                               style="-fx-font-size: 12; -fx-text-fill: #6b7280;
+                                      -fx-font-weight: bold;" />
+
+                        <Label fx:id="productNameLabel" text=""
+                               wrapText="true" maxWidth="Infinity"
+                               style="-fx-font-size: 30; -fx-font-weight: bold;
+                                      -fx-text-fill: #111827;" />
+
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label fx:id="avgRatingStarsLabel" text=""
+                                   style="-fx-text-fill: #f59e0b; -fx-font-size: 16;" />
+                            <Label fx:id="avgRatingValueLabel" text=""
+                                   style="-fx-font-size: 13; -fx-text-fill: #374151;" />
+                            <Label fx:id="reviewCountLabel" text=""
+                                   style="-fx-font-size: 13; -fx-text-fill: #9ca3af;" />
+                        </HBox>
+
+                        <Separator />
+
+                        <Label fx:id="priceLabel" text="£0.00"
+                               style="-fx-font-size: 28; -fx-font-weight: bold;
+                                      -fx-text-fill: #111827;" />
+
+                        <Label fx:id="stockLabel" text=""
+                               style="-fx-font-size: 13;" />
+
+                        <Label fx:id="descriptionLabel" text=""
+                               wrapText="true" maxWidth="Infinity"
+                               style="-fx-font-size: 14; -fx-text-fill: #374151;
+                                      -fx-line-spacing: 3;" />
+
+                        <Separator />
+
+                        <HBox spacing="12" maxWidth="Infinity">
+                            <Button fx:id="addToCartBtn" text="Add to Cart"
+                                    onAction="#handleAddToCart"
+                                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                    style="-fx-background-color: #111827; -fx-text-fill: white;
+                                           -fx-font-size: 14; -fx-font-weight: bold;
+                                           -fx-padding: 13 0; -fx-background-radius: 8;
+                                           -fx-cursor: hand;" />
+                            <Button fx:id="buyNowBtn" text="Buy Now"
+                                    onAction="#handleBuyNow"
+                                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                    style="-fx-background-color: #000080; -fx-text-fill: white;
+                                           -fx-font-size: 14; -fx-font-weight: bold;
+                                           -fx-padding: 13 0; -fx-background-radius: 8;
+                                           -fx-cursor: hand;" />
+                        </HBox>
+
+                        <Button fx:id="favouriteBtn" text="♡  Save to Favourites"
+                                onAction="#handleToggleFavourite"
+                                style="-fx-background-color: white; -fx-text-fill: #374151;
+                                       -fx-border-color: #d1d5db; -fx-border-radius: 8;
+                                       -fx-background-radius: 8; -fx-font-size: 13;
+                                       -fx-padding: 10 16; -fx-cursor: hand;" />
+
+                    </VBox>
+                </VBox>
+
+                <VBox spacing="14" maxWidth="Infinity"
+                      style="-fx-background-color: #f9fafb; -fx-padding: 36 32 48 32;">
+
+                    <Label fx:id="reviewsTitleLabel" text="Customer Reviews"
+                           style="-fx-font-size: 20; -fx-font-weight: bold;
+                                  -fx-text-fill: #111827;" />
+
+                    <VBox fx:id="reviewsContainer" spacing="12" maxWidth="Infinity" />
+
+                </VBox>
+
+                <fx:include source="AppFooter.fxml" />
+
+            </VBox>
+        </content>
+    </ScrollPane>
+
+    <Button fx:id="scrollToTopBtn"
+            text="↑ Top"
+            mnemonicParsing="false"
+            visible="false"
+            managed="false"
+            AnchorPane.bottomAnchor="30.0"
+            AnchorPane.rightAnchor="30.0"
+            style="-fx-background-color: #1E2939; -fx-text-fill: white;
+                   -fx-font-size: 13; -fx-font-weight: bold;
+                   -fx-padding: 10 18; -fx-background-radius: 24;
+                   -fx-cursor: hand;
+                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0.2, 0, 2);" />
+</AnchorPane>

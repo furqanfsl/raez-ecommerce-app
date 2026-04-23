@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.raez.controllers.AppFooterController"
+      maxWidth="Infinity" minWidth="0"
+      style="-fx-background-color: #0a0a23;">
+
+    <!-- 4-column main row -->
+    <HBox spacing="0" maxWidth="Infinity" minWidth="0" style="-fx-padding: 48 32 36 32;">
+
+        <!-- Column 1: Brand -->
+        <VBox spacing="12" HBox.hgrow="ALWAYS">
+            <Label text="RAEZ"
+                   style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Label text="Next-generation robotics &amp; AI commerce."
+                   style="-fx-font-size: 12; -fx-text-fill: #94a3b8;" wrapText="true" />
+            <Label text="Trusted by 10,000+ customers worldwide."
+                   style="-fx-font-size: 11; -fx-text-fill: #64748b;" wrapText="true" />
+            <Region prefHeight="8" />
+            <Label text="© 2026 RAEZ Holdings Ltd. All rights reserved."
+                   style="-fx-font-size: 10; -fx-text-fill: #475569;" wrapText="true" />
+        </VBox>
+
+        <!-- Column 2: Support -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS" style="-fx-padding: 0 0 0 20;">
+            <Label text="Support"
+                   style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 0 0 4 0;" />
+            <Label text="Contact Us"          style="-fx-font-size: 12; -fx-text-fill: #94a3b8;" />
+            <Label text="Shipping Policy"     style="-fx-font-size: 12; -fx-text-fill: #94a3b8;" />
+            <Label text="Returns &amp; Refunds" style="-fx-font-size: 12; -fx-text-fill: #94a3b8;" />
+            <Label text="FAQ"                 style="-fx-font-size: 12; -fx-text-fill: #94a3b8;" />
+            <Label text="Privacy Policy"      style="-fx-font-size: 12; -fx-text-fill: #94a3b8;" />
+        </VBox>
+
+        <!-- Column 4: Staff Portal / Admin Login -->
+        <VBox spacing="12" HBox.hgrow="ALWAYS" style="-fx-padding: 0 0 0 20;">
+            <Label text="Staff Portal"
+                   style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 0 0 4 0;" />
+            <Label text="Access admin dashboards to manage products, orders, customers and more."
+                   style="-fx-font-size: 11; -fx-text-fill: #64748b;" wrapText="true" />
+            <Button text="🔐  Admin Login" onAction="#handleAdminLogin"
+                    style="-fx-background-color: #1e3a8a; -fx-text-fill: white;
+                           -fx-font-size: 12; -fx-font-weight: bold;
+                           -fx-background-radius: 6; -fx-border-color: #3b5bdb;
+                           -fx-border-radius: 6; -fx-padding: 9 20 9 20;
+                           -fx-cursor: hand;" />
+            <Label text="Restricted to authorised staff only."
+                   style="-fx-font-size: 10; -fx-text-fill: #475569;" />
+        </VBox>
+
+    </HBox>
+
+    <!-- Bottom bar -->
+    <HBox alignment="CENTER_LEFT" spacing="24" maxWidth="Infinity" minWidth="0"
+          style="-fx-border-color: #1e293b; -fx-border-width: 1 0 0 0;
+                 -fx-padding: 16 32 16 32; -fx-background-color: #060614;">
+        <Label text="Secure checkout"        style="-fx-font-size: 11; -fx-text-fill: #475569;" />
+        <Label text="·"                      style="-fx-text-fill: #334155;" />
+        <Label text="256-bit SSL encryption" style="-fx-font-size: 11; -fx-text-fill: #475569;" />
+        <Label text="·"                      style="-fx-text-fill: #334155;" />
+        <Label text="GDPR compliant"         style="-fx-font-size: 11; -fx-text-fill: #475569;" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Label text="Made in the UK 🇬🇧"     style="-fx-font-size: 11; -fx-text-fill: #475569;" />
+    </HBox>
+
+</VBox>

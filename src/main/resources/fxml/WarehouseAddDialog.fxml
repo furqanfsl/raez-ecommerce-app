@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/13"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.raez.warehouse.AddWarehouseDialogController"
+      spacing="12"
+      style="-fx-background-color: white;">
+
+    <padding>
+        <Insets top="16" right="16" bottom="16" left="16"/>
+    </padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Add Warehouse" style="-fx-font-size: 16px; -fx-font-weight: 700;"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Button text="X" onAction="#onClose"
+                style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-weight: 700;"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Form -->
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="35"/>
+            <ColumnConstraints percentWidth="65"/>
+        </columnConstraints>
+
+        <Label text="Warehouse ID" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="warehouseIdField" promptText="e.g., WH-006" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label fx:id="warehouseIdErrorLabel" textFill="red"
+               visible="false" managed="false"
+               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Warehouse Name" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="nameField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Location" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="locationField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Product Line" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="productLineField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Maximum Capacity" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="maxCapacityField" promptText="e.g., 5000" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label fx:id="errorLabel" textFill="red" visible="false" managed="false"/>
+
+    <!-- Buttons -->
+    <HBox spacing="10">
+        <Button text="Add Warehouse" onAction="#onSubmit"
+                style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: 700;"
+                HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308"/>
+        <Button text="Cancel" onAction="#onClose"
+                style="-fx-background-color: #d1d5db; -fx-text-fill: #111827; -fx-font-weight: 700;"
+                HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308"/>
+    </HBox>
+
+</VBox>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.raez.controllers.CustomerSuperAdminLoginController"
+            style="-fx-background-color: white;">
+
+    <center>
+        <VBox alignment="CENTER" style="-fx-background-color: white;">
+            <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
+
+            <VBox alignment="CENTER" spacing="15" maxWidth="420"
+                  style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-padding: 40;">
+
+                <Label text="RAEZ" style="-fx-font-size: 26px; -fx-font-weight: bold;"/>
+                <Label text="Super Admin Access"
+                       style="-fx-text-fill: #7C3AED; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                <Button text="Clear fields"
+                        onAction="#handleClearFields"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #FAF5FF; -fx-text-fill: #7C3AED;
+                               -fx-border-color: #E9D5FF; -fx-border-radius: 6; -fx-padding: 8; -fx-font-size: 12px;"/>
+
+                <VBox spacing="3"
+                      style="-fx-background-color: #FAF5FF; -fx-border-color: #E9D5FF; -fx-border-radius: 6; -fx-padding: 10;">
+                    <Label text="Super admin — use an account from your database."
+                           wrapText="true"
+                           style="-fx-text-fill: #581C87; -fx-font-size: 12px;"/>
+                </VBox>
+
+                <VBox spacing="5" maxWidth="Infinity">
+                    <Label text="Email"/>
+                    <TextField fx:id="emailField" promptText="your.email@example.com" maxWidth="Infinity"/>
+                    <Label fx:id="emailErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;" wrapText="true"/>
+                </VBox>
+
+                <VBox spacing="5" maxWidth="Infinity">
+                    <Label text="Password"/>
+                    <PasswordField fx:id="passwordField" promptText="Enter password" maxWidth="Infinity"/>
+                    <Label fx:id="passwordErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;"/>
+                </VBox>
+
+                <Label fx:id="generalErrorLabel"
+                       style="-fx-text-fill: red; -fx-font-size: 12px;" wrapText="true"/>
+
+                <Button text="Login as Super Admin"
+                        onAction="#handleLogin"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #7C3AED; -fx-text-fill: white;
+                               -fx-font-size: 13px; -fx-padding: 10; -fx-background-radius: 6;"/>
+                <Button text="Back to Home"
+                        onAction="#handleBack"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-border-color: #D1D5DB;
+                               -fx-font-size: 13px; -fx-padding: 10; -fx-background-radius: 6;"/>
+
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.raez.orders.controller.OrdersDashboardController"
+            style="-fx-background-color: #f4f4f7;">
+
+    <top>
+        <HBox spacing="14" alignment="CENTER_LEFT"
+              style="-fx-background-color: #192844; -fx-padding: 16 24 16 24;">
+            <Label text="RAEZ" style="-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:white;"/>
+            <Label text="Order Management" style="-fx-font-size:16;-fx-text-fill:#d2d7e4;"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="statsLabel" style="-fx-font-size:13;-fx-text-fill:#a0aec0;"/>
+            <Button text="Logout" onAction="#handleLogout"
+                    style="-fx-background-color:#dc2626;-fx-text-fill:white;-fx-font-size:13;-fx-padding:8 18;-fx-background-radius:6;-fx-cursor:hand;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="16">
+            <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+            <!-- Filter bar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Search by customer or order ID..."
+                           prefWidth="320" prefHeight="36"
+                           style="-fx-background-radius:6;-fx-border-radius:6;-fx-border-color:#e5e7eb;-fx-padding:0 12;"/>
+                <ComboBox fx:id="statusFilter" prefWidth="180" prefHeight="36"/>
+                <Button text="Refresh" onAction="#handleRefresh"
+                        style="-fx-background-color:#2563eb;-fx-text-fill:white;-fx-padding:8 18;-fx-background-radius:6;-fx-cursor:hand;"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="countLabel" style="-fx-font-size:13;-fx-text-fill:#6b7280;"/>
+            </HBox>
+
+            <!-- Orders table -->
+            <TableView fx:id="ordersTable" VBox.vgrow="ALWAYS"
+                       style="-fx-background-color:white;-fx-border-color:#e5e7eb;-fx-border-radius:8;-fx-background-radius:8;">
+                <columns>
+                    <TableColumn fx:id="idCol"       text="Order ID"    prefWidth="90"/>
+                    <TableColumn fx:id="customerCol" text="Customer"    prefWidth="200"/>
+                    <TableColumn fx:id="dateCol"     text="Order Date"  prefWidth="180"/>
+                    <TableColumn fx:id="totalCol"    text="Total (£)"   prefWidth="120"/>
+                    <TableColumn fx:id="itemsCol"    text="Items"       prefWidth="80"/>
+                    <TableColumn fx:id="statusCol"   text="Status"      prefWidth="140"/>
+                    <TableColumn fx:id="actionsCol"  text="Actions"     prefWidth="240"/>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

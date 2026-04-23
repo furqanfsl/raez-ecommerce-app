@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.raez.controllers.CustomerStaffLoginController"
+            style="-fx-background-color: white;">
+
+    <center>
+        <VBox alignment="CENTER" style="-fx-background-color: white;">
+            <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
+
+            <VBox alignment="CENTER" spacing="15" maxWidth="420"
+                  style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-padding: 40;">
+
+                <Label text="RAEZ" style="-fx-font-size: 26px; -fx-font-weight: bold;"/>
+                <Label text="Staff Login" style="-fx-text-fill: #6B7280; -fx-font-size: 13px;"/>
+
+                <Button text="Clear fields"
+                        onAction="#handleClearFields"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #EFF6FF; -fx-text-fill: #2563EB;
+                               -fx-border-color: #BFDBFE; -fx-border-radius: 6; -fx-padding: 8; -fx-font-size: 12px;"/>
+
+                <VBox spacing="3"
+                      style="-fx-background-color: #EFF6FF; -fx-border-color: #BFDBFE; -fx-border-radius: 6; -fx-padding: 10;">
+                    <Label text="Super admin or customer admin — use accounts from your database."
+                           wrapText="true"
+                           style="-fx-text-fill: #1E3A8A; -fx-font-size: 12px;"/>
+                </VBox>
+
+                <VBox spacing="5" maxWidth="Infinity">
+                    <Label text="Staff Email"/>
+                    <TextField fx:id="emailField" promptText="your.email@example.com" maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox spacing="5" maxWidth="Infinity">
+                    <Label text="Password"/>
+                    <PasswordField fx:id="passwordField" promptText="Enter password" maxWidth="Infinity"/>
+                </VBox>
+
+                <Label fx:id="errorLabel"
+                       style="-fx-text-fill: red; -fx-font-size: 12px;"
+                       wrapText="true"/>
+
+                <Button text="Login"
+                        onAction="#handleLogin"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #2563EB; -fx-text-fill: white;
+                               -fx-font-size: 13px; -fx-padding: 10; -fx-background-radius: 6;"/>
+                <Button text="Back to Home"
+                        onAction="#handleBack"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: transparent; -fx-border-color: #D1D5DB;
+                               -fx-font-size: 13px; -fx-padding: 10; -fx-background-radius: 6;"/>
+
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>

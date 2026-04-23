@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.raez.reviews.controller.CustomerDashboardController"
+            fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+            style="-fx-background: white; -fx-background-color: white; -fx-border-color: transparent;">
+    <content>
+        <BorderPane style="-fx-background-color: white;" prefWidth="1180">
+            <top>
+                <VBox spacing="14" style="-fx-background-color: #f9fafb; -fx-padding: 32 48 24 48;
+                                          -fx-border-color: transparent transparent #e5e7eb transparent;
+                                          -fx-border-width: 0 0 1 0;">
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <VBox spacing="4">
+                            <Label text="My Reviews"
+                                   style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #111827;" />
+                            <Label fx:id="welcomeLabel"
+                                   style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="← Back to Shop" onAction="#handleBackToShop"
+                                style="-fx-background-color: white; -fx-text-fill: #111827;
+                                       -fx-border-color: #e5e7eb; -fx-border-radius: 6;
+                                       -fx-background-radius: 6; -fx-font-size: 13;
+                                       -fx-padding: 8 14; -fx-cursor: hand;" />
+                        <Button text="Logout" onAction="#handleLogout"
+                                style="-fx-background-color: #111827; -fx-text-fill: white;
+                                       -fx-font-size: 13; -fx-font-weight: bold;
+                                       -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;" />
+                    </HBox>
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Show:" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
+                        <ComboBox fx:id="timeFilterComboBox" prefWidth="180"
+                                  style="-fx-font-size: 13;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="reviewCountLabel"
+                               style="-fx-font-size: 13; -fx-text-fill: #374151; -fx-font-weight: bold;" />
+                    </HBox>
+                </VBox>
+            </top>
+
+            <center>
+                <VBox fx:id="reviewsList" spacing="14" style="-fx-padding: 28 48 48 48; -fx-background-color: white;">
+                    <padding>
+                        <Insets top="0" />
+                    </padding>
+                </VBox>
+            </center>
+        </BorderPane>
+    </content>
+</ScrollPane>

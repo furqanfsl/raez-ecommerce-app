@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.raez.controllers.CustomerWelcomeController"
+            style="-fx-background-color: white;">
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: white;
+                           -fx-background: white;
+                           -fx-border-color: transparent;">
+            <content>
+                <VBox alignment="CENTER" spacing="40"
+                      style="-fx-background-color: white;"
+                      minHeight="700" fillWidth="true">
+                    <padding>
+                        <Insets top="60" right="200" bottom="60" left="200"/>
+                    </padding>
+
+                    <!-- Title -->
+                    <VBox alignment="CENTER" spacing="5">
+                        <Label text="RAEZ"
+                               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+                        <Label text="Future of Robotics Commerce"
+                               style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
+                    </VBox>
+
+                    <!-- Customer + Staff Cards -->
+                    <GridPane hgap="25" vgap="25" alignment="CENTER">
+
+                        <!-- Customer Card -->
+                        <VBox spacing="15" alignment="CENTER"
+                              prefWidth="420" prefHeight="300"
+                              GridPane.columnIndex="0"
+                              style="-fx-border-color: #E2E8F0;
+                                     -fx-border-radius: 16;
+                                     -fx-background-radius: 16;
+                                     -fx-background-color: white;
+                                     -fx-padding: 35;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
+
+                            <HBox alignment="CENTER">
+                                <StackPane prefWidth="72" prefHeight="72"
+                                           style="-fx-background-color: #3B82F6; -fx-background-radius: 18;">
+                                    <Label text="&#128101;" style="-fx-font-size: 28px; -fx-text-fill: white;"/>
+                                </StackPane>
+                            </HBox>
+
+                            <Label text="Customer Access"
+                                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+                            <Label text="Browse robots, manage orders, and account settings"
+                                   wrapText="true" maxWidth="320"
+                                   style="-fx-text-fill: #64748B; -fx-text-alignment: center; -fx-font-size: 13px;"/>
+                            <Button text="Login"
+                                    onAction="#handleCustomerLogin"
+                                    maxWidth="Infinity"
+                                    style="-fx-background-color: #3B82F6; -fx-text-fill: white;
+                                           -fx-font-size: 14px; -fx-font-weight: bold;
+                                           -fx-padding: 12 0; -fx-background-radius: 10; -fx-cursor: hand;"/>
+                        </VBox>
+
+                        <!-- Staff Card -->
+                        <VBox spacing="15" alignment="CENTER"
+                              prefWidth="420" prefHeight="300"
+                              GridPane.columnIndex="1"
+                              style="-fx-border-color: #E2E8F0;
+                                     -fx-border-radius: 16;
+                                     -fx-background-radius: 16;
+                                     -fx-background-color: white;
+                                     -fx-padding: 35;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
+
+                            <HBox alignment="CENTER">
+                                <StackPane prefWidth="72" prefHeight="72"
+                                           style="-fx-background-color: #3B82F6; -fx-background-radius: 18;">
+                                    <Label text="&#128187;" style="-fx-font-size: 28px; -fx-text-fill: white;"/>
+                                </StackPane>
+                            </HBox>
+
+                            <Label text="Staff Access"
+                                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+                            <Label text="Manage customer accounts and view analytics"
+                                   wrapText="true" maxWidth="320"
+                                   style="-fx-text-fill: #64748B; -fx-text-alignment: center; -fx-font-size: 13px;"/>
+                            <Button text="Login"
+                                    onAction="#handleStaffLogin"
+                                    maxWidth="Infinity"
+                                    style="-fx-background-color: #3B82F6; -fx-text-fill: white;
+                                           -fx-font-size: 14px; -fx-font-weight: bold;
+                                           -fx-padding: 12 0; -fx-background-radius: 10; -fx-cursor: hand;"/>
+                        </VBox>
+
+                        <!-- Super Admin Card -->
+                        <HBox spacing="20" alignment="CENTER_LEFT"
+                              GridPane.rowIndex="1" GridPane.columnSpan="2"
+                              style="-fx-border-color: #E2E8F0;
+                                     -fx-border-radius: 16;
+                                     -fx-background-radius: 16;
+                                     -fx-background-color: white;
+                                     -fx-padding: 30;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);">
+
+                            <StackPane prefWidth="65" prefHeight="65"
+                                       style="-fx-background-color: #3B82F6; -fx-background-radius: 16;">
+                                <Label text="&#128737;" style="-fx-font-size: 26px; -fx-text-fill: white;"/>
+                            </StackPane>
+
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Super Admin Panel"
+                                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+                                <Label text="Restricted access for high-level changes"
+                                       style="-fx-text-fill: #64748B; -fx-font-size: 13px;"/>
+                            </VBox>
+
+                            <Button text="Access Panel"
+                                    onAction="#handleSuperAdmin"
+                                    style="-fx-background-color: #3B82F6; -fx-text-fill: white;
+                                           -fx-font-size: 14px; -fx-font-weight: bold;
+                                           -fx-padding: 12 28; -fx-background-radius: 10; -fx-cursor: hand;"/>
+                        </HBox>
+
+                    </GridPane>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

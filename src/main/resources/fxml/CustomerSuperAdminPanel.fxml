@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.raez.controllers.CustomerSuperAdminPanelController"
+            style="-fx-background-color: white;">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="15"
+              style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-width: 0 0 1 0;">
+            <padding><Insets top="15" right="30" bottom="15" left="30"/></padding>
+            <Button text="← Back" onAction="#handleBack"
+                    style="-fx-background-color: transparent; -fx-border-color: #D1D5DB; -fx-padding: 8 16;"/>
+            <VBox spacing="2">
+                <Label text="RAEZ Super Admin Panel" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <Label text="Restricted Access - High-Level Changes"
+                       style="-fx-text-fill: #6B7280; -fx-font-size: 12px;"/>
+            </VBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
+            <content>
+                <VBox spacing="20" style="-fx-background-color: white;">
+                    <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+                    <!-- Warning Banner -->
+                    <HBox spacing="10" alignment="TOP_LEFT"
+                          style="-fx-background-color: #FEF2F2; -fx-border-color: #FECACA; -fx-border-radius: 8; -fx-padding: 15;">
+                        <Label text="⚠" style="-fx-font-size: 18px; -fx-text-fill: #DC2626;"/>
+                        <VBox spacing="3">
+                            <Label text="Super Admin Access Required"
+                                   style="-fx-font-weight: bold; -fx-text-fill: #991B1B;"/>
+                            <Label text="This panel modifies sensitive customer data. All changes are logged."
+                                   style="-fx-text-fill: #B91C1C; -fx-font-size: 12px;" wrapText="true"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Search Customer -->
+                    <VBox spacing="10"
+                          style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-padding: 20;">
+                        <Label text="Search Customer" style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+                        <HBox spacing="10">
+                            <TextField fx:id="searchEmailField"
+                                       promptText="Enter customer email to search..."
+                                       HBox.hgrow="ALWAYS"/>
+                            <Button text="Search" onAction="#handleSearch"
+                                    style="-fx-background-color: #7C3AED; -fx-text-fill: white; -fx-padding: 8 20;"/>
+                        </HBox>
+                        <Label fx:id="searchErrorLabel" style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+                    </VBox>
+
+                    <!-- Customer Info (shown after search) -->
+                    <VBox fx:id="customerInfoPane" spacing="10" visible="false" managed="false"
+                          style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-padding: 20;">
+                        <Label text="Customer Information" style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+                        <HBox spacing="20">
+                            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                <Label text="Customer ID" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
+                                <Label fx:id="customerIdLabel" style="-fx-font-weight: bold;"/>
+                            </VBox>
+                            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                <Label text="Full Name" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
+                                <Label fx:id="customerNameLabel" style="-fx-font-weight: bold;"/>
+                            </VBox>
+                            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                <Label text="Current Email" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
+                                <Label fx:id="customerCurrentEmailLabel"/>
+                            </VBox>
+                            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                <Label text="Current ID Card" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
+                                <Label fx:id="customerIdCardLabel"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Update Email -->
+                    <VBox fx:id="updateEmailPane" spacing="10" visible="false" managed="false"
+                          style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-padding: 20;">
+                        <Label text="⚠ Update Email Address"
+                               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #92400E;"/>
+                        <Label text="New Email Address"/>
+                        <TextField fx:id="newEmailField" promptText="Enter new email"/>
+                        <Label fx:id="emailUpdateErrorLabel" style="-fx-text-fill: red; -fx-font-size: 11px;"/>
+                        <Button text="Update Email (Super Admin Only)"
+                                onAction="#handleUpdateEmail"
+                                style="-fx-background-color: #DC2626; -fx-text-fill: white; -fx-padding: 10 20;"/>
+                    </VBox>
+
+                    <!-- Replace ID Card -->
+                    <VBox fx:id="updateIdCardPane" spacing="10" visible="false" managed="false"
+                          style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-padding: 20;">
+                        <Label text="⚠ Replace ID Card"
+                               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #92400E;"/>
+                        <Label text="New ID Card Filename"/>
+                        <TextField fx:id="newIdCardField" promptText="Enter new ID card filename (e.g. newid.jpg)"/>
+                        <Button text="Replace ID Card (Super Admin Only)"
+                                onAction="#handleUpdateIdCard"
+                                style="-fx-background-color: #DC2626; -fx-text-fill: white; -fx-padding: 10 20;"/>
+                    </VBox>
+
+                    <!-- Help text (shown before search) -->
+                    <VBox fx:id="helpPane" alignment="CENTER" spacing="10"
+                          style="-fx-background-color: white; -fx-border-color: #E5E7EB; -fx-border-radius: 8; -fx-padding: 40;">
+                        <Label text="🛡" style="-fx-font-size: 40px;"/>
+                        <Label text="Search for a customer by email to begin making super admin level changes"
+                               style="-fx-text-fill: #6B7280; -fx-font-size: 13px;" wrapText="true"/>
+                    </VBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

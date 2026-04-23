@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.raez.controllers.SuperAdminDashboardController"
+            prefWidth="1280" prefHeight="800"
+            style="-fx-background-color: #f4f6fb;">
+
+    <!-- Top navigation bar -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: #000080; -fx-padding: 14 32 14 32;">
+            <Label text="RAEZ Super Admin"
+                   style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="welcomeLabel"
+                   style="-fx-font-size: 13; -fx-text-fill: #cbd5e1;" />
+            <Button text="🏬  Storefront" onAction="#handleGoToStorefront"
+                    style="-fx-background-color: #e0e7ff; -fx-text-fill: #000080;
+                           -fx-font-weight: bold; -fx-background-radius: 6;
+                           -fx-padding: 6 18 6 18; -fx-cursor: hand;" />
+            <Button text="🚪  Logout" onAction="#handleLogout"
+                    style="-fx-background-color: white; -fx-text-fill: #000080;
+                           -fx-font-weight: bold; -fx-background-radius: 6;
+                           -fx-padding: 6 18 6 18; -fx-cursor: hand;" />
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <content>
+                <VBox spacing="24" style="-fx-padding: 28 32 28 32;">
+
+                    <!-- Metric tiles -->
+                    <HBox spacing="18">
+                        <VBox fx:id="tileActiveUsers" spacing="6" HBox.hgrow="ALWAYS"
+                              styleClass="metric-tile"
+                              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;
+                                     -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                            <Label text="Active Users"
+                                   style="-fx-font-size: 12; -fx-text-fill: #6b7280; -fx-font-weight: bold;" />
+                            <Label fx:id="activeUsersValue" text="0"
+                                   style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #000080;" />
+                            <Label text="Staff &amp; admin accounts"
+                                   style="-fx-font-size: 11; -fx-text-fill: #9ca3af;" />
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;
+                                     -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                            <Label text="Active Customers"
+                                   style="-fx-font-size: 12; -fx-text-fill: #6b7280; -fx-font-weight: bold;" />
+                            <Label fx:id="activeCustomersValue" text="0"
+                                   style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #16a34a;" />
+                            <Label text="Registered storefront accounts"
+                                   style="-fx-font-size: 11; -fx-text-fill: #9ca3af;" />
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;
+                                     -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                            <Label text="Active Products"
+                                   style="-fx-font-size: 12; -fx-text-fill: #6b7280; -fx-font-weight: bold;" />
+                            <Label fx:id="productCountValue" text="0"
+                                   style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
+                            <Label text="Published catalogue"
+                                   style="-fx-font-size: 11; -fx-text-fill: #9ca3af;" />
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;
+                                     -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                            <Label text="Total Orders"
+                                   style="-fx-font-size: 12; -fx-text-fill: #6b7280; -fx-font-weight: bold;" />
+                            <Label fx:id="orderCountValue" text="0"
+                                   style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #eab308;" />
+                            <Label text="Lifetime placed"
+                                   style="-fx-font-size: 11; -fx-text-fill: #9ca3af;" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Module navigation grid -->
+                    <VBox spacing="12" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;
+                                               -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                        <Label text="Module Command Center"
+                               style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #000080;" />
+                        <Label text="Open any admin workspace directly from here."
+                               style="-fx-font-size: 12; -fx-text-fill: #6b7280;" />
+                        <GridPane hgap="14" vgap="14">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="25" />
+                                <ColumnConstraints percentWidth="25" />
+                                <ColumnConstraints percentWidth="25" />
+                                <ColumnConstraints percentWidth="25" />
+                            </columnConstraints>
+                            <Button text="Products"   onAction="#openProducts"
+                                    maxWidth="Infinity" prefHeight="60"
+                                    style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                            <Button text="Customers"  onAction="#openCustomers"
+                                    maxWidth="Infinity" prefHeight="60"
+                                    style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                            <Button text="Orders"     onAction="#openOrders"
+                                    maxWidth="Infinity" prefHeight="60"
+                                    style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    GridPane.rowIndex="0" GridPane.columnIndex="2" />
+                            <Button text="Warehouse"  onAction="#openWarehouse"
+                                    maxWidth="Infinity" prefHeight="60"
+                                    style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    GridPane.rowIndex="0" GridPane.columnIndex="3" />
+                            <Button text="Deliveries" onAction="#openDeliveries"
+                                    maxWidth="Infinity" prefHeight="60"
+                                    style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                            <Button text="Finance"    onAction="#openFinance"
+                                    maxWidth="Infinity" prefHeight="60"
+                                    style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                            <Button text="Reviews"    onAction="#openReviews"
+                                    maxWidth="Infinity" prefHeight="60"
+                                    style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                            <Button text="Storefront" onAction="#openStorefront"
+                                    maxWidth="Infinity" prefHeight="60"
+                                    style="-fx-background-color: #e0e7ff; -fx-text-fill: #000080; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                    GridPane.rowIndex="1" GridPane.columnIndex="3" />
+                        </GridPane>
+                    </VBox>
+
+                    <!-- User management + SMTP side-by-side -->
+                    <HBox spacing="18">
+                        <!-- Users -->
+                        <VBox spacing="10" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;
+                                     -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="User Management"
+                                       style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #000080;" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button text="+ New User" onAction="#handleAddUser"
+                                        style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold;
+                                               -fx-background-radius: 6; -fx-padding: 6 14 6 14; -fx-cursor: hand;" />
+                                <Button text="Refresh" onAction="#handleRefresh"
+                                        style="-fx-background-color: #e0e7ff; -fx-text-fill: #000080; -fx-font-weight: bold;
+                                               -fx-background-radius: 6; -fx-padding: 6 14 6 14; -fx-cursor: hand;" />
+                            </HBox>
+
+                            <TableView fx:id="userTable" prefHeight="300">
+                                <columns>
+                                    <TableColumn fx:id="colId"       text="ID"        prefWidth="50" />
+                                    <TableColumn fx:id="colName"     text="Name"      prefWidth="150" />
+                                    <TableColumn fx:id="colEmail"    text="Email"     prefWidth="210" />
+                                    <TableColumn fx:id="colRole"     text="Role"      prefWidth="130" />
+                                    <TableColumn fx:id="colActive"   text="Active"    prefWidth="60" />
+                                    <TableColumn fx:id="colLastLogin" text="Last Login" prefWidth="140" />
+                                </columns>
+                            </TableView>
+                            <HBox spacing="8">
+                                <Button text="✏  Edit Selected" onAction="#handleEditUser"
+                                        style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold;
+                                               -fx-background-radius: 6; -fx-padding: 6 14 6 14; -fx-cursor: hand;" />
+                                <Button text="⇄  Toggle Active" onAction="#handleToggleActive"
+                                        style="-fx-background-color: #eab308; -fx-text-fill: white; -fx-font-weight: bold;
+                                               -fx-background-radius: 6; -fx-padding: 6 14 6 14; -fx-cursor: hand;" />
+                                <Button text="🗑  Delete" onAction="#handleDeleteUser"
+                                        style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-weight: bold;
+                                               -fx-background-radius: 6; -fx-padding: 6 14 6 14; -fx-cursor: hand;" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- SMTP -->
+                        <VBox spacing="10" prefWidth="380"
+                              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;
+                                     -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
+                            <Label text="SMTP Settings"
+                                   style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #000080;" />
+                            <Label text="Used for password recovery and notifications."
+                                   style="-fx-font-size: 11; -fx-text-fill: #6b7280;" />
+
+                            <Label text="SMTP Host" style="-fx-font-size: 11; -fx-text-fill: #374151;">
+                                <padding><Insets top="6" /></padding>
+                            </Label>
+                            <TextField fx:id="smtpHostField" promptText="smtp.gmail.com" />
+
+                            <Label text="Port" style="-fx-font-size: 11; -fx-text-fill: #374151;">
+                                <padding><Insets top="6" /></padding>
+                            </Label>
+                            <TextField fx:id="smtpPortField" promptText="587" />
+
+                            <Label text="Username" style="-fx-font-size: 11; -fx-text-fill: #374151;">
+                                <padding><Insets top="6" /></padding>
+                            </Label>
+                            <TextField fx:id="smtpUsernameField" promptText="account@gmail.com" />
+
+                            <Label text="Password / App Password" style="-fx-font-size: 11; -fx-text-fill: #374151;">
+                                <padding><Insets top="6" /></padding>
+                            </Label>
+                            <PasswordField fx:id="smtpPasswordField" promptText="••••••••" />
+
+                            <Label text="From Address" style="-fx-font-size: 11; -fx-text-fill: #374151;">
+                                <padding><Insets top="6" /></padding>
+                            </Label>
+                            <TextField fx:id="smtpFromField" promptText="no-reply@raez.org.uk" />
+
+                            <CheckBox fx:id="smtpTlsBox" text="Use TLS" selected="true" />
+                            <CheckBox fx:id="smtpEnabledBox" text="Enable email sending" />
+
+                            <Label fx:id="smtpStatusLabel" text=""
+                                   style="-fx-font-size: 11; -fx-text-fill: #16a34a;" wrapText="true" />
+
+                            <HBox spacing="8">
+                                <Button text="Save SMTP Settings" onAction="#handleSaveSmtp"
+                                        maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                        style="-fx-background-color: #000080; -fx-text-fill: white; -fx-font-weight: bold;
+                                               -fx-background-radius: 6; -fx-padding: 8 0 8 0; -fx-cursor: hand;" />
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                    <!-- Demo Credentials Reference -->
+                    <VBox spacing="10"
+                          style="-fx-background-color: #fffbeb; -fx-padding: 20; -fx-background-radius: 10;
+                                 -fx-border-color: #fde68a; -fx-border-radius: 10;">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="🔑  Demo Login Credentials"
+                                   style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #92400e;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="Password for all demo accounts: raez123"
+                                   style="-fx-font-size: 12; -fx-text-fill: #78350f;
+                                          -fx-background-color: #fef3c7; -fx-padding: 4 10;
+                                          -fx-background-radius: 6;" />
+                        </HBox>
+                        <Label text="Use these credentials to log in as any role for testing:"
+                               style="-fx-font-size: 12; -fx-text-fill: #92400e;" />
+                        <TableView fx:id="credentialsTable" prefHeight="220"
+                                   style="-fx-background-color: transparent;">
+                            <columns>
+                                <TableColumn fx:id="credRoleCol"  text="Role"       prefWidth="150" />
+                                <TableColumn fx:id="credNameCol"  text="Name"       prefWidth="180" />
+                                <TableColumn fx:id="credEmailCol" text="Email"      prefWidth="260" />
+                                <TableColumn fx:id="credPwdCol"   text="Password"   prefWidth="120" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

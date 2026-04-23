@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.raez.controllers.ProductHomepageController"
+            style="-fx-background-color: white;">
+
+    <ScrollPane fx:id="mainScrollPane"
+                fitToWidth="true"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED"
+                AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0"
+                style="-fx-background-color: white; -fx-border-color: transparent;">
+        <content>
+            <VBox spacing="0" maxWidth="Infinity">
+                <fx:include source="ProductHeader.fxml" />
+                <fx:include source="ProductNewHomePage.fxml" />
+                <fx:include source="AppFooter.fxml" />
+            </VBox>
+        </content>
+    </ScrollPane>
+
+    <Button fx:id="scrollToTopBtn"
+            text="↑ Top"
+            mnemonicParsing="false"
+            visible="false"
+            managed="false"
+            AnchorPane.bottomAnchor="30.0"
+            AnchorPane.rightAnchor="30.0"
+            style="-fx-background-color: #1E2939; -fx-text-fill: white;
+                   -fx-font-size: 13; -fx-font-weight: bold;
+                   -fx-padding: 10 18; -fx-background-radius: 24;
+                   -fx-cursor: hand;
+                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0.2, 0, 2);" />
+</AnchorPane>

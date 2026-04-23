@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.raez.reviews.controller.AdminDashboardController"
+            fitToWidth="true" fitToHeight="false" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+            styleClass="app-shell,dashboard-scroll">
+    <content>
+        <BorderPane minHeight="780" minWidth="1080" prefWidth="1260" styleClass="dashboard-layout">
+            <top>
+                <VBox spacing="12" styleClass="hero-panel">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20" />
+                    </padding>
+                    <Label text="Admin Moderation Workspace" styleClass="page-title" />
+                    <Label fx:id="welcomeLabel" styleClass="page-subtitle" />
+                    <FlowPane hgap="12" vgap="12" prefWrapLength="1080">
+                        <ComboBox fx:id="productFilterComboBox" prefWidth="260" promptText="All products" />
+                        <ComboBox fx:id="statusFilterComboBox" prefWidth="180" promptText="All statuses" />
+                        <TextField fx:id="searchField" prefWidth="320" promptText="Search comments, products, or customers" />
+                        <Spinner fx:id="editWindowSpinner" editable="true" prefWidth="90" />
+                        <Button text="Save Window" onAction="#handleSaveSettings" styleClass="secondary-button" />
+                        <Button text="Clear Filters" onAction="#handleClearFilters" styleClass="secondary-button" />
+                        <Button text="Refresh" onAction="#handleRefresh" styleClass="secondary-button" />
+                        <Button text="Logout" onAction="#handleLogout" styleClass="secondary-button" />
+                    </FlowPane>
+                    <Label fx:id="statusLabel" styleClass="badge-text" wrapText="true" />
+                </VBox>
+            </top>
+            <center>
+                <SplitPane orientation="VERTICAL" dividerPositions="0.58" prefHeight="600">
+                    <BorderPane.margin>
+                        <Insets top="16" right="0" bottom="0" left="0" />
+                    </BorderPane.margin>
+                    <items>
+                        <VBox spacing="10" styleClass="panel-card">
+                            <padding>
+                                <Insets top="12" right="12" bottom="12" left="12" />
+                            </padding>
+                            <Label text="Review Moderation Queue" styleClass="section-title" />
+                            <TableView fx:id="reviewTable" minHeight="320">
+                                <columns>
+                                    <TableColumn fx:id="productColumn" text="Product" />
+                                    <TableColumn fx:id="customerColumn" text="Customer" />
+                                    <TableColumn fx:id="ratingColumn" text="Rating" />
+                                    <TableColumn fx:id="reviewStatusColumn" text="Status" />
+                                    <TableColumn fx:id="helpfulColumn" text="Helpful" />
+                                    <TableColumn fx:id="unhelpfulColumn" text="Unhelpful" />
+                                    <TableColumn fx:id="updatedColumn" text="Updated" />
+                                    <TableColumn fx:id="commentColumn" text="Comment" />
+                                </columns>
+                            </TableView>
+                            <FlowPane hgap="10" vgap="10" prefWrapLength="1020">
+                                <Button text="Flag" onAction="#handleFlagReview" styleClass="secondary-button" />
+                                <Button text="Remove" onAction="#handleRemoveReview" styleClass="secondary-button" />
+                                <Button text="Restore" onAction="#handleRestoreReview" styleClass="secondary-button" />
+                                <Button text="Edit Content" onAction="#handleEditReview" styleClass="primary-button" />
+                            </FlowPane>
+                        </VBox>
+                        <VBox spacing="10" styleClass="panel-card">
+                            <padding>
+                                <Insets top="12" right="12" bottom="12" left="12" />
+                            </padding>
+                            <Label text="Moderation Audit Log" styleClass="section-title" />
+                            <TableView fx:id="auditTable" minHeight="240">
+                                <columns>
+                                    <TableColumn fx:id="auditTimeColumn" text="Time" />
+                                    <TableColumn fx:id="auditAdminColumn" text="Admin" />
+                                    <TableColumn fx:id="auditReviewColumn" text="Review ID" />
+                                    <TableColumn fx:id="auditActionColumn" text="Action" />
+                                    <TableColumn fx:id="auditReasonColumn" text="Reason" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </items>
+                </SplitPane>
+            </center>
+        </BorderPane>
+    </content>
+</ScrollPane>
