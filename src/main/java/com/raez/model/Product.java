@@ -18,6 +18,8 @@ public class Product {
     public double           unitCost;
     public Integer          categoryID;
     public String           status;   // active | inactive | discontinued
+    // Primary image path stored directly on products row (e.g. /images/products/abc.png)
+    public String           imagePath;
     public String           collection; // e.g. Apex Automata, Sentinel Force, NovaMind, TerraCore
     public String           createdAt;
     public String           updatedAt;
@@ -50,11 +52,21 @@ public class Product {
 
     /** Returns primary image URL, or null if none */
     public String getPrimaryImage() {
-        return images.stream()
+        String fromImages = images.stream()
             .filter(i -> i.isPrimary != 0)
             .map(i -> i.imageURL)
             .findFirst()
             .orElse(images.isEmpty() ? null : images.get(0).imageURL);
+        if (fromImages != null && !fromImages.isBlank()) return fromImages;
+        return imagePath;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     /** Returns category names as a comma-separated string */

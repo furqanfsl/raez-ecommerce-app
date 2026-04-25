@@ -48,6 +48,7 @@ public class ProductService {
     public Product add(Product p, List<String> categoryNames,
                        List<String> imageUrls) throws Exception {
         validate(p);
+        p.imagePath = firstImagePath(imageUrls);
 
         if (p.sku == null || p.sku.isEmpty())
             p.sku = "SKU-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -66,6 +67,12 @@ public class ProductService {
     public Product update(Product p, List<String> categoryNames,
                           List<String> imageUrls) throws Exception {
         validate(p);
+        if (imageUrls != null && imageUrls.stream().anyMatch(s -> s != null && !s.trim().isEmpty())) {
+            p.imagePath = firstImagePath(imageUrls);
+        } else {
+            Product existing = productDAO.getById(p.productID);
+            p.imagePath = existing != null ? existing.imagePath : null;
+        }
 
         if (!productDAO.update(p))
             throw new Exception("Failed to update product.");
@@ -73,8 +80,11 @@ public class ProductService {
         categoryDAO.unlinkAllForProduct(p.productID);
         saveCategories(p.productID, categoryNames);
 
-        imageDAO.deleteAllForProduct(p.productID);
-        saveImages(p.productID, imageUrls);
+        // Preserve existing image rows when no image payload is provided from the form.
+        if (imageUrls != null && imageUrls.stream().anyMatch(s -> s != null && !s.trim().isEmpty())) {
+            imageDAO.deleteAllForProduct(p.productID);
+            saveImages(p.productID, imageUrls);
+        }
         inventoryDAO.setStock(p.productID, p.stock);
 
         // Auto-deactivate if stock is 0, re-activate if stock restored
@@ -205,6 +215,14 @@ public class ProductService {
             if (url == null || url.trim().isEmpty()) continue;
             imageDAO.insert(new ProductImage(productId, url, i == 0 ? 1 : 0));
         }
+    }
+
+    private String firstImagePath(List<String> imageUrls) {
+        if (imageUrls == null) return null;
+        for (String image : imageUrls) {
+            if (image != null && !image.trim().isEmpty()) return image.trim();
+        }
+        return null;
     }
 
     private void ensureCategory(String name, String description) {

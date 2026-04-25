@@ -5,6 +5,8 @@ import com.raez.model.FavouritesManager;
 import com.raez.model.NavigationRouter;
 import com.raez.model.Product;
 import com.raez.service.ProductService;
+import com.raez.util.GlassPlaceholder;
+import com.raez.util.ProductImageUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -214,22 +216,33 @@ public class ProductListController implements Initializable {
         imagePane.setPrefHeight(220);
         imagePane.setMinHeight(220);
         imagePane.setMaxHeight(220);
-        imagePane.setStyle("-fx-background-color: #e5e7eb; -fx-background-radius: 8;");
+        imagePane.setStyle("-fx-background-color: transparent; -fx-background-radius: 16 16 0 0;");
 
-        Label placeholder = new Label("🤖");
-        placeholder.setStyle("-fx-font-size: 48;");
-        imagePane.getChildren().add(placeholder);
+        // Glass placeholder: dark gradient + glowing product initials. Visible until
+        // the real image loads (or permanently for products with no image at all).
+        StackPane placeholderBox = GlassPlaceholder.buildTopRounded(product.name, 16, 40);
+        placeholderBox.prefWidthProperty().bind(imagePane.widthProperty());
+        placeholderBox.prefHeightProperty().bind(imagePane.heightProperty());
+
+        imagePane.getChildren().add(placeholderBox);
 
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(300);
+        imageView.fitWidthProperty().bind(imagePane.widthProperty());
         imageView.setFitHeight(220);
         imageView.setPreserveRatio(false);
+        imageView.setSmooth(true);
         imageView.setVisible(false);
+        // Clip to match the glass tile corner radius
+        javafx.scene.shape.Rectangle imgClip = new javafx.scene.shape.Rectangle();
+        imgClip.setArcWidth(32); imgClip.setArcHeight(32);
+        imgClip.widthProperty().bind(imagePane.widthProperty());
+        imgClip.heightProperty().bind(imagePane.heightProperty());
+        imageView.setClip(imgClip);
         imagePane.getChildren().add(imageView);
 
         // Load first image
         if (!imageUrls.isEmpty()) {
-            Thread t = new Thread(() -> loadImageWithRetry(imageUrls.get(0), imageView, placeholder, product.name, 3));
+            Thread t = new Thread(() -> loadImageWithRetry(imageUrls.get(0), imageView, placeholderBox, product.name, 3));
             t.setDaemon(true);
             t.start();
         }
@@ -277,7 +290,7 @@ public class ProductListController implements Initializable {
             prevBtn.setOnAction(e -> {
                 if (currentIndex[0] > 0) {
                     currentIndex[0]--;
-                    switchImage(imageUrls.get(currentIndex[0]), imageView, placeholder, product.name, dots, currentIndex[0]);
+                    switchImage(imageUrls.get(currentIndex[0]), imageView, placeholderBox, product.name, dots, currentIndex[0]);
                     prevBtn.setVisible(currentIndex[0] > 0);
                     nextBtn.setVisible(true);
                 }
@@ -286,7 +299,7 @@ public class ProductListController implements Initializable {
             nextBtn.setOnAction(e -> {
                 if (currentIndex[0] < imageUrls.size() - 1) {
                     currentIndex[0]++;
-                    switchImage(imageUrls.get(currentIndex[0]), imageView, placeholder, product.name, dots, currentIndex[0]);
+                    switchImage(imageUrls.get(currentIndex[0]), imageView, placeholderBox, product.name, dots, currentIndex[0]);
                     nextBtn.setVisible(currentIndex[0] < imageUrls.size() - 1);
                     prevBtn.setVisible(true);
                 }
@@ -309,60 +322,83 @@ public class ProductListController implements Initializable {
         });
         imagePane.getChildren().add(heartBtn);
 
+        Label categoryLabel = new Label(product.getCategoryNames().toUpperCase());
+        categoryLabel.setStyle(
+            "-fx-font-size: 10; -fx-text-fill: #5eead4;" +
+            "-fx-font-family: 'Inter','Segoe UI',sans-serif;" +
+            "-fx-font-weight: bold; -fx-letter-spacing: 2;");
+
         Label nameLabel = new Label(product.name);
         nameLabel.setWrapText(true);
         nameLabel.setMaxWidth(Double.MAX_VALUE);
-        nameLabel.setStyle("-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #111827;");
-
-        Label categoryLabel = new Label(product.getCategoryNames());
-        categoryLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #6b7280;");
+        nameLabel.setStyle(
+            "-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #f1f5f9;" +
+            "-fx-font-family: 'Inter','Segoe UI',sans-serif;");
 
         Label ratingLabel = new Label(formatRating(product.avgRating, product.reviewCount));
-        ratingLabel.setStyle("-fx-font-size: 12; -fx-text-fill: " +
-                (product.reviewCount > 0 ? "#f59e0b" : "#9ca3af") + ";");
+        ratingLabel.setStyle(
+            "-fx-font-size: 12; -fx-font-family: 'Inter','Segoe UI',sans-serif;" +
+            "-fx-text-fill: " + (product.reviewCount > 0 ? "#fbbf24" : "rgba(255,255,255,0.35)") + ";");
 
-        Label priceLabel = new Label(String.format("£%.2f", product.price));
-        priceLabel.setStyle("-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #111827;");
+        Label priceLabel = new Label(String.format("£%,.2f", product.price));
+        priceLabel.setStyle(
+            "-fx-font-size: 17; -fx-font-weight: bold; -fx-text-fill: #38bdf8;" +
+            "-fx-font-family: 'Inter','Segoe UI',sans-serif;");
 
-        Label stockLabel = new Label(product.stock > 0 ? "In Stock" : "Out of Stock");
-        stockLabel.setStyle("-fx-font-size: 11; -fx-text-fill: " +
-                (product.stock > 0 ? "#16a34a" : "#dc2626") + ";");
+        Label stockLabel = new Label(product.stock > 0 ? "● In stock" : "○ Out of stock");
+        stockLabel.setStyle(
+            "-fx-font-size: 11; -fx-font-family: 'Inter','Segoe UI',sans-serif; -fx-text-fill: " +
+            (product.stock > 0 ? "#5eead4" : "#f87171") + ";");
 
         final int    pid = product.productID;
         final String pn  = product.name;
         final double pp  = product.price;
 
-        // Add to Cart button
+        final String cartBaseStyle =
+            "-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white;" +
+            "-fx-font-family: 'Inter','Segoe UI',sans-serif;" +
+            "-fx-font-size: 11; -fx-font-weight: bold;" +
+            "-fx-padding: 9 0; -fx-background-radius: 20; -fx-cursor: hand;" +
+            "-fx-border-color: rgba(255,255,255,0.25); -fx-border-radius: 20; -fx-border-width: 0.5;";
+        final String cartAcquiredStyle =
+            "-fx-background-color: rgba(94,234,212,0.18); -fx-text-fill: #5eead4;" +
+            "-fx-font-family: 'Inter','Segoe UI',sans-serif;" +
+            "-fx-font-size: 11; -fx-font-weight: bold;" +
+            "-fx-padding: 9 0; -fx-background-radius: 20; -fx-cursor: hand;" +
+            "-fx-border-color: rgba(94,234,212,0.45); -fx-border-radius: 20; -fx-border-width: 0.5;";
+
         Button cartBtn = new Button(product.stock > 0 ? "Add to Cart" : "Out of Stock");
         cartBtn.setDisable(product.stock <= 0);
         cartBtn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(cartBtn, Priority.ALWAYS);
-        cartBtn.setStyle("-fx-background-color: #111827; -fx-text-fill: white; -fx-font-size: 11;" +
-                "-fx-padding: 8 0; -fx-background-radius: 6; -fx-cursor: hand;");
+        cartBtn.setStyle(cartBaseStyle);
         cartBtn.setOnAction(e -> {
             e.consume();
             cartManager.addItem(pid, pn, pp);
             cartBtn.setText("Added ✓");
-            cartBtn.setStyle("-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-size: 11;" +
-                    "-fx-padding: 8 0; -fx-background-radius: 6; -fx-cursor: hand;");
+            cartBtn.setStyle(cartAcquiredStyle);
             new java.util.Timer().schedule(new java.util.TimerTask() {
                 @Override public void run() {
                     Platform.runLater(() -> {
                         cartBtn.setText("Add to Cart");
-                        cartBtn.setStyle("-fx-background-color: #111827; -fx-text-fill: white;" +
-                                "-fx-font-size: 11; -fx-padding: 8 0; -fx-background-radius: 6; -fx-cursor: hand;");
+                        cartBtn.setStyle(cartBaseStyle);
                     });
                 }
             }, 1500);
         });
 
-        // Buy Now button
+        // Buy Now — the bright liquid button
         Button buyNowBtn = new Button("Buy Now");
         buyNowBtn.setDisable(product.stock <= 0);
         buyNowBtn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(buyNowBtn, Priority.ALWAYS);
-        buyNowBtn.setStyle("-fx-background-color: #000080; -fx-text-fill: white; -fx-font-size: 11;" +
-                "-fx-padding: 8 0; -fx-background-radius: 6; -fx-cursor: hand;");
+        buyNowBtn.setStyle(
+            "-fx-background-color: rgba(255,255,255,0.92); -fx-text-fill: #0a0f1f;" +
+            "-fx-font-family: 'Inter','Segoe UI',sans-serif;" +
+            "-fx-font-size: 11; -fx-font-weight: bold;" +
+            "-fx-padding: 9 0; -fx-background-radius: 20; -fx-cursor: hand;" +
+            "-fx-border-color: rgba(255,255,255,0.6); -fx-border-radius: 20; -fx-border-width: 0.5;" +
+            "-fx-effect: dropshadow(gaussian, rgba(94,234,212,0.35), 12, 0.25, 0, 4);");
         buyNowBtn.setOnAction(e -> {
             e.consume();
             cartManager.addItem(pid, pn, pp);
@@ -379,19 +415,27 @@ public class ProductListController implements Initializable {
         HBox btnRow = new HBox(6, cartBtn, buyNowBtn);
         btnRow.setMaxWidth(Double.MAX_VALUE);
 
-        VBox info = new VBox(6, nameLabel, categoryLabel, ratingLabel, priceLabel, stockLabel, btnRow);
-        info.setPadding(new Insets(10, 4, 8, 4));
-        info.setStyle("-fx-background-color: white;");
+        VBox info = new VBox(6, categoryLabel, nameLabel, ratingLabel, priceLabel, stockLabel, btnRow);
+        info.setPadding(new Insets(14, 14, 14, 14));
+        info.setStyle("-fx-background-color: transparent;");
+
+        final String cardBaseStyle =
+            "-fx-background-color: rgba(13,17,30,0.72);" +
+            "-fx-border-color: rgba(255,255,255,0.10);" +
+            "-fx-border-radius: 16; -fx-background-radius: 16; -fx-border-width: 0.5;" +
+            "-fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 18, 0.25, 0, 8);";
+        final String cardHoverStyle =
+            "-fx-background-color: rgba(30,38,58,0.85);" +
+            "-fx-border-color: rgba(94,234,212,0.55);" +
+            "-fx-border-radius: 16; -fx-background-radius: 16; -fx-border-width: 0.5;" +
+            "-fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, rgba(56,189,248,0.38), 24, 0.45, 0, 0);";
 
         VBox card = new VBox(0, imagePane, info);
-        card.setStyle(
-            "-fx-background-color: white;" +
-            "-fx-border-color: #e5e7eb;" +
-            "-fx-border-radius: 8;" +
-            "-fx-background-radius: 8;" +
-            "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);"
-        );
+        card.setStyle(cardBaseStyle);
+        card.setOnMouseEntered(e2 -> card.setStyle(cardHoverStyle));
+        card.setOnMouseExited(e2 -> card.setStyle(cardBaseStyle));
         card.setMaxWidth(Double.MAX_VALUE);
         card.setMaxHeight(Double.MAX_VALUE);
 
@@ -402,13 +446,13 @@ public class ProductListController implements Initializable {
                 if (target instanceof Button) return;
                 target = target.getParent();
             }
-            NavigationRouter.getInstance().navigateToProductDetail(product);
+            NavigationRouter.getInstance().navigateByPath("/products/" + product.productID);
         });
 
         return card;
     }
 
-    private void switchImage(String url, ImageView imageView, Label placeholder,
+    private void switchImage(String url, ImageView imageView, javafx.scene.Node placeholder,
                              String productName, List<Label> dots, int activeIndex) {
         // Update dots immediately
         Platform.runLater(() -> {
@@ -436,11 +480,13 @@ public class ProductListController implements Initializable {
     }
 
     private String heartStyle(boolean active) {
-        return "-fx-background-color: white; -fx-background-radius: 50;" +
-               "-fx-border-color: transparent; -fx-font-size: 14;" +
-               "-fx-text-fill: " + (active ? "#ef4444" : "#9ca3af") + "; -fx-cursor: hand;" +
+        return "-fx-background-color: rgba(10,15,31,0.75); -fx-background-radius: 50;" +
+               "-fx-border-color: " + (active ? "#f87171" : "rgba(255,255,255,0.25)") +
+               "; -fx-border-radius: 50; -fx-border-width: 0.5;" +
+               "-fx-font-size: 14;" +
+               "-fx-text-fill: " + (active ? "#f87171" : "rgba(255,255,255,0.75)") + "; -fx-cursor: hand;" +
                "-fx-min-width: 32; -fx-min-height: 32;" +
-               "-fx-effect: dropshadow(gaussian,rgba(0,0,0,0.15),4,0,0,1);";
+               "-fx-effect: dropshadow(gaussian,rgba(0,0,0,0.45),6,0.2,0,2);";
     }
 
     private String formatRating(double avg, int count) {
@@ -457,24 +503,12 @@ public class ProductListController implements Initializable {
      * Waits 1.5s between attempts to handle temporary network issues.
      */
     private void loadImageWithRetry(String url, ImageView imageView,
-                                    Label placeholder, String productName, int maxRetries) {
+                                    javafx.scene.Node placeholder, String productName, int maxRetries) {
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                // Use java.net.URL to open a connection with explicit timeout
-                java.net.URLConnection conn = new java.net.URL(url).openConnection();
-                conn.setConnectTimeout(5000);  // 5s connect timeout
-                conn.setReadTimeout(8000);     // 8s read timeout
-                conn.connect();
+                Image img = ProductImageUtil.loadFromProductPath(getClass(), url);
 
-                // Now load via JavaFX Image
-                Image img = new Image(url, true);
-
-                // Wait for it to finish loading (block this background thread)
-                while (img.getProgress() < 1.0 && !img.isError()) {
-                    Thread.sleep(100);
-                }
-
-                if (!img.isError()) {
+                if (img != null && !img.isError()) {
                     Platform.runLater(() -> {
                         imageView.setImage(img);
                         imageView.setVisible(true);
@@ -483,7 +517,7 @@ public class ProductListController implements Initializable {
                     return; // success — stop retrying
                 }
 
-                System.err.println("Image attempt " + attempt + " failed (error): " + productName);
+                System.err.println("Image attempt " + attempt + " failed (not found/error): " + productName);
 
             } catch (Exception e) {
                 System.err.println("Image attempt " + attempt + " failed (" + e.getMessage() + "): " + productName);

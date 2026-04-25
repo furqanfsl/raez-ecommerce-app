@@ -3,6 +3,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
@@ -11,6 +12,8 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -90,41 +93,63 @@
                     </VBox>
                 </HBox>
 
+                <!-- Collection assignment -->
+                <VBox spacing="8">
+                    <Label text="Collection"
+                           style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #374151;" />
+                    <ComboBox fx:id="collectionCombo" maxWidth="Infinity"
+                              style="-fx-font-size: 13; -fx-text-fill: white; -fx-background-color: #1f2937; -fx-border-color: #4b5563; -fx-border-radius: 6; -fx-background-radius: 6;" />
+                    <Label text="Tip: The product tagged 'Main Robot' in a collection is its flagship shown at the top of the collection page."
+                           wrapText="true"
+                           style="-fx-font-size: 11; -fx-text-fill: #6b7280;" />
+                </VBox>
+
                 <!-- Categories -->
                 <VBox spacing="8">
-                    <Label text="Categories *"
-                           style="-fx-font-size: 13; -fx-text-fill: #374151;" />
-                    <CheckBox fx:id="catHomeAssistants" text="Home Assistants"
+                    <Label text="Category / Flagship Role"
+                           style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #374151;" />
+                    <CheckBox fx:id="catMainRobot" text="Main Robot  ★  (Flagship — shown at the top of its collection page)"
                               style="-fx-font-size: 13;" />
-                    <CheckBox fx:id="catSecurityBots"   text="Security Bots"
+                    <CheckBox fx:id="catMiniRobot" text="Mini Robot"
                               style="-fx-font-size: 13;" />
-                    <CheckBox fx:id="catEducational"    text="Educational"
+                    <CheckBox fx:id="catAccessory"  text="Accessory"
                               style="-fx-font-size: 13;" />
-                    <CheckBox fx:id="catCompanions"     text="Companions"
-                              style="-fx-font-size: 13;" />
-                    <CheckBox fx:id="catIndustrial"     text="Industrial"
+                    <CheckBox fx:id="catService"    text="Service"
                               style="-fx-font-size: 13;" />
                 </VBox>
 
-                <!-- Image URL -->
+                <!-- Local Product Images -->
                 <VBox spacing="8">
                     <Label text="Product Images"
                            style="-fx-font-size: 13; -fx-text-fill: #374151;" />
                     <HBox spacing="8">
-                        <TextField fx:id="imageUrlField"
-                                   promptText="Paste image URL then click Add or press Enter"
-                                   onAction="#handleAddImage"
+                        <Button text="Browse Local Image"
+                                onAction="#handleBrowseLocalImage"
+                                style="-fx-background-color: #111827; -fx-text-fill: white;
+                                       -fx-border-radius: 6; -fx-background-radius: 6;
+                                       -fx-font-size: 13; -fx-padding: 10 16 10 16; -fx-cursor: hand;" />
+                        <TextField fx:id="selectedImageField"
+                                   promptText="No file selected"
+                                   editable="false"
                                    HBox.hgrow="ALWAYS"
                                    style="-fx-font-size: 13; -fx-padding: 10 14 10 14;
                                           -fx-border-color: #d1d5db; -fx-border-radius: 6;
                                           -fx-background-radius: 6;" />
-                        <Button text="+ Add" onAction="#handleAddImage"
-                                style="-fx-background-color: #111827; -fx-text-fill: white;
-                                       -fx-border-radius: 6; -fx-background-radius: 6;
-                                       -fx-font-size: 13; -fx-padding: 10 16 10 16; -fx-cursor: hand;" />
                     </HBox>
+                    <!-- Live preview: shows currently primary image (blank dark glass otherwise) -->
+                    <StackPane fx:id="imagePreviewFrame"
+                               prefWidth="540" prefHeight="220"
+                               style="-fx-background-color: linear-gradient(to bottom right, #0a0f1f, #121a2e, #1a2744);
+                                      -fx-background-radius: 10;
+                                      -fx-border-color: #d1d5db; -fx-border-radius: 10; -fx-border-width: 0.5;">
+                        <Label fx:id="imagePreviewPlaceholder" text="No image selected"
+                               style="-fx-font-size: 12; -fx-text-fill: #9ca3af;" />
+                        <ImageView fx:id="imagePreview"
+                                   fitWidth="540" fitHeight="220"
+                                   preserveRatio="true" smooth="true" />
+                    </StackPane>
                     <VBox fx:id="imageListBox" spacing="6" />
-                    <Label text="Tip: Paste any direct image URL. First image will be the primary."
+                    <Label text="Tip: The most recent image becomes the primary shown on the storefront."
                            style="-fx-font-size: 11; -fx-text-fill: #9ca3af;" />
                 </VBox>
 

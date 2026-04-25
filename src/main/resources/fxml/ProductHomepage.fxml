@@ -8,7 +8,7 @@
 <AnchorPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.raez.controllers.ProductHomepageController"
-            style="-fx-background-color: white;">
+            style="-fx-background-color: #080d16;">
 
     <ScrollPane fx:id="mainScrollPane"
                 fitToWidth="true"
@@ -18,7 +18,7 @@
                 AnchorPane.leftAnchor="0.0"
                 AnchorPane.rightAnchor="0.0"
                 AnchorPane.topAnchor="0.0"
-                style="-fx-background-color: white; -fx-border-color: transparent;">
+                style="-fx-background-color: #080d16; -fx-border-color: transparent;">
         <content>
             <VBox spacing="0" maxWidth="Infinity">
                 <fx:include source="ProductHeader.fxml" />

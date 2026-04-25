@@ -1,8 +1,10 @@
 package com.raez.model;
 
 import com.raez.controllers.CustomerAdminDashboardController;
+import com.raez.controllers.CollectionPageController;
 import com.raez.controllers.CustomerDashboardController;
 import com.raez.controllers.ProductDetailController;
+import com.raez.controllers.ProductRoutePageController;
 import com.raez.controllers.SuperAdminDashboardController;
 import com.raez.customer.model.CustomerUser;
 import com.raez.dao.FavouritesDAO;
@@ -99,6 +101,55 @@ public class NavigationRouter {
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
             System.err.println("NavigationRouter: failed to load ProductDetailPage");
+            e.printStackTrace();
+        }
+    }
+
+    public void navigateByPath(String path) {
+        if (path == null || path.isBlank()) return;
+        if ("/".equals(path) || "/home".equals(path)) {
+            navigateTo("/fxml/ProductHomepage.fxml");
+            return;
+        }
+        if (path.startsWith("/collections/")) {
+            String slug = path.substring("/collections/".length());
+            navigateToCollectionPage(slug);
+            return;
+        }
+        if (path.startsWith("/products/")) {
+            String idPart = path.substring("/products/".length());
+            try {
+                navigateToProductRoute(Integer.parseInt(idPart));
+                return;
+            } catch (NumberFormatException ignored) {
+                System.err.println("NavigationRouter.navigateByPath invalid product id: " + idPart);
+            }
+        }
+        System.err.println("NavigationRouter.navigateByPath unknown path: " + path);
+    }
+
+    public void navigateToCollectionPage(String slug) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CollectionPage.fxml"));
+            Parent view = loader.load();
+            CollectionPageController ctrl = loader.getController();
+            ctrl.setCollectionSlug(slug);
+            primaryStage.getScene().setRoot(view);
+        } catch (Exception e) {
+            System.err.println("NavigationRouter: failed to load CollectionPage");
+            e.printStackTrace();
+        }
+    }
+
+    public void navigateToProductRoute(int productID) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ProductRoutePage.fxml"));
+            Parent view = loader.load();
+            ProductRoutePageController ctrl = loader.getController();
+            ctrl.setProductId(productID);
+            primaryStage.getScene().setRoot(view);
+        } catch (Exception e) {
+            System.err.println("NavigationRouter: failed to load ProductRoutePage");
             e.printStackTrace();
         }
     }

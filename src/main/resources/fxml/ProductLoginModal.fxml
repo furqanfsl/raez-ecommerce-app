@@ -2,87 +2,151 @@
 
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Hyperlink?>
 
-<VBox xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.raez.controllers.ProductLoginModalController"
-      prefWidth="440"
-      style="-fx-background-color: white; -fx-border-color: #e5e7eb;
-             -fx-border-radius: 8; -fx-background-radius: 8;
-             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0.2, 0, 4);">
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.raez.controllers.ProductLoginModalController"
+           prefWidth="460" prefHeight="620"
+           style="-fx-background-color: transparent; -fx-padding: 24;">
 
-    <!-- Header -->
-    <VBox style="-fx-background-color: #000080; -fx-padding: 24 24 20 24;
-                 -fx-background-radius: 8 8 0 0;">
-        <HBox alignment="CENTER_LEFT">
-            <Label text="Welcome to RAEZ"
-                   style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;" />
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="✕" onAction="#handleClose"
-                    style="-fx-background-color: transparent; -fx-border-color: transparent;
-                           -fx-font-size: 16; -fx-text-fill: white; -fx-cursor: hand;" />
-        </HBox>
-        <Label text="Customer sign-in"
-               style="-fx-font-size: 13; -fx-text-fill: #cbd5e1; -fx-padding: 4 0 0 0;" />
-    </VBox>
+    <!-- ─── Dark Panel ─────────────────────────────────────── -->
+    <StackPane>
 
-    <VBox style="-fx-padding: 24;" spacing="16">
+        <!-- Dark solid background -->
+        <Pane style="-fx-background-color: #0d1520;
+                     -fx-background-radius: 32;
+                     -fx-border-color: rgba(255,255,255,0.12);
+                     -fx-border-radius: 32; -fx-border-width: 0.5;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 40, 0.3, 0, 18);" />
 
-        <!-- Email -->
-        <VBox spacing="6">
-            <Label text="Email" style="-fx-font-size: 13; -fx-text-fill: #374151;" />
-            <TextField fx:id="emailField"
-                       promptText="your@email.com"
-                       style="-fx-font-size: 14; -fx-padding: 10 14 10 14;
-                              -fx-border-color: #d1d5db; -fx-border-radius: 8;
-                              -fx-background-radius: 8; -fx-background-color: white;" />
+        <!-- ─── Content ──────────────────────────────────────────── -->
+        <VBox spacing="0" style="-fx-padding: 0;">
+
+            <!-- Header -->
+            <VBox spacing="6" style="-fx-padding: 32 34 22 34;">
+                <HBox alignment="CENTER_LEFT">
+                    <VBox spacing="4">
+                        <Label text="WELCOME BACK"
+                               style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                      -fx-font-size: 10; -fx-font-weight: bold;
+                                      -fx-text-fill: #5eead4; -fx-letter-spacing: 3;" />
+                        <Label text="Sign in to RAEZ"
+                               style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
+                                      -fx-font-size: 26; -fx-font-weight: 900;
+                                      -fx-text-fill: white;" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="✕" onAction="#handleClose"
+                            style="-fx-background-color: rgba(255,255,255,0.08);
+                                   -fx-border-color: rgba(255,255,255,0.25);
+                                   -fx-border-radius: 50; -fx-background-radius: 50;
+                                   -fx-border-width: 0.5;
+                                   -fx-font-size: 12; -fx-text-fill: white; -fx-cursor: hand;
+                                   -fx-min-width: 32; -fx-min-height: 32;
+                                   -fx-max-width: 32; -fx-max-height: 32;
+                                   -fx-padding: 0;" />
+                </HBox>
+                <Label text="Customer portal · autonomous robotics catalogue"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.65);" />
+            </VBox>
+
+            <!-- Form -->
+            <VBox spacing="16" style="-fx-padding: 0 34 24 34;">
+
+                <!-- Email -->
+                <VBox spacing="7">
+                    <Label text="Email"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.7);
+                                  -fx-letter-spacing: 1;" />
+                    <TextField fx:id="emailField"
+                               promptText="your@email.com"
+                               style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                      -fx-font-size: 14; -fx-padding: 14 16 14 16;
+                                      -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.35);
+                                      -fx-background-color: rgba(255,255,255,0.06);
+                                      -fx-background-radius: 16;
+                                      -fx-border-color: rgba(255,255,255,0.18);
+                                      -fx-border-radius: 16; -fx-border-width: 0.5;" />
+                </VBox>
+
+                <!-- Password -->
+                <VBox spacing="7">
+                    <Label text="Password"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.7);
+                                  -fx-letter-spacing: 1;" />
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Enter your password"
+                                   style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                          -fx-font-size: 14; -fx-padding: 14 16 14 16;
+                                          -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.35);
+                                          -fx-background-color: rgba(255,255,255,0.06);
+                                          -fx-background-radius: 16;
+                                          -fx-border-color: rgba(255,255,255,0.18);
+                                          -fx-border-radius: 16; -fx-border-width: 0.5;" />
+                </VBox>
+
+                <!-- Error -->
+                <Label fx:id="errorLabel" text=""
+                       visible="false" managed="false"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 12; -fx-text-fill: #fca5a5;" />
+
+                <!-- Submit — bright liquid button -->
+                <Button fx:id="submitBtn" text="Sign In →"
+                        onAction="#handleLogin"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: rgba(255,255,255,0.95);
+                               -fx-text-fill: #0a0f1f;
+                               -fx-font-family: 'Inter','Segoe UI',sans-serif;
+                               -fx-font-size: 14; -fx-font-weight: bold;
+                               -fx-padding: 14 0 14 0;
+                               -fx-background-radius: 20;
+                               -fx-border-color: rgba(255,255,255,0.6);
+                               -fx-border-radius: 20; -fx-border-width: 0.5;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.4), 14, 0.25, 0, 4);" />
+
+                <!-- Quick actions -->
+                <HBox alignment="CENTER" spacing="14">
+                    <Hyperlink text="Demo customer login" onAction="#handleFillDemo"
+                               style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                      -fx-font-size: 12; -fx-text-fill: #5eead4;
+                                      -fx-border-color: transparent;" />
+                    <Label text="·" style="-fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.35);" />
+                    <Hyperlink text="Forgot password?" onAction="#handleForgotPassword"
+                               style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                      -fx-font-size: 12; -fx-text-fill: #5eead4;
+                                      -fx-border-color: transparent;" />
+                </HBox>
+
+                <!-- Register -->
+                <HBox alignment="CENTER" spacing="6" fx:id="registerRow"
+                      style="-fx-border-color: rgba(255,255,255,0.12);
+                             -fx-border-width: 0.5 0 0 0; -fx-padding: 16 0 6 0;">
+                    <Label text="New to RAEZ?"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.6);" />
+                    <Hyperlink text="Create an account" onAction="#handleCreateAccount"
+                               style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                      -fx-font-size: 12; -fx-text-fill: white;
+                                      -fx-font-weight: bold;
+                                      -fx-border-color: transparent;" />
+                </HBox>
+            </VBox>
+
         </VBox>
 
-        <!-- Password -->
-        <VBox spacing="6">
-            <Label text="Password" style="-fx-font-size: 13; -fx-text-fill: #374151;" />
-            <PasswordField fx:id="passwordField"
-                           promptText="Enter your password"
-                           style="-fx-font-size: 14; -fx-padding: 10 14 10 14;
-                                  -fx-border-color: #d1d5db; -fx-border-radius: 8;
-                                  -fx-background-radius: 8; -fx-background-color: white;" />
-        </VBox>
+    </StackPane>
 
-        <!-- Error -->
-        <Label fx:id="errorLabel" text=""
-               visible="false" managed="false"
-               style="-fx-font-size: 12; -fx-text-fill: #dc2626;" />
-
-        <!-- Submit -->
-        <Button fx:id="submitBtn" text="Sign In"
-                onAction="#handleLogin"
-                maxWidth="Infinity"
-                style="-fx-background-color: #000080; -fx-text-fill: white;
-                       -fx-font-size: 14; -fx-font-weight: bold;
-                       -fx-padding: 12 0 12 0; -fx-background-radius: 8;
-                       -fx-cursor: hand; -fx-border-color: transparent;" />
-
-        <!-- Quick actions -->
-        <HBox alignment="CENTER" spacing="14">
-            <Hyperlink text="Demo customer login" onAction="#handleFillDemo"
-                       style="-fx-font-size: 12; -fx-text-fill: #000080; -fx-border-color: transparent;" />
-            <Label text="•" style="-fx-font-size: 12; -fx-text-fill: #9ca3af;" />
-            <Hyperlink text="Forgot password?" onAction="#handleForgotPassword"
-                       style="-fx-font-size: 12; -fx-text-fill: #000080; -fx-border-color: transparent;" />
-        </HBox>
-
-        <!-- Register -->
-        <HBox alignment="CENTER" spacing="4" fx:id="registerRow"
-              style="-fx-border-color: #e5e7eb; -fx-border-width: 1 0 0 0; -fx-padding: 14 0 0 0;">
-            <Label text="New to RAEZ?" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
-            <Hyperlink text="Create an account" onAction="#handleCreateAccount"
-                       style="-fx-font-size: 13; -fx-text-fill: #000080; -fx-border-color: transparent;" />
-        </HBox>
-    </VBox>
-</VBox>
+</StackPane>

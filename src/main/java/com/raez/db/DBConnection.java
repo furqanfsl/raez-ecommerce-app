@@ -52,6 +52,8 @@ public class DBConnection {
         connect();
         executeSqlFile("/raez_unified_schema.sql");
         migrateProductsCollectionColumn();
+        migrateProductsCollectionIdColumn();
+        migrateProductsImagePathColumn();
         if (isFirstBoot()) {
             System.out.println("Empty DB detected — applying seed data.");
             executeSqlFile("/raez_seed_data.sql");
@@ -61,6 +63,7 @@ public class DBConnection {
             migrateAdminPasswords();
         }
         migrateCollectionProducts();
+        migrateRoboticsStoreCatalog();
     }
 
     /**
@@ -77,6 +80,37 @@ public class DBConnection {
             String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
             if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
                 System.err.println("migrateProductsCollectionColumn warning: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Phase 5 migration: products.collectionID column added for robotics store.
+     * Silently ignored when the column already exists.
+     */
+    private void migrateProductsCollectionIdColumn() {
+        try (Statement st = connection.createStatement()) {
+            st.executeUpdate("ALTER TABLE products ADD COLUMN collectionID INTEGER");
+            System.out.println("Migrated products schema: added 'collectionID' column.");
+        } catch (SQLException e) {
+            String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+            if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
+                System.err.println("migrateProductsCollectionIdColumn warning: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Migration: persist primary product image path directly on products table.
+     */
+    private void migrateProductsImagePathColumn() {
+        try (Statement st = connection.createStatement()) {
+            st.executeUpdate("ALTER TABLE products ADD COLUMN imagePath TEXT");
+            System.out.println("Migrated products schema: added 'imagePath' column.");
+        } catch (SQLException e) {
+            String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+            if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
+                System.err.println("migrateProductsImagePathColumn warning: " + e.getMessage());
             }
         }
     }
@@ -155,6 +189,32 @@ public class DBConnection {
             System.out.println("migrateCollectionProducts: collection data ensured.");
         } catch (Exception e) {
             System.err.println("migrateCollectionProducts warning: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Robotics storefront migration:
+     * - creates explicit collection table
+     * - surgically clears legacy/placeholder robotics catalogue rows
+     * - seeds the high-tech robotics products without image URLs
+     * Skipped when HTR-sku products already exist so user data (images, edits) is preserved.
+     */
+    private void migrateRoboticsStoreCatalog() {
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(
+                 "SELECT COUNT(*) FROM products WHERE sku LIKE 'HTR-%'")) {
+            if (rs.next() && rs.getInt(1) > 0) {
+                System.out.println("migrateRoboticsStoreCatalog: HTR products already exist, skipping re-seed.");
+                return;
+            }
+        } catch (SQLException e) {
+            // products table not yet ready — fall through to run migration
+        }
+        try {
+            executeSqlFile("/raez_migration_v3_robotics_store.sql");
+            System.out.println("migrateRoboticsStoreCatalog: robotics catalogue seeded.");
+        } catch (Exception e) {
+            System.err.println("migrateRoboticsStoreCatalog warning: " + e.getMessage());
         }
     }
 

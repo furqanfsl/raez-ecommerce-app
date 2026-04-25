@@ -3,14 +3,20 @@ package com.raez.controllers;
 import com.raez.model.Category;
 import com.raez.model.Product;
 import com.raez.model.ProductImage;
+import com.raez.util.ProductImageUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +30,16 @@ public class ProductFormDialogController implements Initializable {
     @FXML private TextArea    descriptionField;
     @FXML private TextField   priceField;
     @FXML private TextField   stockField;
-    @FXML private CheckBox    catHomeAssistants;
-    @FXML private CheckBox    catSecurityBots;
-    @FXML private CheckBox    catEducational;
-    @FXML private CheckBox    catCompanions;
-    @FXML private CheckBox    catIndustrial;
-    @FXML private TextField   imageUrlField;
+    @FXML private ComboBox<String> collectionCombo;
+    @FXML private CheckBox    catMainRobot;
+    @FXML private CheckBox    catMiniRobot;
+    @FXML private CheckBox    catAccessory;
+    @FXML private CheckBox    catService;
+    @FXML private TextField   selectedImageField;
     @FXML private VBox        imageListBox;
+    @FXML private ImageView   imagePreview;
+    @FXML private Label       imagePreviewPlaceholder;
+    @FXML private StackPane   imagePreviewFrame;
     @FXML private RadioButton statusActive;
     @FXML private RadioButton statusInactive;
     @FXML private Button      submitBtn;
@@ -42,8 +51,21 @@ public class ProductFormDialogController implements Initializable {
     private Consumer<Product> onSubmit;
     private Runnable          onClose;
 
+    private static final java.util.List<String> COLLECTIONS = java.util.List.of(
+        "None (Standalone)",
+        "The Apex Series",
+        "The Ledger Series",
+        "The Velocity Series",
+        "The Sentinel Series"
+    );
+
     @Override
-    public void initialize(URL location, ResourceBundle resources) {}
+    public void initialize(URL location, ResourceBundle resources) {
+        if (collectionCombo != null) {
+            collectionCombo.getItems().setAll(COLLECTIONS);
+            collectionCombo.setValue("None (Standalone)");
+        }
+    }
 
     public void setup(Product product, Consumer<Product> onSubmit, Runnable onClose) {
         this.onSubmit       = onSubmit;
@@ -63,16 +85,36 @@ public class ProductFormDialogController implements Initializable {
             // Images
             images = new ArrayList<>();
             for (ProductImage img : product.images) images.add(img.imageURL);
+            if (images.isEmpty() && product.getImagePath() != null && !product.getImagePath().isBlank()) {
+                images.add(product.getImagePath());
+            }
             refreshImageList();
+            if (selectedImageField != null && !images.isEmpty()) {
+                String first = images.get(0);
+                int slash = first.lastIndexOf('/');
+                selectedImageField.setText(slash >= 0 ? first.substring(slash + 1) : first);
+            }
+            if (!images.isEmpty()) {
+                showPreview(images.get(0));
+            }
 
             // Categories
             List<String> catNames = new ArrayList<>();
             for (Category c : product.categories) catNames.add(c.categoryName);
-            if (catHomeAssistants != null) catHomeAssistants.setSelected(catNames.contains("Home Assistants"));
-            if (catSecurityBots   != null) catSecurityBots.setSelected(catNames.contains("Security Bots"));
-            if (catEducational    != null) catEducational.setSelected(catNames.contains("Educational"));
-            if (catCompanions     != null) catCompanions.setSelected(catNames.contains("Companions"));
-            if (catIndustrial     != null) catIndustrial.setSelected(catNames.contains("Industrial"));
+            if (catMainRobot != null) catMainRobot.setSelected(catNames.contains("Main Robot"));
+            if (catMiniRobot != null) catMiniRobot.setSelected(catNames.contains("Mini Robot"));
+            if (catAccessory != null) catAccessory.setSelected(catNames.contains("Accessory"));
+            if (catService   != null) catService.setSelected(catNames.contains("Service"));
+
+            // Collection
+            if (collectionCombo != null) {
+                String col = product.collection;
+                if (col != null && !col.isBlank() && COLLECTIONS.contains(col)) {
+                    collectionCombo.setValue(col);
+                } else {
+                    collectionCombo.setValue("None (Standalone)");
+                }
+            }
 
             // Status
             boolean inactive = "INACTIVE".equalsIgnoreCase(product.status);
@@ -83,16 +125,50 @@ public class ProductFormDialogController implements Initializable {
             if (dialogTitle != null) dialogTitle.setText("Add New Product");
             if (submitBtn   != null) submitBtn.setText("Add Product");
             if (statusActive != null) statusActive.setSelected(true);
+            if (selectedImageField != null) selectedImageField.clear();
         }
     }
 
-    @FXML private void handleAddImage() {
-        if (imageUrlField == null) return;
-        String url = imageUrlField.getText().trim();
-        if (!url.isEmpty()) {
-            images.add(url);
-            imageUrlField.clear();
+    @FXML
+    private void handleBrowseLocalImage() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Product Image");
+        chooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+        File selected = chooser.showOpenDialog(submitBtn.getScene().getWindow());
+        if (selected == null) return;
+        try {
+            String relativePath = ProductImageUtil.copyImageToResources(selected);
+            // New selection becomes primary — prepend so it lands at index 0.
+            images.add(0, relativePath);
+            if (selectedImageField != null) selectedImageField.setText(selected.getName());
             refreshImageList();
+            showPreview(relativePath);
+        } catch (Exception e) {
+            if (errorLabel != null) errorLabel.setText("Failed to save image locally: " + e.getMessage());
+            if (errorBox != null) {
+                errorBox.setVisible(true);
+                errorBox.setManaged(true);
+            }
+        }
+    }
+
+    private void showPreview(String imagePath) {
+        if (imagePreview == null) return;
+        Image img = ProductImageUtil.loadFromProductPath(getClass(), imagePath);
+        if (img != null && !img.isError()) {
+            imagePreview.setImage(img);
+            if (imagePreviewPlaceholder != null) {
+                imagePreviewPlaceholder.setVisible(false);
+                imagePreviewPlaceholder.setManaged(false);
+            }
+        } else {
+            imagePreview.setImage(null);
+            if (imagePreviewPlaceholder != null) {
+                imagePreviewPlaceholder.setVisible(true);
+                imagePreviewPlaceholder.setManaged(true);
+            }
         }
     }
 
@@ -110,8 +186,11 @@ public class ProductFormDialogController implements Initializable {
                 "-fx-text-fill: "        + (i == 0 ? "white"   : "#374151") + ";" +
                 "-fx-font-size: 10; -fx-padding: 2 6 2 6; -fx-background-radius: 4;");
 
-            String url = images.get(i);
-            Label urlLabel = new Label(url.length() > 55 ? url.substring(0, 55) + "..." : url);
+            String imagePath = images.get(i);
+            String filename = imagePath;
+            int slash = imagePath.lastIndexOf('/');
+            if (slash >= 0 && slash < imagePath.length() - 1) filename = imagePath.substring(slash + 1);
+            Label urlLabel = new Label(filename.length() > 55 ? filename.substring(0, 55) + "..." : filename);
             urlLabel.setStyle("-fx-font-size: 12; -fx-text-fill: #6b7280;");
             HBox.setHgrow(urlLabel, Priority.ALWAYS);
 
@@ -119,7 +198,11 @@ public class ProductFormDialogController implements Initializable {
             removeBtn.setStyle(
                 "-fx-background-color: transparent; -fx-border-color: transparent;" +
                 "-fx-text-fill: #dc2626; -fx-cursor: hand; -fx-font-size: 12;");
-            removeBtn.setOnAction(e -> { images.remove(idx); refreshImageList(); });
+            removeBtn.setOnAction(e -> {
+                images.remove(idx);
+                refreshImageList();
+                showPreview(images.isEmpty() ? null : images.get(0));
+            });
 
             row.getChildren().addAll(badge, urlLabel, removeBtn);
             imageListBox.getChildren().add(row);
@@ -137,17 +220,23 @@ public class ProductFormDialogController implements Initializable {
 
         // Build category list
         List<String> catNames = new ArrayList<>();
-        if (catHomeAssistants != null && catHomeAssistants.isSelected()) catNames.add("Home Assistants");
-        if (catSecurityBots   != null && catSecurityBots.isSelected())   catNames.add("Security Bots");
-        if (catEducational    != null && catEducational.isSelected())     catNames.add("Educational");
-        if (catCompanions     != null && catCompanions.isSelected())      catNames.add("Companions");
-        if (catIndustrial     != null && catIndustrial.isSelected())      catNames.add("Industrial");
+        if (catMainRobot != null && catMainRobot.isSelected()) catNames.add("Main Robot");
+        if (catMiniRobot != null && catMiniRobot.isSelected()) catNames.add("Mini Robot");
+        if (catAccessory != null && catAccessory.isSelected()) catNames.add("Accessory");
+        if (catService   != null && catService.isSelected())   catNames.add("Service");
 
         // Build Product object
         Product p = new Product();
         if (editingProduct != null) {
             p.productID = editingProduct.productID;
             p.sku = editingProduct.sku;
+        }
+        // Collection — set from combo; "None (Standalone)" means null
+        if (collectionCombo != null) {
+            String sel = collectionCombo.getValue();
+            p.collection = (sel == null || sel.startsWith("None")) ? null : sel;
+        } else if (editingProduct != null) {
+            p.collection = editingProduct.collection;
         }
         p.name        = nameField.getText().trim();
         p.description = descriptionField != null ? descriptionField.getText().trim() : "";
@@ -173,6 +262,8 @@ public class ProductFormDialogController implements Initializable {
             img.isPrimary = (i == 0) ? 1 : 0;
             p.images.add(img);
         }
+        // Persist directly on products row too.
+        p.setImagePath(images.isEmpty() ? null : images.get(0));
 
         if (onSubmit != null) onSubmit.accept(p);
         if (onClose  != null) onClose.run();
@@ -206,11 +297,10 @@ public class ProductFormDialogController implements Initializable {
                 errors.add("Stock must be a valid whole number");
             }
         }
-        boolean anyCat = (catHomeAssistants != null && catHomeAssistants.isSelected())
-                      || (catSecurityBots   != null && catSecurityBots.isSelected())
-                      || (catEducational    != null && catEducational.isSelected())
-                      || (catCompanions     != null && catCompanions.isSelected())
-                      || (catIndustrial     != null && catIndustrial.isSelected());
+        boolean anyCat = (catMainRobot != null && catMainRobot.isSelected())
+                      || (catMiniRobot != null && catMiniRobot.isSelected())
+                      || (catAccessory != null && catAccessory.isSelected())
+                      || (catService   != null && catService.isSelected());
         if (!anyCat) errors.add("At least one category must be selected");
         return errors;
     }

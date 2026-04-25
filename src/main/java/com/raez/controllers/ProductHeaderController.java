@@ -52,6 +52,21 @@ public class ProductHeaderController implements Initializable {
         if (logoutMenuItem    != null) logoutMenuItem.setVisible(false);
         if (logoutSeparator   != null) logoutSeparator.setVisible(false);
         if (adminBtn          != null) { adminBtn.setVisible(false); adminBtn.setManaged(false); }
+        if (userMenuBtn       != null) {
+            userMenuBtn.setText("Login");
+            userMenuBtn.setStyle(
+                "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                "-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;" +
+                "-fx-cursor: hand; -fx-padding: 0;"
+            );
+        }
+        if (collectionsMenu != null) {
+            collectionsMenu.setStyle(
+                "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                "-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;" +
+                "-fx-cursor: hand; -fx-padding: 0;"
+            );
+        }
 
         favManager.addListener(products -> Platform.runLater(() -> updateFavBadge(products)));
         updateFavBadge(favManager.getAll());
@@ -183,26 +198,21 @@ public class ProductHeaderController implements Initializable {
 
     // ── Collection filters ─────────────────────────────────────────────────
 
-    @FXML private void handleFilterAll()                    { filterByCollection(null); }
-    @FXML private void handleCollectionApexAutomata()       { filterByCollection("Apex Automata"); }
-    @FXML private void handleCollectionSentinelForce()      { filterByCollection("Sentinel Force"); }
-    @FXML private void handleCollectionNovaMind()           { filterByCollection("NovaMind"); }
-    @FXML private void handleCollectionTerraCore()          { filterByCollection("TerraCore"); }
+    @FXML private void handleFilterAll()                    { navigateTo("/fxml/ProductHomepage.fxml"); }
+    @FXML private void handleCollectionApexAutomata()       { NavigationRouter.getInstance().navigateByPath("/collections/the-apex-series"); }
+    @FXML private void handleCollectionSentinelForce()      { NavigationRouter.getInstance().navigateByPath("/collections/the-ledger-series"); }
+    @FXML private void handleCollectionNovaMind()           { NavigationRouter.getInstance().navigateByPath("/collections/the-velocity-series"); }
+    @FXML private void handleCollectionTerraCore()          { NavigationRouter.getInstance().navigateByPath("/collections/the-sentinel-series"); }
 
     // ── Top-level nav ──────────────────────────────────────────────────────
 
-    @FXML private void handleNavRobots()      { filterByCategory("Robots"); }
-    @FXML private void handleNavMiniRobots()  { filterByCategory("Mini Robots"); }
-    @FXML private void handleNavAccessories() { filterByCategory("Accessories"); }
-    @FXML private void handleNavServices()    { filterByCategory("Services"); }
+    @FXML private void handleNavRobots()      { filterByCategory("Main Robot"); }
+    @FXML private void handleNavMiniRobots()  { filterByCategory("Mini Robot"); }
+    @FXML private void handleNavAccessories() { filterByCategory("Accessory"); }
+    @FXML private void handleNavServices()    { filterByCategory("Service"); }
 
     private void filterByCategory(String category) {
         ProductListController.setPendingCategory(category);
-        navigateTo("/fxml/ProductListPage.fxml");
-    }
-
-    private void filterByCollection(String collection) {
-        ProductListController.setPendingCollection(collection);
         navigateTo("/fxml/ProductListPage.fxml");
     }
 
@@ -225,7 +235,14 @@ public class ProductHeaderController implements Initializable {
         if (loginMenuItem          != null) loginMenuItem.setVisible(false);
         if (logoutMenuItem         != null) logoutMenuItem.setVisible(true);
         if (logoutSeparator        != null) logoutSeparator.setVisible(true);
-        if (userMenuBtn            != null) userMenuBtn.setText(user.firstName != null ? user.firstName : "👤");
+        if (userMenuBtn != null) {
+            String name = user.firstName != null && !user.firstName.isBlank() ? user.firstName : "Account";
+            userMenuBtn.setText("👤  " + name);
+            userMenuBtn.setStyle(
+                "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                "-fx-font-size: 13; -fx-text-fill: white; -fx-cursor: hand; -fx-padding: 0;"
+            );
+        }
 
         boolean isCustomer = "customer".equals(user.roleName);
         if (manageAccountMenuItem  != null) manageAccountMenuItem.setVisible(isCustomer);
@@ -244,7 +261,13 @@ public class ProductHeaderController implements Initializable {
         if (manageAccountMenuItem != null) manageAccountMenuItem.setVisible(false);
         if (myReviewsMenuItem     != null) myReviewsMenuItem.setVisible(false);
         if (adminBtn              != null) { adminBtn.setVisible(false); adminBtn.setManaged(false); }
-        if (userMenuBtn           != null) userMenuBtn.setText("👤");
+        if (userMenuBtn != null) {
+            userMenuBtn.setText("Login");
+            userMenuBtn.setStyle(
+                "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                "-fx-font-size: 13; -fx-text-fill: white; -fx-cursor: hand; -fx-padding: 0;"
+            );
+        }
     }
 
     @FXML

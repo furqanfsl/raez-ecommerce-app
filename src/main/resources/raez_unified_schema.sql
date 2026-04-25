@@ -140,6 +140,7 @@ CREATE TABLE IF NOT EXISTS products (
     status      TEXT    NOT NULL DEFAULT 'active',
     -- Values: active | inactive | discontinued
     categoryID  INTEGER,
+    imagePath   TEXT,
     collection  TEXT,
     -- Marketing collection name (e.g. 'Apex Automata', 'Sentinel Force',
     -- 'NovaMind', 'TerraCore'). Nullable for ungrouped products.

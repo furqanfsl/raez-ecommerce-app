@@ -6,6 +6,7 @@ import com.raez.model.FavouritesManager;
 import com.raez.model.NavigationRouter;
 import com.raez.model.Product;
 import com.raez.model.User;
+import com.raez.util.ProductImageUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -46,6 +48,7 @@ public class ProductDetailController implements Initializable {
     @FXML private Button    favouriteBtn;
     @FXML private ImageView productImageView;
     @FXML private Label     imagePlaceholder;
+    @FXML private StackPane imageContainer;
     @FXML private VBox      reviewsContainer;
     @FXML private ScrollPane mainScrollPane;
     @FXML private Button    scrollToTopBtn;
@@ -58,6 +61,9 @@ public class ProductDetailController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ShopScrollChrome.wire(mainScrollPane, scrollToTopBtn);
+        if (imageContainer != null && productImageView != null) {
+            productImageView.fitWidthProperty().bind(imageContainer.widthProperty());
+        }
     }
 
     public void setProduct(Product product) {
@@ -112,23 +118,17 @@ public class ProductDetailController implements Initializable {
     }
 
     private void loadImage() {
-        String url = product.getPrimaryImage();
-        if (url == null || url.isBlank()) return;
-
+        String path = product.getPrimaryImage();
+        if (path == null || path.isBlank()) return;
         Thread t = new Thread(() -> {
-            try {
-                Image img = new Image(url, 480, 520, true, true, true);
-                while (img.getProgress() < 1.0 && !img.isError()) Thread.sleep(80);
-                if (!img.isError()) {
-                    Platform.runLater(() -> {
-                        productImageView.setImage(img);
-                        productImageView.setVisible(true);
-                        imagePlaceholder.setVisible(false);
-                        imagePlaceholder.setManaged(false);
-                    });
-                }
-            } catch (Exception e) {
-                System.err.println("ProductDetailController image load failed: " + e.getMessage());
+            Image img = ProductImageUtil.loadFromProductPath(getClass(), path);
+            if (img != null && !img.isError()) {
+                Platform.runLater(() -> {
+                    productImageView.setImage(img);
+                    productImageView.setVisible(true);
+                    imagePlaceholder.setVisible(false);
+                    imagePlaceholder.setManaged(false);
+                });
             }
         });
         t.setDaemon(true);

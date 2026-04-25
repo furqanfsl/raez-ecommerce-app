@@ -107,8 +107,10 @@ public class ProductDAO {
     /** Insert a new product, returns generated id */
     public int insert(Product p) {
         String sql = """
-            INSERT INTO products (sku, name, description, price, unitCost, status, categoryID, collection)
-            VALUES (?,?,?,?,?,?,?,?)
+            INSERT INTO products (sku, name, description, price, unitCost, status, categoryID, imagePath,
+                collection, collectionID)
+            VALUES (?,?,?,?,?,?,?,?,?,
+                (SELECT pc.collectionID FROM product_collections pc WHERE pc.name = ?))
             """;
         try (PreparedStatement ps = conn().prepareStatement(sql,
                 Statement.RETURN_GENERATED_KEYS)) {
@@ -123,10 +125,17 @@ public class ProductDAO {
             } else {
                 ps.setNull(7, Types.INTEGER);
             }
-            if (p.collection != null && !p.collection.isBlank()) {
-                ps.setString(8, p.collection);
+            if (p.imagePath != null && !p.imagePath.isBlank()) {
+                ps.setString(8, p.imagePath);
             } else {
                 ps.setNull(8, Types.VARCHAR);
+            }
+            if (p.collection != null && !p.collection.isBlank()) {
+                ps.setString(9, p.collection);
+                ps.setString(10, p.collection);
+            } else {
+                ps.setNull(9, Types.VARCHAR);
+                ps.setNull(10, Types.VARCHAR);
             }
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
@@ -145,7 +154,12 @@ public class ProductDAO {
     public boolean update(Product p) {
         String sql = """
             UPDATE products
-            SET name=?, description=?, price=?, unitCost=?, categoryID=?, status=?, collection=?,
+            SET name=?, description=?, price=?, unitCost=?, categoryID=?, status=?, imagePath=?,
+                collection=?,
+                collectionID = COALESCE(
+                    (SELECT pc.collectionID FROM product_collections pc WHERE pc.name = ?),
+                    collectionID
+                ),
                 updatedAt=CURRENT_TIMESTAMP
             WHERE productID=?
             """;
@@ -160,12 +174,19 @@ public class ProductDAO {
                 ps.setNull(5, Types.INTEGER);
             }
             ps.setString(6, p.status != null ? p.status.toLowerCase() : "active");
-            if (p.collection != null && !p.collection.isBlank()) {
-                ps.setString(7, p.collection);
+            if (p.imagePath != null && !p.imagePath.isBlank()) {
+                ps.setString(7, p.imagePath);
             } else {
                 ps.setNull(7, Types.VARCHAR);
             }
-            ps.setInt(8, p.productID);
+            if (p.collection != null && !p.collection.isBlank()) {
+                ps.setString(8, p.collection);
+                ps.setString(9, p.collection);
+            } else {
+                ps.setNull(8, Types.VARCHAR);
+                ps.setNull(9, Types.VARCHAR);
+            }
+            ps.setInt(10, p.productID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("ProductDAO.update: " + e.getMessage());
@@ -329,6 +350,11 @@ public class ProductDAO {
             p.categoryID = cid;
         }
         p.status      = rs.getString("status");
+        try {
+            p.imagePath = rs.getString("imagePath");
+        } catch (SQLException ignore) {
+            p.imagePath = null;
+        }
         try {
             p.collection = rs.getString("collection");
         } catch (SQLException ignore) {

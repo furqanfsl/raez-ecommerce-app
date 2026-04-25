@@ -1,0 +1,514 @@
+/* =========================================================================
+   RAEZ Admin Theme — unified design system for all admin portals
+   Brand palette: cyan primary (#00D9FF), dark blue gradient accents,
+   light neutral backgrounds (white, #F5F7FA).
+   ========================================================================= */
+
+.root {
+    -raez-cyan:           #00D9FF;
+    -raez-cyan-dark:      #0891B2;
+    -raez-cyan-bg:        #E0F7FB;
+    -raez-navy:           #0A1628;
+    -raez-navy-grad-from: #0a1628;
+    -raez-navy-grad-to:   #14304a;
+
+    -raez-bg-page:        #F5F7FA;
+    -raez-bg-card:        #FFFFFF;
+    -raez-bg-subtle:      #F0F2F6;
+    -raez-bg-hover:       #E0F7FB;
+
+    -raez-border:         #E5E7EB;
+    -raez-border-strong:  #CBD5E1;
+    -raez-border-focus:   #00D9FF;
+
+    -raez-text:           #111827;
+    -raez-text-sec:       #4B5563;
+    -raez-text-muted:     #6B7280;
+    -raez-text-placeholder: #9CA3AF;
+
+    -raez-success:        #10B981;
+    -raez-warning:        #F59E0B;
+    -raez-danger:         #EF4444;
+
+    -fx-font-family: "Inter","Segoe UI","Helvetica Neue",Arial,sans-serif;
+    -fx-font-size: 13px;
+}
+
+/* ─────────────────────────── Page shells ─────────────────────────── */
+
+.admin-shell {
+    -fx-background-color: -raez-bg-page;
+}
+
+.admin-topbar {
+    -fx-background-color: linear-gradient(to right, #0a1628 0%, #14304a 100%);
+    -fx-padding: 14 32 14 32;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0.18, 0, 4);
+}
+
+.admin-topbar .h1,
+.admin-topbar-title {
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,217,255,0.35), 10, 0.2, 0, 0);
+}
+
+.admin-topbar-subtitle {
+    -fx-font-size: 12;
+    -fx-text-fill: rgba(255,255,255,0.72);
+}
+
+.admin-page-header {
+    -fx-background-color: -raez-bg-card;
+    -fx-border-color: -raez-border;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 24 40 24 40;
+}
+
+.admin-page-title {
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-text;
+}
+
+.admin-page-subtitle {
+    -fx-font-size: 13;
+    -fx-text-fill: -raez-text-muted;
+}
+
+.admin-section {
+    -fx-background-color: -raez-bg-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -raez-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 0.5;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.05), 10, 0, 0, 4);
+    -fx-padding: 20 24 20 24;
+}
+
+.admin-section-title {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-text;
+}
+
+/* ─────────────────────────── KPI tiles ─────────────────────────── */
+
+.admin-metric {
+    -fx-background-color: -raez-bg-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -raez-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 0.5;
+    -fx-padding: 20 22 20 22;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.05), 10, 0, 0, 4);
+}
+
+.admin-metric-label {
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-text-muted;
+}
+
+.admin-metric-value {
+    -fx-font-size: 30;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-cyan-dark;
+}
+
+.admin-metric-caption {
+    -fx-font-size: 11;
+    -fx-text-fill: -raez-text-placeholder;
+}
+
+/* ─────────────────────────── Buttons ─────────────────────────── */
+
+.admin-btn-primary,
+.btn-admin-primary {
+    -fx-background-color: linear-gradient(to bottom right, #00D9FF 0%, #0891B2 100%);
+    -fx-text-fill: white;
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,217,255,0.30), 10, 0.2, 0, 3);
+}
+.admin-btn-primary:hover,
+.btn-admin-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, #22E3FF 0%, #0AA5CC 100%);
+    -fx-effect: dropshadow(gaussian, rgba(0,217,255,0.42), 14, 0.25, 0, 4);
+}
+.admin-btn-primary:pressed,
+.btn-admin-primary:pressed {
+    -fx-background-color: linear-gradient(to bottom right, #0891B2 0%, #0A6B82 100%);
+    -fx-effect: none;
+}
+
+.admin-btn-secondary {
+    -fx-background-color: -raez-bg-card;
+    -fx-border-color: -raez-border-strong;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-width: 0.5;
+    -fx-text-fill: -raez-text-sec;
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-padding: 9 18 9 18;
+    -fx-cursor: hand;
+}
+.admin-btn-secondary:hover {
+    -fx-background-color: -raez-bg-subtle;
+    -fx-border-color: -raez-cyan;
+    -fx-text-fill: -raez-cyan-dark;
+}
+
+.admin-btn-danger {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: white;
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+.admin-btn-danger:hover {
+    -fx-background-color: #DC2626;
+}
+
+.admin-btn-ghost {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.92);
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-padding: 6 12 6 12;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.admin-btn-ghost:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-text-fill: white;
+}
+
+/* ─────────────────────────── Form inputs ─────────────────────────── */
+
+.admin-input,
+.admin-section .text-field,
+.admin-section .password-field,
+.admin-section .text-area {
+    -fx-background-color: -raez-bg-card;
+    -fx-border-color: -raez-border-strong;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-width: 0.5;
+    -fx-font-size: 13;
+    -fx-text-fill: -raez-text;
+    -fx-prompt-text-fill: -raez-text-placeholder;
+    -fx-padding: 10 14 10 14;
+}
+.admin-input:focused,
+.admin-section .text-field:focused,
+.admin-section .password-field:focused,
+.admin-section .text-area:focused {
+    -fx-border-color: -raez-cyan;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(0,217,255,0.24), 8, 0.2, 0, 1);
+}
+
+.admin-field-label {
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-text-sec;
+    -fx-letter-spacing: 1;
+}
+
+/* ─────────────────────────── Tables ─────────────────────────── */
+
+.admin-table {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+.admin-table .column-header-background {
+    -fx-background-color: -raez-bg-subtle;
+    -fx-background-radius: 8 8 0 0;
+    -fx-border-color: transparent transparent -raez-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.admin-table .column-header,
+.admin-table .filler {
+    -fx-background-color: transparent;
+    -fx-size: 42px;
+}
+.admin-table .column-header .label {
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-text-muted;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 8 0 8;
+    -fx-letter-spacing: 1;
+}
+.admin-table .table-cell {
+    -fx-padding: 0 8 0 8;
+    -fx-border-color: transparent;
+    -fx-font-size: 13;
+    -fx-text-fill: -raez-text;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cell-size: 46px;
+}
+.admin-table .table-row-cell {
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.admin-table .table-row-cell:even {
+    -fx-background-color: -raez-bg-card;
+}
+.admin-table .table-row-cell:odd {
+    -fx-background-color: #FAFBFC;
+}
+.admin-table .table-row-cell:hover {
+    -fx-background-color: -raez-bg-hover;
+    -fx-cursor: hand;
+}
+.admin-table .table-row-cell:selected {
+    -fx-background-color: #CFF5FC;
+}
+.admin-table:focused {
+    -fx-border-color: transparent;
+}
+
+/* ─────────────────────────── Misc ─────────────────────────── */
+
+.admin-chip-cyan {
+    -fx-background-color: -raez-cyan-bg;
+    -fx-text-fill: -raez-cyan-dark;
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10 4 10;
+    -fx-background-radius: 999;
+}
+
+.admin-chip-white {
+    -fx-background-color: -raez-bg-card;
+    -fx-text-fill: -raez-cyan-dark;
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-padding: 6 16 6 16;
+    -fx-background-radius: 8;
+    -fx-border-color: -raez-border;
+    -fx-border-radius: 8;
+    -fx-border-width: 0.5;
+    -fx-cursor: hand;
+}
+.admin-chip-white:hover {
+    -fx-background-color: -raez-bg-hover;
+    -fx-border-color: -raez-cyan;
+}
+
+.admin-alert-card {
+    -fx-background-color: #FFF7ED;
+    -fx-border-color: #FED7AA;
+    -fx-border-width: 0.5;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 18 22 18 22;
+}
+.admin-alert-title {
+    -fx-font-size: 15;
+    -fx-font-weight: bold;
+    -fx-text-fill: #92400E;
+}
+
+/* Make generic Label nested inside admin-topbar white for visibility */
+.admin-topbar .label {
+    -fx-text-fill: rgba(255,255,255,0.92);
+}
+
+/* ScrollPane inside admin shells should be transparent */
+.admin-shell > .scroll-pane,
+.admin-shell .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+.admin-shell .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Legacy class bridges — map older admin view classes to the new system */
+.app-shell,
+.dashboard-scroll,
+.dashboard-layout {
+    -fx-background-color: -raez-bg-page;
+}
+.dashboard-scroll > .viewport {
+    -fx-background-color: -raez-bg-page;
+}
+.hero-panel {
+    -fx-background-color: linear-gradient(to right, #0a1628 0%, #14304a 100%);
+    -fx-padding: 20 24 20 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0.18, 0, 4);
+}
+.hero-panel .label,
+.hero-panel .page-title,
+.hero-panel .page-subtitle {
+    -fx-text-fill: white;
+}
+.hero-panel .page-title {
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,217,255,0.35), 10, 0.2, 0, 0);
+}
+.hero-panel .page-subtitle {
+    -fx-font-size: 12;
+    -fx-text-fill: rgba(255,255,255,0.72);
+}
+.hero-panel .text-field,
+.hero-panel .combo-box-base,
+.hero-panel .spinner {
+    -fx-background-color: rgba(255,255,255,0.92);
+    -fx-background-radius: 8;
+}
+.panel-card {
+    -fx-background-color: -raez-bg-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -raez-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 0.5;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.05), 10, 0, 0, 4);
+}
+.section-title {
+    -fx-font-size: 15;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-text;
+}
+.badge-text {
+    -fx-text-fill: -raez-text-muted;
+    -fx-font-size: 12;
+}
+.primary-button,
+.btn-primary {
+    -fx-background-color: linear-gradient(to bottom right, #00D9FF 0%, #0891B2 100%);
+    -fx-text-fill: white;
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.primary-button:hover,
+.btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, #22E3FF 0%, #0AA5CC 100%);
+}
+.secondary-button,
+.btn-secondary {
+    -fx-background-color: -raez-bg-card;
+    -fx-border-color: -raez-border-strong;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-width: 0.5;
+    -fx-text-fill: -raez-text-sec;
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+.secondary-button:hover,
+.btn-secondary:hover {
+    -fx-background-color: -raez-bg-subtle;
+    -fx-border-color: -raez-cyan;
+    -fx-text-fill: -raez-cyan-dark;
+}
+.danger-button {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.danger-button:hover {
+    -fx-background-color: #DC2626;
+}
+.success-button {
+    -fx-background-color: #10B981;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.success-button:hover {
+    -fx-background-color: #0EA371;
+}
+.neutral-button {
+    -fx-background-color: -raez-bg-card;
+    -fx-border-color: -raez-border-strong;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-width: 0.5;
+    -fx-text-fill: -raez-text-sec;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+.neutral-button:hover {
+    -fx-background-color: -raez-bg-subtle;
+    -fx-border-color: -raez-cyan;
+}
+
+/* Warehouse/Deliveries legacy classes */
+.topbar {
+    -fx-background-color: linear-gradient(to right, #0a1628 0%, #14304a 100%);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0.18, 0, 4);
+}
+.topbar .label {
+    -fx-text-fill: white;
+}
+.topbar .h1 {
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,217,255,0.35), 10, 0.2, 0, 0);
+}
+.h1 {
+    -fx-font-size: 22;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-text;
+}
+.h2 {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-text-fill: -raez-text;
+}
+.card {
+    -fx-background-color: -raez-bg-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -raez-border;
+    -fx-border-radius: 12;
+    -fx-border-width: 0.5;
+    -fx-padding: 18 22 18 22;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.05), 10, 0, 0, 4);
+}
+.alert-card {
+    -fx-background-color: #FFF7ED;
+    -fx-border-color: #FED7AA;
+    -fx-border-width: 0.5;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 18 22 18 22;
+}
+.alert-title {
+    -fx-font-size: 15;
+    -fx-font-weight: bold;
+    -fx-text-fill: #92400E;
+}
+.root.admin-shell,
+.admin-shell {
+    -fx-font-family: "Inter","Segoe UI","Helvetica Neue",Arial,sans-serif;
+}

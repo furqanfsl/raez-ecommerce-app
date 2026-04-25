@@ -15,28 +15,36 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.raez.controllers.ProductHeaderController"
       spacing="0" maxWidth="Infinity" minWidth="0"
-      style="-fx-background-color: white;">
+      style="-fx-background-color: rgba(10,15,31,0.82);
+             -fx-border-color: rgba(255,255,255,0.10);
+             -fx-border-width: 0 0 0.5 0;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 18, 0.2, 0, 4);">
 
     <!-- Row 1: Logo / Search / Icons -->
     <HBox prefHeight="64" alignment="CENTER_LEFT" maxWidth="Infinity" minWidth="0"
-          style="-fx-background-color: white; -fx-border-color: #e5e7eb;
-                 -fx-border-width: 0 0 1 0; -fx-padding: 0 32 0 32;">
+          style="-fx-background-color: transparent;
+                 -fx-border-color: rgba(255,255,255,0.08);
+                 -fx-border-width: 0 0 0.5 0; -fx-padding: 0 32 0 32;">
 
         <Button fx:id="logoBtn" text="RAEZ"
                 onAction="#handleLogoClick"
                 style="-fx-background-color: transparent; -fx-border-color: transparent;
-                       -fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1E2939;
-                       -fx-cursor: hand; -fx-padding: 0; -fx-letter-spacing: 2;" />
+                       -fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;
+                       -fx-cursor: hand; -fx-padding: 0; -fx-letter-spacing: 2;
+                       -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.35), 10, 0.25, 0, 0);" />
 
         <Region minWidth="24" HBox.hgrow="ALWAYS" />
 
         <TextField fx:id="searchField"
                    promptText="Search robots, collections, accessories..."
                    prefHeight="40" maxWidth="520" HBox.hgrow="ALWAYS"
-                   style="-fx-background-color: #f9fafb; -fx-border-color: #e5e7eb;
-                          -fx-border-radius: 8; -fx-background-radius: 8;
-                          -fx-padding: 0 16 0 16; -fx-font-size: 13;
-                          -fx-prompt-text-fill: #9ca3af;" />
+                   style="-fx-background-color: rgba(255,255,255,0.06);
+                          -fx-border-color: rgba(255,255,255,0.18);
+                          -fx-border-radius: 32; -fx-background-radius: 32;
+                          -fx-border-width: 0.5;
+                          -fx-padding: 0 18 0 18; -fx-font-size: 13;
+                          -fx-text-fill: white;
+                          -fx-prompt-text-fill: rgba(255,255,255,0.45);" />
 
         <Region minWidth="24" HBox.hgrow="ALWAYS" />
 
@@ -47,7 +55,7 @@
                 <Button fx:id="heartBtn" text="♡"
                         onAction="#handleHeartClick"
                         style="-fx-background-color: transparent; -fx-border-color: transparent;
-                               -fx-font-size: 22; -fx-text-fill: #1E2939; -fx-cursor: hand;
+                               -fx-font-size: 22; -fx-text-fill: white; -fx-cursor: hand;
                                -fx-padding: 0;" />
                 <Label fx:id="heartBadge" text="0"
                        visible="false" managed="false"
@@ -62,21 +70,23 @@
             <StackPane>
                 <Button text="&#128722;" onAction="#handleCartClick"
                         style="-fx-background-color: transparent; -fx-border-color: transparent;
-                               -fx-font-size: 20; -fx-text-fill: #1E2939; -fx-cursor: hand;
+                               -fx-font-size: 20; -fx-text-fill: white; -fx-cursor: hand;
                                -fx-padding: 0;" />
                 <Label fx:id="cartBadge" text="0"
                        StackPane.alignment="TOP_RIGHT"
-                       style="-fx-background-color: #1E2939; -fx-text-fill: white;
+                       style="-fx-background-color: #5eead4; -fx-text-fill: #0a0f1f;
                               -fx-font-size: 10; -fx-font-weight: bold;
                               -fx-background-radius: 10; -fx-padding: 1 5 1 5;
                               -fx-translate-x: 10; -fx-translate-y: -8;" />
             </StackPane>
 
             <!-- Profile menu -->
-            <MenuButton fx:id="userMenuBtn" text="&#128100;"
+            <MenuButton fx:id="userMenuBtn" text="Login"
+                        styleClass="header-user-menu"
                         style="-fx-background-color: transparent; -fx-border-color: transparent;
-                               -fx-font-size: 20; -fx-text-fill: #1E2939; -fx-cursor: hand;
-                               -fx-padding: 0;">
+                               -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;
+                               -fx-cursor: hand; -fx-padding: 6 12 6 12;
+                               -fx-background-radius: 20;">
                 <items>
                     <MenuItem fx:id="loginMenuItem"         text="Sign In"         onAction="#handleOpenLogin" />
                     <MenuItem fx:id="manageAccountMenuItem" text="My Account"      onAction="#handleManageAccount"
@@ -100,41 +110,47 @@
 
     <!-- Row 2: Primary Navigation -->
     <HBox alignment="CENTER" spacing="38" prefHeight="44" maxWidth="Infinity" minWidth="0"
-          style="-fx-background-color: white; -fx-border-color: #e5e7eb;
-                 -fx-border-width: 0 0 1 0;">
+          style="-fx-background-color: transparent;
+                 -fx-border-color: rgba(255,255,255,0.08);
+                 -fx-border-width: 0 0 0.5 0;">
 
         <MenuButton fx:id="collectionsMenu" text="Collections  ▾"
+                    styleClass="nav-link-white"
                     style="-fx-background-color: transparent; -fx-border-color: transparent;
-                           -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1E2939;
+                           -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;
                            -fx-cursor: hand; -fx-padding: 0;">
             <items>
-                <MenuItem text="Apex Automata — Kinetic Series"       onAction="#handleCollectionApexAutomata" />
-                <MenuItem text="Sentinel Force — Guardian Series"     onAction="#handleCollectionSentinelForce" />
-                <MenuItem text="NovaMind — Intelligence Series"       onAction="#handleCollectionNovaMind" />
-                <MenuItem text="TerraCore — Industrial Series"        onAction="#handleCollectionTerraCore" />
+                <MenuItem text="The Apex Series"                      onAction="#handleCollectionApexAutomata" />
+                <MenuItem text="The Ledger Series"                    onAction="#handleCollectionSentinelForce" />
+                <MenuItem text="The Velocity Series"                  onAction="#handleCollectionNovaMind" />
+                <MenuItem text="The Sentinel Series"                  onAction="#handleCollectionTerraCore" />
                 <SeparatorMenuItem />
                 <MenuItem text="View All Collections"                 onAction="#handleFilterAll" />
             </items>
         </MenuButton>
 
         <Button text="Robots" onAction="#handleNavRobots"
+                styleClass="nav-link-white"
                 style="-fx-background-color: transparent; -fx-border-color: transparent;
-                       -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1E2939;
+                       -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;
                        -fx-cursor: hand; -fx-padding: 0;" />
 
         <Button text="Mini Robots" onAction="#handleNavMiniRobots"
+                styleClass="nav-link-white"
                 style="-fx-background-color: transparent; -fx-border-color: transparent;
-                       -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1E2939;
+                       -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;
                        -fx-cursor: hand; -fx-padding: 0;" />
 
         <Button text="Accessories" onAction="#handleNavAccessories"
+                styleClass="nav-link-white"
                 style="-fx-background-color: transparent; -fx-border-color: transparent;
-                       -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1E2939;
+                       -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;
                        -fx-cursor: hand; -fx-padding: 0;" />
 
         <Button text="Services" onAction="#handleNavServices"
+                styleClass="nav-link-white"
                 style="-fx-background-color: transparent; -fx-border-color: transparent;
-                       -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1E2939;
+                       -fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #FFFFFF;
                        -fx-cursor: hand; -fx-padding: 0;" />
 
     </HBox>

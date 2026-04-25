@@ -26,6 +26,12 @@ public class MainApp extends Application {
 
         Rectangle2D vb = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(splashRoot, vb.getWidth(), vb.getHeight());
+
+        // Attach the admin-theme stylesheet globally so every admin FXML
+        // can use the shared .admin-* classes without needing a per-view link.
+        var adminCss = getClass().getResource("/css/admin-theme.css");
+        if (adminCss != null) scene.getStylesheets().add(adminCss.toExternalForm());
+
         stage.setTitle("RAEZ - Robotics E-Commerce");
         stage.setMinWidth(900);
         stage.setMinHeight(600);

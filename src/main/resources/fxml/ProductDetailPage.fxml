@@ -45,13 +45,14 @@
                 <VBox spacing="24" maxWidth="Infinity"
                       style="-fx-background-color: white; -fx-padding: 40 32 40 32;">
 
-                    <StackPane maxWidth="Infinity" minHeight="280" prefHeight="400"
+                    <StackPane fx:id="imageContainer"
+                               maxWidth="Infinity" minHeight="400" prefHeight="480"
                                alignment="CENTER"
                                style="-fx-background-color: #f3f4f6; -fx-background-radius: 12;">
                         <Label fx:id="imagePlaceholder" text="🤖"
                                style="-fx-font-size: 100; -fx-text-fill: #9ca3af;" />
                         <ImageView fx:id="productImageView"
-                                   fitWidth="480" fitHeight="520"
+                                   fitWidth="800" fitHeight="480"
                                    preserveRatio="true" smooth="true"
                                    visible="false" />
                     </StackPane>

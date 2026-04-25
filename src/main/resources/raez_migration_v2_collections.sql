@@ -76,7 +76,7 @@ INSERT OR IGNORE INTO products (productID, sku, name, description, price, unitCo
       'Hot-swappable high-density battery pack. Doubles operational runtime for Sentinel patrol robots. Fits all Guardian Series chassis.',
       329.99, 140.00, 'active', 8, 'Sentinel Force'),
  (319, 'SFG-09', 'Guardian 24/7 Monitoring',
-      'Around-the-clock human-supervised monitoring service. Alerts are triaged by Sentinel staff; verified incidents trigger your chosen response protocol.',
+     'Around-the-clock human-supervised monitoring service. Alerts are triaged by Sentinel staff, and verified incidents trigger your chosen response protocol.',
       89.00, 30.00, 'active', 9, 'Sentinel Force'),
  (320, 'SFG-10', 'Guardian Annual Maintenance',
       'Yearly on-site inspection, firmware update, full diagnostic, battery health check, and cleaning. Includes priority parts replacement queue.',

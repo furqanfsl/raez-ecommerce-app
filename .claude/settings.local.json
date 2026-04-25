@@ -50,7 +50,17 @@
       "PowerShell(where.exe mvn 2>$null; where.exe java 2>$null; $env:JAVA_HOME; $env:M2_HOME; $env:MAVEN_HOME)",
       "PowerShell(Get-ChildItem \"C:\\\\Program Files\" -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"java|jdk|jre|maven|mvn\" -or $_.Name -match \"Eclipse|AdoptOpenJDK|Temurin\" } | Select-Object Name)",
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\anass\" -Depth 2 -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"jdk|jre|maven\" } | Select-Object FullName)",
-      "PowerShell(Get-ChildItem \"C:\\\\\" -Depth 2 -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"^jdk|^jre|^java\" } | Select-Object FullName | Select-Object -First 10)"
+      "PowerShell(Get-ChildItem \"C:\\\\\" -Depth 2 -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"^jdk|^jre|^java\" } | Select-Object FullName | Select-Object -First 10)",
+      "Bash(./mvnw compile *)",
+      "Bash(where mvn *)",
+      "Read(//c/Users/anass/**)",
+      "Bash(\"/c/Users/anass/Downloads/apache-maven-3.9.15-bin/apache-maven-3.9.15/bin/mvn\" compile *)",
+      "Bash(JAVA_HOME=\"/c/Program Files/Eclipse Adoptium/jdk-21.0.10.7-hotspot\" \"/c/Users/anass/Downloads/apache-maven-3.9.15-bin/apache-maven-3.9.15/bin/mvn\" compile)",
+      "Bash(mvn -q -DskipTests -o compile)",
+      "Bash(mvn -q -DskipTests compile)",
+      "PowerShell(Get-ChildItem \"C:\\\\\" -Directory | Where-Object { $_.Name -match \"Java|Maven|jdk\" }; Get-ChildItem \"C:\\\\Program Files\" -Directory | Where-Object { $_.Name -match \"Java|JDK\" })",
+      "Bash(mvn -q -o compile -pl .)",
+      "PowerShell(mvn *)"
     ]
   }
 }

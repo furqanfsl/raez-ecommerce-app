@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +21,7 @@ public class PasswordResetService {
     private static final SecureRandom RNG = new SecureRandom();
 
     public enum Result { SENT, EMAIL_NOT_FOUND, SMTP_DISABLED, FAILED }
+    public enum ResetResult { SUCCESS, INVALID_CODE, EXPIRED, ALREADY_USED, FAILED }
 
     /** Starts a recovery flow for the given email. Always silent-safe. */
     public static Result startRecovery(String email) {
@@ -71,6 +74,65 @@ public class PasswordResetService {
         } catch (SQLException e) {
             System.err.println("PasswordResetService.storeToken failed: " + e.getMessage());
             return false;
+        }
+    }
+
+    /** Verifies the recovery code for the email and, if valid, updates the password. */
+    public static ResetResult verifyAndReset(String email, String code, String newPassword) {
+        if (email == null || code == null || newPassword == null) return ResetResult.FAILED;
+        email = email.trim(); code = code.trim();
+
+        String sql =
+            "SELECT t.tokenID, t.isUsed, t.expiryTime " +
+            "FROM password_reset_tokens t " +
+            "JOIN users u ON u.userID = t.userID " +
+            "WHERE u.email = ? AND t.token = ? " +
+            "ORDER BY t.tokenID DESC LIMIT 1";
+
+        try (Connection c = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, code);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return ResetResult.INVALID_CODE;
+                if (rs.getInt("isUsed") == 1) return ResetResult.ALREADY_USED;
+                LocalDateTime expiry = LocalDateTime.parse(rs.getString("expiryTime"));
+                if (LocalDateTime.now().isAfter(expiry)) return ResetResult.EXPIRED;
+                int tokenId = rs.getInt("tokenID");
+
+                String hashed = sha256(newPassword);
+                if (hashed == null) return ResetResult.FAILED;
+
+                // Update password
+                try (PreparedStatement upd = c.prepareStatement(
+                        "UPDATE users SET passwordHash = ? WHERE email = ?")) {
+                    upd.setString(1, hashed);
+                    upd.setString(2, email);
+                    upd.executeUpdate();
+                }
+                // Mark token used
+                try (PreparedStatement mark = c.prepareStatement(
+                        "UPDATE password_reset_tokens SET isUsed = 1 WHERE tokenID = ?")) {
+                    mark.setInt(1, tokenId);
+                    mark.executeUpdate();
+                }
+                return ResetResult.SUCCESS;
+            }
+        } catch (SQLException e) {
+            System.err.println("PasswordResetService.verifyAndReset failed: " + e.getMessage());
+            return ResetResult.FAILED;
+        }
+    }
+
+    private static String sha256(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            return null;
         }
     }
 
