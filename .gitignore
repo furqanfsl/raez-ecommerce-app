@@ -1,1 +1,11 @@
-/target/
+target/
+*.class
+.idea/
+.vscode/
+*.db-shm
+*.db-wal
+.env
+config.properties
+/raez-local.db
+~$*
+.DS_Store
