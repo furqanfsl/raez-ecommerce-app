@@ -4,6 +4,7 @@ import com.raez.model.Category;
 import com.raez.model.Product;
 import com.raez.model.ProductImage;
 import com.raez.util.ProductImageUtil;
+import com.raez.util.Validators;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -224,6 +225,26 @@ public class ProductFormDialogController implements Initializable {
         if (catMiniRobot != null && catMiniRobot.isSelected()) catNames.add("Mini Robot");
         if (catAccessory != null && catAccessory.isSelected()) catNames.add("Accessory");
         if (catService   != null && catService.isSelected())   catNames.add("Service");
+
+        // Boundary validation — catches anything the per-field validate() missed
+        try {
+            Validators.nonEmpty(nameField.getText(), 200, "Product name");
+            Validators.positive(Double.parseDouble(priceField.getText().trim()), "Price");
+            if (stockField != null && !stockField.getText().trim().isEmpty()) {
+                int stock = Integer.parseInt(stockField.getText().trim());
+                if (stock < 0) {
+                    throw new IllegalArgumentException("Stock must be non-negative.");
+                }
+            }
+        } catch (NumberFormatException nfe) {
+            if (errorLabel != null) errorLabel.setText("Price and stock must be numbers.");
+            if (errorBox   != null) { errorBox.setVisible(true); errorBox.setManaged(true); }
+            return;
+        } catch (IllegalArgumentException iae) {
+            if (errorLabel != null) errorLabel.setText(iae.getMessage());
+            if (errorBox   != null) { errorBox.setVisible(true); errorBox.setManaged(true); }
+            return;
+        }
 
         // Build Product object
         Product p = new Product();

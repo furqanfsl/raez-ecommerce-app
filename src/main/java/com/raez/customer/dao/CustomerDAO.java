@@ -3,6 +3,7 @@ package com.raez.customer.dao;
 import com.raez.customer.model.CustomerProfile;
 import com.raez.customer.model.CustomerUser;
 import com.raez.db.DBConnection;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -17,15 +18,20 @@ public class CustomerDAO {
             "FROM users u " +
             "JOIN user_roles ur ON ur.userID = u.userID " +
             "JOIN roles r ON r.roleID = ur.roleID " +
-            "WHERE u.email = ? AND u.passwordHash = ? AND r.roleName = 'customer' AND u.isActive = 1";
+            "WHERE u.email = ? AND r.roleName = 'customer' AND u.isActive = 1";
 
         try (Connection conn = DBConnection.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email.trim());
-            stmt.setString(2, DBConnection.hashPassword(password));
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return mapUser(rs);
+                String storedHash = rs.getString("passwordHash");
+                if (storedHash == null || storedHash.isBlank()) return null;
+                try {
+                    if (BCrypt.checkpw(password, storedHash)) return mapUser(rs);
+                } catch (IllegalArgumentException e) {
+                    return null; // legacy / corrupted hash
+                }
             }
         }
         return null;
@@ -37,7 +43,7 @@ public class CustomerDAO {
                                  String idCardPath) throws SQLException {
         if (emailExists(email)) throw new SQLException("Email already registered.");
 
-        String hashedPw  = DBConnection.hashPassword(password);
+        String hashedPw  = BCrypt.hashpw(password, BCrypt.gensalt(12));
         String username  = email.split("@")[0] + "_" + System.currentTimeMillis();
         Connection conn  = DBConnection.getInstance().getConnection();
 
@@ -91,8 +97,8 @@ public class CustomerDAO {
             "WHERE r.roleName = 'customer'";
         List<CustomerUser> list = new ArrayList<>();
         try (Connection conn = DBConnection.getInstance().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(mapUser(rs));
         }
         return list;

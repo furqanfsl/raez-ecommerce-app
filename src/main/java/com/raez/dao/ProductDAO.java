@@ -19,8 +19,8 @@ public class ProductDAO {
     public List<Product> getAll() {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products ORDER BY updatedAt DESC";
-        try (Statement st = conn().createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
             System.err.println("ProductDAO.getAll: " + e.getMessage());
@@ -33,8 +33,8 @@ public class ProductDAO {
     public List<Product> getActive() {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE LOWER(status) = 'active' ORDER BY name";
-        try (Statement st = conn().createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
             System.err.println("ProductDAO.getActive: " + e.getMessage());
@@ -301,8 +301,8 @@ public class ProductDAO {
 
     /** Count total products */
     public int count() {
-        try (Statement st = conn().createStatement();
-             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM products")) {
+        try (PreparedStatement ps = conn().prepareStatement("SELECT COUNT(*) FROM products");
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
             return 0;
@@ -323,8 +323,8 @@ public class ProductDAO {
         java.util.Map<Integer, double[]> map = new java.util.HashMap<>();
         String sql = "SELECT productID, AVG(rating) AS avg, COUNT(*) AS cnt " +
                      "FROM reviews_reviews WHERE status = 'ACTIVE' GROUP BY productID";
-        try (Statement st = conn().createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 map.put(rs.getInt("productID"),
                         new double[]{rs.getDouble("avg"), rs.getInt("cnt")});

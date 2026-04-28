@@ -2,6 +2,7 @@ package com.raez.dao;
 
 import com.raez.db.DBConnection;
 import com.raez.model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,8 +53,8 @@ public class SuperAdminDAO {
             "FROM users u ORDER BY u.userID";
         List<User> out = new ArrayList<>();
         try (Connection c = DBConnection.getInstance().getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 User u = new User();
                 u.userID    = rs.getInt   ("userID");
@@ -75,8 +76,8 @@ public class SuperAdminDAO {
     public List<String> listRoleNames() {
         List<String> out = new ArrayList<>();
         try (Connection c = DBConnection.getInstance().getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery("SELECT roleName FROM roles ORDER BY roleID")) {
+             PreparedStatement ps = c.prepareStatement("SELECT roleName FROM roles ORDER BY roleID");
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) out.add(rs.getString("roleName"));
         } catch (SQLException e) {
             System.err.println("SuperAdminDAO.listRoleNames failed: " + e.getMessage());
@@ -101,7 +102,7 @@ public class SuperAdminDAO {
                     insertUser, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, email);
                 ps.setString(2, username);
-                ps.setString(3, DBConnection.hashPassword(plainPassword));
+                ps.setString(3, BCrypt.hashpw(plainPassword, BCrypt.gensalt(12)));
                 ps.setString(4, firstName);
                 ps.setString(5, lastName);
                 ps.executeUpdate();
@@ -178,8 +179,8 @@ public class SuperAdminDAO {
 
     private int countScalar(String sql) {
         try (Connection c = DBConnection.getInstance().getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) {
             return 0;

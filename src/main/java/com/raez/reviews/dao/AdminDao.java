@@ -33,8 +33,7 @@ public class AdminDao {
             statement.setString(2, identifier);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    if (!PasswordUtils.matches(plainTextPassword, resultSet.getString("passwordHash"),
-                            fallbackPassword(resultSet.getString("roleName")))) {
+                    if (!PasswordUtils.matches(plainTextPassword, resultSet.getString("passwordHash"))) {
                         continue;
                     }
                     return Optional.of(new AdminUser(
@@ -57,11 +56,4 @@ public class AdminDao {
         return fullName.isBlank() ? resultSet.getString("username") : fullName;
     }
 
-    private String fallbackPassword(String roleName) {
-        return switch (roleName) {
-            case "super_admin" -> "admin123";
-            case "reviews_admin" -> "reviews123";
-            default -> null;
-        };
-    }
 }

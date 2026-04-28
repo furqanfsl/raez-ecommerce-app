@@ -162,8 +162,10 @@ public class DBConnection {
         };
         // SHA-256("admin123") for the super-admin
         String admin123Hash = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+        // Skip rows already migrated to BCrypt ($2a$/$2b$/$2y$) — otherwise this
+        // would clobber the post-MigratePasswords hashes back to SHA-256 on every boot.
         String sql = "UPDATE users SET passwordHash = ?, updatedAt = CURRENT_TIMESTAMP " +
-                     "WHERE email = ? AND passwordHash <> ?";
+                     "WHERE email = ? AND passwordHash <> ? AND passwordHash NOT LIKE '$2%'";
         try (java.sql.PreparedStatement ps = connection.prepareStatement(sql)) {
             for (String email : adminEmails) {
                 String targetHash = "admin@raez.org.uk".equals(email) ? admin123Hash : RAEZ123_HASH;
@@ -234,6 +236,23 @@ public class DBConnection {
         return instance;
     }
 
+    /**
+     * Returns the long-lived JDBC connection used by the JavaFX UI thread.
+     * Reconnects automatically if the underlying Connection has been closed.
+     *
+     * Threading: this Connection is shared. SQLite in WAL mode allows concurrent
+     * readers across separate Connections, but a single Connection is not
+     * thread-safe for concurrent use. Code that runs off the FX Application
+     * Thread — e.g. {@code javafx.concurrent.Task} background work added in
+     * D6.3 — MUST call {@link #openNew()} to get its own Connection instead of
+     * sharing this one.
+     *
+     * No connection pool (HikariCP / DBCP / etc.) on purpose: this is a
+     * single-user JavaFX desktop app on a local SQLite file in WAL mode.
+     * Pooling here is theatre — fresh Connections are cheap with file-backed
+     * SQLite, and a pool would just be resume-padding that an experienced
+     * reviewer would flag.
+     */
     public Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) connect();
@@ -244,6 +263,30 @@ public class DBConnection {
             throw new IllegalStateException("Database connection is not available.");
         }
         return connection;
+    }
+
+    /**
+     * Opens and returns a fresh JDBC connection to the SQLite file. Caller MUST
+     * close it (use try-with-resources). Use this from any code that runs off
+     * the JavaFX Application Thread (e.g. background Tasks added in D6.3) so
+     * concurrent DB access doesn't share a single Connection.
+     *
+     * See {@link #getConnection()} for the rationale on why there is no
+     * connection pool.
+     */
+    public static Connection openNew() {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            String url = "jdbc:sqlite:" + DB_PATH.replace('\\', '/');
+            Connection c = DriverManager.getConnection(url);
+            c.setAutoCommit(true);
+            try (Statement st = c.createStatement()) {
+                st.execute("PRAGMA foreign_keys = ON");
+            }
+            return c;
+        } catch (Exception e) {
+            throw new IllegalStateException("openNew failed: " + e.getMessage(), e);
+        }
     }
 
     // ── private helpers ────────────────────────────────────────────────────
@@ -329,17 +372,4 @@ public class DBConnection {
         }
     }
 
-    public static String hashPassword(String password) {
-        try {
-            java.security.MessageDigest md =
-                java.security.MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(
-                password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hash) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            return password;
-        }
-    }
 }

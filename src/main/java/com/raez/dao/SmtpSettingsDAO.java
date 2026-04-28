@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class SmtpSettingsDAO {
 
@@ -15,8 +14,8 @@ public class SmtpSettingsDAO {
         String sql = "SELECT host, port, username, password, fromAddress, fromName, useTls, isEnabled "
                    + "FROM smtp_settings WHERE settingID = 1";
         try (Connection c = DBConnection.getInstance().getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 SmtpSettings s = new SmtpSettings();
                 s.host        = rs.getString("host");

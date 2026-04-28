@@ -20,8 +20,8 @@ public class CategoryDAO {
     public List<Category> getAll() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories WHERE isActive = 1 ORDER BY categoryName";
-        try (Statement st = conn().createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (PreparedStatement ps = conn().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
             System.err.println("CategoryDAO.getAll: " + e.getMessage());

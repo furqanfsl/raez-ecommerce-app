@@ -4,6 +4,7 @@ import com.raez.model.CartManager;
 import com.raez.model.NavigationRouter;
 import com.raez.model.User;
 import com.raez.orders.dao.OrderDAO;
+import com.raez.util.Validators;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -81,6 +82,11 @@ public class CartController {
         }
 
         try {
+            // Boundary validation: every cart item must have a positive quantity and price.
+            for (var item : cartManager.getItems().values()) {
+                Validators.positiveInt(item.quantity, "Quantity for '" + item.productName + "'");
+                Validators.positive(item.price, "Price for '" + item.productName + "'");
+            }
             int orderId = orderDAO.createOrder(customerId, cartManager.getItems(), address);
             cartManager.clear();
             refreshCart();

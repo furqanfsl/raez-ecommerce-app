@@ -1,13 +1,12 @@
 package com.raez.service;
 
 import com.raez.db.DBConnection;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -100,8 +99,7 @@ public class PasswordResetService {
                 if (LocalDateTime.now().isAfter(expiry)) return ResetResult.EXPIRED;
                 int tokenId = rs.getInt("tokenID");
 
-                String hashed = sha256(newPassword);
-                if (hashed == null) return ResetResult.FAILED;
+                String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
 
                 // Update password
                 try (PreparedStatement upd = c.prepareStatement(
@@ -121,18 +119,6 @@ public class PasswordResetService {
         } catch (SQLException e) {
             System.err.println("PasswordResetService.verifyAndReset failed: " + e.getMessage());
             return ResetResult.FAILED;
-        }
-    }
-
-    private static String sha256(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hash) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            return null;
         }
     }
 
