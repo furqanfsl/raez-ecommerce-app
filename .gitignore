@@ -7,5 +7,6 @@ target/
 .env
 config.properties
 /raez-local.db
+/raez.db
 ~$*
 .DS_Store

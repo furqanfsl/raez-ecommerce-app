@@ -55,6 +55,7 @@ public class DBConnection {
         migrateProductsCollectionIdColumn();
         migrateProductsImagePathColumn();
         migrateProductsImageUrlColumns();
+        migrateDropProductsImagePathColumn();
         if (isFirstBoot()) {
             System.out.println("Empty DB detected — applying seed data.");
             executeSqlFile("/raez_seed_data.sql");
@@ -131,6 +132,22 @@ public class DBConnection {
                     System.err.println("migrateProductsImageUrlColumns warning: " + e.getMessage());
                 }
             }
+        }
+    }
+
+    /**
+     * Day-5 migration: drops the legacy products.imagePath column once the cloud
+     * URL backfill (MigrateImagesToCloud) has populated imageUrl for every row.
+     * Idempotent: silently no-ops once the column is gone. Requires SQLite 3.35+.
+     */
+    private void migrateDropProductsImagePathColumn() {
+        try (Statement st = connection.createStatement()) {
+            st.executeUpdate("ALTER TABLE products DROP COLUMN imagePath");
+            System.out.println("Migrated products schema: dropped legacy 'imagePath' column.");
+        } catch (SQLException e) {
+            String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+            if (msg.contains("no such column") || msg.contains("not found")) return;
+            System.err.println("migrateDropProductsImagePathColumn warning: " + e.getMessage());
         }
     }
 

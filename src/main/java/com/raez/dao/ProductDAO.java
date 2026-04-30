@@ -107,9 +107,9 @@ public class ProductDAO {
     /** Insert a new product, returns generated id */
     public int insert(Product p) {
         String sql = """
-            INSERT INTO products (sku, name, description, price, unitCost, status, categoryID, imagePath,
+            INSERT INTO products (sku, name, description, price, unitCost, status, categoryID,
                 imageUrl, imagePublicId, collection, collectionID)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,
+            VALUES (?,?,?,?,?,?,?,?,?,?,
                 (SELECT pc.collectionID FROM product_collections pc WHERE pc.name = ?))
             """;
         try (PreparedStatement ps = conn().prepareStatement(sql,
@@ -125,27 +125,22 @@ public class ProductDAO {
             } else {
                 ps.setNull(7, Types.INTEGER);
             }
-            if (p.imagePath != null && !p.imagePath.isBlank()) {
-                ps.setString(8, p.imagePath);
+            if (p.imageUrl != null && !p.imageUrl.isBlank()) {
+                ps.setString(8, p.imageUrl);
             } else {
                 ps.setNull(8, Types.VARCHAR);
             }
-            if (p.imageUrl != null && !p.imageUrl.isBlank()) {
-                ps.setString(9, p.imageUrl);
+            if (p.imagePublicId != null && !p.imagePublicId.isBlank()) {
+                ps.setString(9, p.imagePublicId);
             } else {
                 ps.setNull(9, Types.VARCHAR);
             }
-            if (p.imagePublicId != null && !p.imagePublicId.isBlank()) {
-                ps.setString(10, p.imagePublicId);
+            if (p.collection != null && !p.collection.isBlank()) {
+                ps.setString(10, p.collection);
+                ps.setString(11, p.collection);
             } else {
                 ps.setNull(10, Types.VARCHAR);
-            }
-            if (p.collection != null && !p.collection.isBlank()) {
-                ps.setString(11, p.collection);
-                ps.setString(12, p.collection);
-            } else {
                 ps.setNull(11, Types.VARCHAR);
-                ps.setNull(12, Types.VARCHAR);
             }
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
@@ -164,7 +159,7 @@ public class ProductDAO {
     public boolean update(Product p) {
         String sql = """
             UPDATE products
-            SET name=?, description=?, price=?, unitCost=?, categoryID=?, status=?, imagePath=?,
+            SET name=?, description=?, price=?, unitCost=?, categoryID=?, status=?,
                 imageUrl=?, imagePublicId=?,
                 collection=?,
                 collectionID = COALESCE(
@@ -185,29 +180,24 @@ public class ProductDAO {
                 ps.setNull(5, Types.INTEGER);
             }
             ps.setString(6, p.status != null ? p.status.toLowerCase() : "active");
-            if (p.imagePath != null && !p.imagePath.isBlank()) {
-                ps.setString(7, p.imagePath);
+            if (p.imageUrl != null && !p.imageUrl.isBlank()) {
+                ps.setString(7, p.imageUrl);
             } else {
                 ps.setNull(7, Types.VARCHAR);
             }
-            if (p.imageUrl != null && !p.imageUrl.isBlank()) {
-                ps.setString(8, p.imageUrl);
+            if (p.imagePublicId != null && !p.imagePublicId.isBlank()) {
+                ps.setString(8, p.imagePublicId);
             } else {
                 ps.setNull(8, Types.VARCHAR);
             }
-            if (p.imagePublicId != null && !p.imagePublicId.isBlank()) {
-                ps.setString(9, p.imagePublicId);
+            if (p.collection != null && !p.collection.isBlank()) {
+                ps.setString(9, p.collection);
+                ps.setString(10, p.collection);
             } else {
                 ps.setNull(9, Types.VARCHAR);
-            }
-            if (p.collection != null && !p.collection.isBlank()) {
-                ps.setString(10, p.collection);
-                ps.setString(11, p.collection);
-            } else {
                 ps.setNull(10, Types.VARCHAR);
-                ps.setNull(11, Types.VARCHAR);
             }
-            ps.setInt(12, p.productID);
+            ps.setInt(11, p.productID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("ProductDAO.update: " + e.getMessage());
@@ -371,11 +361,7 @@ public class ProductDAO {
             p.categoryID = cid;
         }
         p.status      = rs.getString("status");
-        try {
-            p.imagePath = rs.getString("imagePath");
-        } catch (SQLException ignore) {
-            p.imagePath = null;
-        }
+        p.imagePath = null; // legacy column dropped in D5.7
         try {
             p.imageUrl = rs.getString("imageUrl");
         } catch (SQLException ignore) {
