@@ -54,6 +54,7 @@ public class DBConnection {
         migrateProductsCollectionColumn();
         migrateProductsCollectionIdColumn();
         migrateProductsImagePathColumn();
+        migrateProductsImageUrlColumns();
         if (isFirstBoot()) {
             System.out.println("Empty DB detected — applying seed data.");
             executeSqlFile("/raez_seed_data.sql");
@@ -111,6 +112,24 @@ public class DBConnection {
             String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
             if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
                 System.err.println("migrateProductsImagePathColumn warning: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Day-5 migration: adds imageUrl + imagePublicId for the Cloudinary storage layer.
+     * Old imagePath column is preserved until the cloud migration backfill runs.
+     */
+    private void migrateProductsImageUrlColumns() {
+        for (String col : new String[]{"imageUrl", "imagePublicId"}) {
+            try (Statement st = connection.createStatement()) {
+                st.executeUpdate("ALTER TABLE products ADD COLUMN " + col + " TEXT");
+                System.out.println("Migrated products schema: added '" + col + "' column.");
+            } catch (SQLException e) {
+                String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+                if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
+                    System.err.println("migrateProductsImageUrlColumns warning: " + e.getMessage());
+                }
             }
         }
     }

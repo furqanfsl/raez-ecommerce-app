@@ -1,5 +1,6 @@
 package com.raez.util;
 
+import com.raez.storage.ImageStorage;
 import javafx.scene.image.Image;
 
 import java.io.ByteArrayInputStream;
@@ -44,6 +45,33 @@ public final class ProductImageUtil {
         return "/images/products/" + targetName;
     }
 
+    /**
+     * Background-loads a product image. If src is an http(s) URL it is treated as a
+     * Cloudinary URL — auto-applies the q_auto,f_auto detail transform. Use
+     * {@link #loadThumbnail} for list views to get a fixed crop.
+     */
+    public static Image loadProductImage(String src) {
+        if (src == null || src.isBlank()) return null;
+        String lower = src.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("http://") || lower.startsWith("https://")) {
+            String url = src.contains("/upload/") && !src.contains("q_auto")
+                ? src.replace("/upload/", "/upload/q_auto,f_auto/")
+                : src;
+            return new Image(url, true);
+        }
+        return loadFromProductPath(ProductImageUtil.class, src);
+    }
+
+    /** Same as {@link #loadProductImage} but injects a Cloudinary fill+resize transform for list thumbnails. */
+    public static Image loadThumbnail(String src, int w, int h) {
+        if (src == null || src.isBlank()) return null;
+        String lower = src.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("http://") || lower.startsWith("https://")) {
+            return new Image(ImageStorage.thumbnail(src, w, h), true);
+        }
+        return loadFromProductPath(ProductImageUtil.class, src);
+    }
+
     public static Image loadFromProductPath(Class<?> context, String imagePath) {
         if (imagePath == null || imagePath.isBlank()) return null;
         try {
@@ -65,9 +93,15 @@ public final class ProductImageUtil {
                 }
                 return null;
             }
-            if (imagePath.toLowerCase(Locale.ROOT).startsWith("http://")
-                || imagePath.toLowerCase(Locale.ROOT).startsWith("https://")) {
+            String low = imagePath.toLowerCase(Locale.ROOT);
+            if (low.startsWith("file:")) {
                 return new Image(imagePath, true);
+            }
+            if (low.startsWith("http://") || low.startsWith("https://")) {
+                String url = imagePath.contains("/upload/") && !imagePath.contains("q_auto")
+                    ? imagePath.replace("/upload/", "/upload/q_auto,f_auto/")
+                    : imagePath;
+                return new Image(url, true);
             }
         } catch (Exception e) {
             System.err.println("ProductImageUtil.loadFromProductPath: " + e.getMessage());

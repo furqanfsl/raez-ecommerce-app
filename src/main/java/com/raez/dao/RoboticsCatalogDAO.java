@@ -128,6 +128,8 @@ public class RoboticsCatalogDAO {
         p.categoryID = rs.wasNull() ? null : cid;
         p.collection = rs.getString("collection");
         try { p.imagePath = rs.getString("imagePath"); } catch (SQLException ignore) { p.imagePath = null; }
+        try { p.imageUrl = rs.getString("imageUrl"); } catch (SQLException ignore) { p.imageUrl = null; }
+        try { p.imagePublicId = rs.getString("imagePublicId"); } catch (SQLException ignore) { p.imagePublicId = null; }
         p.createdAt = rs.getString("createdAt");
         p.updatedAt = rs.getString("updatedAt");
         return p;

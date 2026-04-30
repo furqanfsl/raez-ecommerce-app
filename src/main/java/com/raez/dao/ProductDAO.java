@@ -108,8 +108,8 @@ public class ProductDAO {
     public int insert(Product p) {
         String sql = """
             INSERT INTO products (sku, name, description, price, unitCost, status, categoryID, imagePath,
-                collection, collectionID)
-            VALUES (?,?,?,?,?,?,?,?,?,
+                imageUrl, imagePublicId, collection, collectionID)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,
                 (SELECT pc.collectionID FROM product_collections pc WHERE pc.name = ?))
             """;
         try (PreparedStatement ps = conn().prepareStatement(sql,
@@ -130,12 +130,22 @@ public class ProductDAO {
             } else {
                 ps.setNull(8, Types.VARCHAR);
             }
-            if (p.collection != null && !p.collection.isBlank()) {
-                ps.setString(9, p.collection);
-                ps.setString(10, p.collection);
+            if (p.imageUrl != null && !p.imageUrl.isBlank()) {
+                ps.setString(9, p.imageUrl);
             } else {
                 ps.setNull(9, Types.VARCHAR);
+            }
+            if (p.imagePublicId != null && !p.imagePublicId.isBlank()) {
+                ps.setString(10, p.imagePublicId);
+            } else {
                 ps.setNull(10, Types.VARCHAR);
+            }
+            if (p.collection != null && !p.collection.isBlank()) {
+                ps.setString(11, p.collection);
+                ps.setString(12, p.collection);
+            } else {
+                ps.setNull(11, Types.VARCHAR);
+                ps.setNull(12, Types.VARCHAR);
             }
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
@@ -155,6 +165,7 @@ public class ProductDAO {
         String sql = """
             UPDATE products
             SET name=?, description=?, price=?, unitCost=?, categoryID=?, status=?, imagePath=?,
+                imageUrl=?, imagePublicId=?,
                 collection=?,
                 collectionID = COALESCE(
                     (SELECT pc.collectionID FROM product_collections pc WHERE pc.name = ?),
@@ -179,14 +190,24 @@ public class ProductDAO {
             } else {
                 ps.setNull(7, Types.VARCHAR);
             }
-            if (p.collection != null && !p.collection.isBlank()) {
-                ps.setString(8, p.collection);
-                ps.setString(9, p.collection);
+            if (p.imageUrl != null && !p.imageUrl.isBlank()) {
+                ps.setString(8, p.imageUrl);
             } else {
                 ps.setNull(8, Types.VARCHAR);
+            }
+            if (p.imagePublicId != null && !p.imagePublicId.isBlank()) {
+                ps.setString(9, p.imagePublicId);
+            } else {
                 ps.setNull(9, Types.VARCHAR);
             }
-            ps.setInt(10, p.productID);
+            if (p.collection != null && !p.collection.isBlank()) {
+                ps.setString(10, p.collection);
+                ps.setString(11, p.collection);
+            } else {
+                ps.setNull(10, Types.VARCHAR);
+                ps.setNull(11, Types.VARCHAR);
+            }
+            ps.setInt(12, p.productID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("ProductDAO.update: " + e.getMessage());
@@ -354,6 +375,16 @@ public class ProductDAO {
             p.imagePath = rs.getString("imagePath");
         } catch (SQLException ignore) {
             p.imagePath = null;
+        }
+        try {
+            p.imageUrl = rs.getString("imageUrl");
+        } catch (SQLException ignore) {
+            p.imageUrl = null;
+        }
+        try {
+            p.imagePublicId = rs.getString("imagePublicId");
+        } catch (SQLException ignore) {
+            p.imagePublicId = null;
         }
         try {
             p.collection = rs.getString("collection");
