@@ -66,7 +66,7 @@ public class CollectionPageController implements Initializable {
             mainRobotPriceLabel.setText(String.format("£%,.2f", main.product().price));
             mainRobotDescriptionLabel.setText(main.product().description);
             // Load main robot image asynchronously
-            String imgPath = main.product().imagePath;
+            String imgPath = main.product().getPrimaryImage();
             if (imgPath != null && !imgPath.isBlank() && mainRobotImageView != null) {
                 Thread t = new Thread(() -> {
                     Image img = ProductImageUtil.loadFromProductPath(CollectionPageController.class, imgPath);
@@ -113,10 +113,10 @@ public class CollectionPageController implements Initializable {
         imgView.setSmooth(true);
         imgPane.getChildren().addAll(imgPlaceholder, imgView);
 
-        String rawPath = row.product().imagePath;
+        String rawPath = row.product().getPrimaryImage();
         if (rawPath != null && !rawPath.isBlank()) {
             Thread t = new Thread(() -> {
-                Image img = ProductImageUtil.loadFromProductPath(CollectionPageController.class, rawPath);
+                Image img = ProductImageUtil.loadThumbnail(rawPath, 300, 300);
                 if (img != null && !img.isError()) {
                     Platform.runLater(() -> {
                         imgView.setImage(img);

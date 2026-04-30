@@ -57,7 +57,7 @@ public class ProductCardController implements Initializable {
 
         // Load image on background thread so UI stays smooth
         Thread imageThread = new Thread(() -> {
-            Image img = ProductImageUtil.loadFromProductPath(getClass(), imageUrl);
+            Image img = ProductImageUtil.loadThumbnail(imageUrl, 300, 300);
             javafx.application.Platform.runLater(() -> {
                 if (img != null && !img.isError()) {
                     productImage.setImage(img);

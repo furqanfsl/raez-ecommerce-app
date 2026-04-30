@@ -3,6 +3,8 @@ package com.raez.controllers;
 import com.raez.model.Category;
 import com.raez.model.Product;
 import com.raez.model.ProductImage;
+import com.raez.storage.ImageStorage;
+import com.raez.storage.ImageStorageFactory;
 import com.raez.util.ProductImageUtil;
 import com.raez.util.Validators;
 import javafx.fxml.FXML;
@@ -49,8 +51,11 @@ public class ProductFormDialogController implements Initializable {
 
     private Product           editingProduct = null;
     private List<String>      images         = new ArrayList<>();
+    private String            stagedImageUrl;
+    private String            stagedImagePublicId;
     private Consumer<Product> onSubmit;
     private Runnable          onClose;
+    private static final ImageStorage IMAGE_STORAGE = ImageStorageFactory.create();
 
     private static final java.util.List<String> COLLECTIONS = java.util.List.of(
         "None (Standalone)",
@@ -140,12 +145,22 @@ public class ProductFormDialogController implements Initializable {
         File selected = chooser.showOpenDialog(submitBtn.getScene().getWindow());
         if (selected == null) return;
         try {
-            String relativePath = ProductImageUtil.copyImageToResources(selected);
+            String url;
+            try {
+                url = IMAGE_STORAGE.upload(selected);
+                stagedImageUrl = url;
+                stagedImagePublicId = IMAGE_STORAGE.getPublicIdFromUrl(url);
+            } catch (Exception cloudFail) {
+                System.err.println("Cloud upload failed, copying locally: " + cloudFail.getMessage());
+                url = ProductImageUtil.copyImageToResources(selected);
+                stagedImageUrl = null;
+                stagedImagePublicId = null;
+            }
             // New selection becomes primary — prepend so it lands at index 0.
-            images.add(0, relativePath);
+            images.add(0, url);
             if (selectedImageField != null) selectedImageField.setText(selected.getName());
             refreshImageList();
-            showPreview(relativePath);
+            showPreview(url);
         } catch (Exception e) {
             if (errorLabel != null) errorLabel.setText("Failed to save image locally: " + e.getMessage());
             if (errorBox != null) {
@@ -285,6 +300,14 @@ public class ProductFormDialogController implements Initializable {
         }
         // Persist directly on products row too.
         p.setImagePath(images.isEmpty() ? null : images.get(0));
+        if (stagedImageUrl != null) {
+            p.imageUrl = stagedImageUrl;
+            p.imagePublicId = stagedImagePublicId;
+        } else if (editingProduct != null) {
+            // Preserve existing cloud refs when no new image was uploaded
+            p.imageUrl = editingProduct.imageUrl;
+            p.imagePublicId = editingProduct.imagePublicId;
+        }
 
         if (onSubmit != null) onSubmit.accept(p);
         if (onClose  != null) onClose.run();

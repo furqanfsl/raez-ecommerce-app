@@ -742,7 +742,7 @@ public class ProductNewHomePageController implements Initializable {
         String primary = product.getPrimaryImage();
         if (primary != null && !primary.isEmpty()) {
             IMAGE_LOADER.submit(() -> {
-                Image img = ProductImageUtil.loadFromProductPath(getClass(), primary);
+                Image img = ProductImageUtil.loadThumbnail(primary, 300, 300);
                 if (img != null && !img.isError()) {
                     Platform.runLater(() -> {
                         iv.setImage(img);
@@ -1056,7 +1056,7 @@ public class ProductNewHomePageController implements Initializable {
         String primary = product.getPrimaryImage();
         if (primary != null && !primary.isEmpty()) {
             IMAGE_LOADER.submit(() -> {
-                Image img = ProductImageUtil.loadFromProductPath(getClass(), primary);
+                Image img = ProductImageUtil.loadThumbnail(primary, 300, 300);
                 if (img != null && !img.isError()) {
                     Platform.runLater(() -> {
                         iv.setImage(img);

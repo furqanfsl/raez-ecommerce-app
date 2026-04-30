@@ -198,10 +198,14 @@ public class ProductListController implements Initializable {
     }
 
     private VBox buildCard(Product product) {
-        // Collect image URLs for this product
+        // Collect image URLs — prefer cloud imageUrl, then product_images table.
         List<String> imageUrls = new ArrayList<>();
+        if (product.imageUrl != null && !product.imageUrl.isBlank()) {
+            imageUrls.add(product.imageUrl);
+        }
         for (com.raez.model.ProductImage img : product.images) {
-            if (img.imageURL != null && !img.imageURL.isEmpty())
+            if (img.imageURL != null && !img.imageURL.isEmpty()
+                && !imageUrls.contains(img.imageURL))
                 imageUrls.add(img.imageURL);
         }
         if (imageUrls.isEmpty()) {
@@ -506,7 +510,7 @@ public class ProductListController implements Initializable {
                                     javafx.scene.Node placeholder, String productName, int maxRetries) {
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                Image img = ProductImageUtil.loadFromProductPath(getClass(), url);
+                Image img = ProductImageUtil.loadThumbnail(url, 300, 300);
 
                 if (img != null && !img.isError()) {
                     Platform.runLater(() -> {

@@ -7,6 +7,8 @@ import com.raez.dao.ProductDAO;
 import com.raez.model.Category;
 import com.raez.model.Product;
 import com.raez.model.ProductImage;
+import com.raez.storage.ImageStorage;
+import com.raez.storage.ImageStorageFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ public class ProductService {
     private final CategoryDAO  categoryDAO  = new CategoryDAO();
     private final ImageDAO     imageDAO     = new ImageDAO();
     private final InventoryDAO inventoryDAO = new InventoryDAO();
+    private static final ImageStorage IMAGE_STORAGE = ImageStorageFactory.create();
 
     // ── Read ─────────────────────────────────────────────
 
@@ -67,15 +70,32 @@ public class ProductService {
     public Product update(Product p, List<String> categoryNames,
                           List<String> imageUrls) throws Exception {
         validate(p);
+        Product existing = productDAO.getById(p.productID);
+        String oldPublicIdToDelete = null;
         if (imageUrls != null && imageUrls.stream().anyMatch(s -> s != null && !s.trim().isEmpty())) {
             p.imagePath = firstImagePath(imageUrls);
+            // Cloud-asset replacement: stage old publicId for deletion only after the new is committed.
+            if (existing != null
+                && existing.imagePublicId != null && !existing.imagePublicId.isBlank()
+                && p.imagePublicId != null && !p.imagePublicId.isBlank()
+                && !existing.imagePublicId.equals(p.imagePublicId)) {
+                oldPublicIdToDelete = existing.imagePublicId;
+            }
         } else {
-            Product existing = productDAO.getById(p.productID);
             p.imagePath = existing != null ? existing.imagePath : null;
         }
 
         if (!productDAO.update(p))
             throw new Exception("Failed to update product.");
+
+        if (oldPublicIdToDelete != null) {
+            try {
+                IMAGE_STORAGE.delete(oldPublicIdToDelete);
+            } catch (Exception ex) {
+                System.err.println("Old image delete failed (publicId=" + oldPublicIdToDelete
+                    + "): " + ex.getMessage());
+            }
+        }
 
         categoryDAO.unlinkAllForProduct(p.productID);
         saveCategories(p.productID, categoryNames);
