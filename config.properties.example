@@ -1,0 +1,4 @@
+# Copy to ~/.raez/config.properties (or %USERPROFILE%\.raez\ on Windows). Optional — app falls back to local storage.
+cloudinary.cloud_name=
+cloudinary.api_key=
+cloudinary.api_secret=

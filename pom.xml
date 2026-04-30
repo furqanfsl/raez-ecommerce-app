@@ -72,6 +72,13 @@
             <version>3.6.1</version>
         </dependency>
 
+        <!-- Cloudinary — image upload + CDN (Day 4 storage layer) -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http44</artifactId>
+            <version>1.36.0</version>
+        </dependency>
+
         <!-- JUnit 5 API -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
