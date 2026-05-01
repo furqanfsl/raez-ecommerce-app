@@ -2,8 +2,12 @@ package com.raez.finance.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceFooterController {
+    private static final Logger log = LoggerFactory.getLogger(FinanceFooterController.class);
+
 
     @FXML
     public void initialize() {
@@ -12,17 +16,17 @@ public class FinanceFooterController {
 
     @FXML
     private void handlePrivacyPolicy(ActionEvent event) {
-        System.out.println("Opening Privacy Policy...");
+        log.info("{}", "Opening Privacy Policy...");
         // Cursor can add logic to open a web browser or show a modal
     }
 
     @FXML
     private void handleTermsOfService(ActionEvent event) {
-        System.out.println("Opening Terms of Service...");
+        log.info("{}", "Opening Terms of Service...");
     }
 
     @FXML
     private void handleSupport(ActionEvent event) {
-        System.out.println("Opening Support Portal...");
+        log.info("{}", "Opening Support Portal...");
     }
 }

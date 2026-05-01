@@ -7,8 +7,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomerLoginController {
+    private static final Logger log = LoggerFactory.getLogger(CustomerLoginController.class);
+
 
     @FXML private TextField     emailField;
     @FXML private PasswordField passwordField;
@@ -54,7 +58,7 @@ public class CustomerLoginController {
             stage.setScene(scene);
         } catch (Exception e) {
             generalErrorLabel.setText("Login error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 

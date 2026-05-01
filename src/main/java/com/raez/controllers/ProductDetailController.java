@@ -31,8 +31,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductDetailController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductDetailController.class);
+
 
     @FXML private Label     productNameLabel;
     @FXML private Label     categoryLabel;
@@ -165,7 +169,7 @@ public class ProductDetailController implements Initializable {
                 ));
             }
         } catch (SQLException e) {
-            System.err.println("ProductDetailController.fetchReviews: " + e.getMessage());
+            log.error("{}", "ProductDetailController.fetchReviews: " + e.getMessage());
         }
         return out;
     }

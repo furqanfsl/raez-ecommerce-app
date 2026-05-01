@@ -7,8 +7,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SmtpSettingsDAO {
+    private static final Logger log = LoggerFactory.getLogger(SmtpSettingsDAO.class);
+
 
     public SmtpSettings load() {
         String sql = "SELECT host, port, username, password, fromAddress, fromName, useTls, isEnabled "
@@ -29,7 +33,7 @@ public class SmtpSettingsDAO {
                 return s;
             }
         } catch (SQLException e) {
-            System.err.println("SmtpSettingsDAO.load failed: " + e.getMessage());
+            log.error("{}", "SmtpSettingsDAO.load failed: " + e.getMessage());
         }
         return new SmtpSettings();
     }
@@ -56,7 +60,7 @@ public class SmtpSettingsDAO {
             ps.setInt   (8, s.isEnabled ? 1 : 0);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("SmtpSettingsDAO.save failed: " + e.getMessage());
+            log.error("{}", "SmtpSettingsDAO.save failed: " + e.getMessage());
             return false;
         }
     }

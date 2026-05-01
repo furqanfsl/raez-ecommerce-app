@@ -6,8 +6,12 @@ import com.raez.model.Product;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FavouritesDAO {
+    private static final Logger log = LoggerFactory.getLogger(FavouritesDAO.class);
+
 
     public int getCustomerIdByUserId(int userID) {
         try (Connection c = DBConnection.getInstance().getConnection();
@@ -17,7 +21,7 @@ public class FavouritesDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
-            System.err.println("FavouritesDAO.getCustomerIdByUserId: " + e.getMessage());
+            log.error("{}", "FavouritesDAO.getCustomerIdByUserId: " + e.getMessage());
         }
         return -1;
     }
@@ -45,7 +49,7 @@ public class FavouritesDAO {
                 out.add(p);
             }
         } catch (SQLException e) {
-            System.err.println("FavouritesDAO.loadFavouriteProducts: " + e.getMessage());
+            log.error("{}", "FavouritesDAO.loadFavouriteProducts: " + e.getMessage());
         }
         return out;
     }
@@ -58,7 +62,7 @@ public class FavouritesDAO {
             ps.setInt(2, productID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("FavouritesDAO.add: " + e.getMessage());
+            log.error("{}", "FavouritesDAO.add: " + e.getMessage());
             return false;
         }
     }
@@ -71,7 +75,7 @@ public class FavouritesDAO {
             ps.setInt(2, productID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("FavouritesDAO.remove: " + e.getMessage());
+            log.error("{}", "FavouritesDAO.remove: " + e.getMessage());
             return false;
         }
     }

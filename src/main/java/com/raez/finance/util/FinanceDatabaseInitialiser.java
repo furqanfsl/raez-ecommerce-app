@@ -9,20 +9,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Unified DB bootstrapper.
  * Applies only the canonical schema/seed SQL shipped in resources/database.
  */
 public class FinanceDatabaseInitialiser {
+    private static final Logger log = LoggerFactory.getLogger(FinanceDatabaseInitialiser.class);
+
 
     public static void main(String[] args) {
         try {
             initialise();
-            System.out.println("[FinanceDatabaseInitialiser] Complete.");
+            log.info("{}", "[FinanceDatabaseInitialiser] Complete.");
         } catch (Exception e) {
-            System.err.println("[FinanceDatabaseInitialiser] FAILED: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "[FinanceDatabaseInitialiser] FAILED: " + e.getMessage());
+            log.error("Error", e);
             System.exit(1);
         }
     }

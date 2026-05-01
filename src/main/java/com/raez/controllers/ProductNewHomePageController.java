@@ -51,8 +51,12 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductNewHomePageController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductNewHomePageController.class);
+
 
     @FXML private StackPane heroPane;
     @FXML private StackPane heroVideoContainer;
@@ -442,7 +446,7 @@ public class ProductNewHomePageController implements Initializable {
         try {
             all = productService.getActive();
         } catch (Exception e) {
-            System.err.println("ProductNewHomePageController: product load failed: " + e.getMessage());
+            log.error("{}", "ProductNewHomePageController: product load failed: " + e.getMessage());
             return;
         }
 
@@ -1110,7 +1114,7 @@ public class ProductNewHomePageController implements Initializable {
                 getClass().getResource("/fxml/ProductListPage.fxml"));
             heroPane.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("ProductNewHomePageController: nav failed: " + e.getMessage());
+            log.error("{}", "ProductNewHomePageController: nav failed: " + e.getMessage());
         }
     }
 }

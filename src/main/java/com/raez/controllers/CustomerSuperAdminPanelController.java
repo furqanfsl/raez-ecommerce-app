@@ -8,8 +8,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomerSuperAdminPanelController {
+    private static final Logger log = LoggerFactory.getLogger(CustomerSuperAdminPanelController.class);
+
 
     @FXML private TextField searchEmailField;
     @FXML private Label     searchErrorLabel;
@@ -78,7 +82,7 @@ public class CustomerSuperAdminPanelController {
             showCustomerPanes(true);
         } catch (Exception e) {
             searchErrorLabel.setText("Search error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 
@@ -165,7 +169,7 @@ public class CustomerSuperAdminPanelController {
             CustomerSuperAdminDashboardController ctrl = loader.getController();
             ctrl.setUser(adminUser);
             stage.setScene(scene);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     private void showCustomerPanes(boolean show) {

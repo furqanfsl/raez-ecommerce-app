@@ -8,12 +8,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.sql.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DeliveryService — handles loading, confirming and rejecting deliveries.
  * CHANGED: Updated all table names to match unified database schema.
  */
 public class Warehouse_DeliveryService {
+    private static final Logger log = LoggerFactory.getLogger(Warehouse_DeliveryService.class);
+
 
     public ObservableList<DeliveryRow> loadPendingDeliveries() {
         ObservableList<DeliveryRow> result = FXCollections.observableArrayList();
@@ -47,7 +51,7 @@ public class Warehouse_DeliveryService {
             }
 
         } catch (SQLException e) {
-            System.err.println("DeliveryService.loadPendingDeliveries error: " + e.getMessage());
+            log.error("{}", "DeliveryService.loadPendingDeliveries error: " + e.getMessage());
         }
 
         return result;
@@ -82,7 +86,7 @@ public class Warehouse_DeliveryService {
             return new ConfirmResult(true, warehouseId, -1, numItems);
 
         } catch (SQLException e) {
-            System.err.println("DeliveryService.confirmDelivery error: " + e.getMessage());
+            log.error("{}", "DeliveryService.confirmDelivery error: " + e.getMessage());
             return new ConfirmResult(false, -1, -1, 0);
         }
     }
@@ -96,7 +100,7 @@ public class Warehouse_DeliveryService {
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.err.println("DeliveryService.rejectDelivery error: " + e.getMessage());
+            log.error("{}", "DeliveryService.rejectDelivery error: " + e.getMessage());
             return false;
         }
     }
@@ -201,7 +205,7 @@ public class Warehouse_DeliveryService {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("DeliveryService.insertDemoDeliveries error: " + e.getMessage());
+            log.error("{}", "DeliveryService.insertDemoDeliveries error: " + e.getMessage());
             return false;
         }
     }

@@ -26,8 +26,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceAdminLoginController {
+    private static final Logger log = LoggerFactory.getLogger(FinanceAdminLoginController.class);
+
 
     private static final String VIEW_PATH     = "/com/raez/finance/view/";
     private static final String DEMO_EMAIL    = "admin@raez.org.uk";
@@ -159,9 +163,9 @@ public class FinanceAdminLoginController {
         } catch (Exception e) {
             // ── Always print the FULL stack trace to the terminal
             //    so you can see the real root cause line number.
-            System.err.println("=== LOGIN ERROR (full stack trace) ===");
-            e.printStackTrace();
-            System.err.println("======================================");
+            log.error("{}", "=== LOGIN ERROR (full stack trace) ===");
+            log.error("Error", e);
+            log.error("{}", "======================================");
 
             // ── Extract the real error message, not the FXML file path
             showError(extractUserMessage(e));
@@ -359,9 +363,9 @@ public class FinanceAdminLoginController {
             stage.setMinHeight(650);
             FinanceStageNavigator.forceMaximizedLayout(stage);
         } catch (Exception e) {
-            System.err.println("=== NAVIGATION TO MAIN LAYOUT FAILED ===");
-            e.printStackTrace();
-            System.err.println("========================================");
+            log.error("{}", "=== NAVIGATION TO MAIN LAYOUT FAILED ===");
+            log.error("Error", e);
+            log.error("{}", "========================================");
             throw new RuntimeException("Navigation failed: " + path, e);
         }
     }
@@ -371,8 +375,8 @@ public class FinanceAdminLoginController {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             FinanceStageNavigator.navigate(stage, resourcePath);
         } catch (Exception e) {
-            System.err.println("=== NAVIGATION FAILED: " + resourcePath + " ===");
-            e.printStackTrace();
+            log.error("{}", "=== NAVIGATION FAILED: " + resourcePath + " ===");
+            log.error("Error", e);
             throw new RuntimeException("Navigation failed: " + resourcePath, e);
         }
     }
@@ -387,8 +391,8 @@ public class FinanceAdminLoginController {
             });
             stage.setTitle("RAEZ Finance – Set Password");
         } catch (Exception e) {
-            System.err.println("=== NAVIGATION TO FIRST LOGIN FAILED ===");
-            e.printStackTrace();
+            log.error("{}", "=== NAVIGATION TO FIRST LOGIN FAILED ===");
+            log.error("Error", e);
             throw new RuntimeException("Navigation failed: " + path, e);
         }
     }

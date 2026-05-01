@@ -6,8 +6,12 @@ import com.raez.delivery.model.DeliveryDelivery;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeliveryDAO {
+    private static final Logger log = LoggerFactory.getLogger(DeliveryDAO.class);
+
 
     public static List<String> getAllDriverIds() {
         List<String> driverIds = new ArrayList<>();
@@ -15,7 +19,7 @@ public class DeliveryDAO {
         try (PreparedStatement stmt = DBConnection.getInstance().getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) driverIds.add(String.valueOf(rs.getInt("driverID")));
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) { log.error("Error", e); }
         return driverIds;
     }
 
@@ -37,7 +41,7 @@ public class DeliveryDAO {
                         String.valueOf(rs.getInt("driverID"))
                 ));
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) { log.error("Error", e); }
         return deliveries;
     }
 
@@ -55,7 +59,7 @@ public class DeliveryDAO {
             int driverId = parseIntSafe(delivery.getDriverId(), 0);
             if (driverId > 0) stmt.setInt(6, driverId); else stmt.setNull(6, Types.INTEGER);
             return stmt.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); return false; }
+        } catch (SQLException e) { log.error("Error", e); return false; }
     }
 
     public static int getTotalDeliveries() {
@@ -63,7 +67,7 @@ public class DeliveryDAO {
         try (PreparedStatement stmt = DBConnection.getInstance().getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
-        } catch (SQLException e) { e.printStackTrace(); return 0; }
+        } catch (SQLException e) { log.error("Error", e); return 0; }
     }
 
     public static int getStatusCount(String status) {
@@ -71,7 +75,7 @@ public class DeliveryDAO {
         try (PreparedStatement stmt = DBConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, status);
             try (ResultSet rs = stmt.executeQuery()) { return rs.next() ? rs.getInt(1) : 0; }
-        } catch (SQLException e) { e.printStackTrace(); return 0; }
+        } catch (SQLException e) { log.error("Error", e); return 0; }
     }
 
     public static List<String> getRecentDeliveries() {
@@ -85,7 +89,7 @@ public class DeliveryDAO {
                          + safe(rs.getString("orderID")) + " - "
                          + safe(rs.getString("orderStatus")));
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) { log.error("Error", e); }
         return recent;
     }
 

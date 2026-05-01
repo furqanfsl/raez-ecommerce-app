@@ -22,8 +22,12 @@ import javafx.scene.Parent;
 import javafx.stage.Stage;
 
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NavigationRouter {
+    private static final Logger log = LoggerFactory.getLogger(NavigationRouter.class);
+
 
     private static NavigationRouter instance;
 
@@ -87,8 +91,8 @@ public class NavigationRouter {
             Parent view = FXMLLoader.load(getClass().getResource(fxmlPath));
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter.navigateTo failed: " + fxmlPath);
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter.navigateTo failed: " + fxmlPath);
+            log.error("Error", e);
         }
     }
 
@@ -100,8 +104,8 @@ public class NavigationRouter {
             ctrl.setProduct(product);
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load ProductDetailPage");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load ProductDetailPage");
+            log.error("Error", e);
         }
     }
 
@@ -122,10 +126,10 @@ public class NavigationRouter {
                 navigateToProductRoute(Integer.parseInt(idPart));
                 return;
             } catch (NumberFormatException ignored) {
-                System.err.println("NavigationRouter.navigateByPath invalid product id: " + idPart);
+                log.error("{}", "NavigationRouter.navigateByPath invalid product id: " + idPart);
             }
         }
-        System.err.println("NavigationRouter.navigateByPath unknown path: " + path);
+        log.error("{}", "NavigationRouter.navigateByPath unknown path: " + path);
     }
 
     public void navigateToCollectionPage(String slug) {
@@ -136,8 +140,8 @@ public class NavigationRouter {
             ctrl.setCollectionSlug(slug);
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load CollectionPage");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load CollectionPage");
+            log.error("Error", e);
         }
     }
 
@@ -149,8 +153,8 @@ public class NavigationRouter {
             ctrl.setProductId(productID);
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load ProductRoutePage");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load ProductRoutePage");
+            log.error("Error", e);
         }
     }
 
@@ -164,8 +168,8 @@ public class NavigationRouter {
             ctrl.setUser(bridgeToCustomerUser(currentUser));
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load CustomerDashboard");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load CustomerDashboard");
+            log.error("Error", e);
         }
     }
 
@@ -180,8 +184,8 @@ public class NavigationRouter {
             ctrl.setCurrentUser(user);
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load SuperAdminDashboard");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load SuperAdminDashboard");
+            log.error("Error", e);
         }
     }
 
@@ -195,8 +199,8 @@ public class NavigationRouter {
             ctrl.setOnLogout(this::logout);
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load WarehouseStaffDashboard");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load WarehouseStaffDashboard");
+            log.error("Error", e);
         }
     }
 
@@ -209,8 +213,8 @@ public class NavigationRouter {
             ctrl.setUser(bridgeToCustomerUser(user));
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load CustomerAdminDashboard");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load CustomerAdminDashboard");
+            log.error("Error", e);
         }
     }
 
@@ -229,8 +233,8 @@ public class NavigationRouter {
             FinanceSessionManager.setOnTimeoutCallback(this::logout);
             navigateTo("/com/raez/finance/view/FinanceMainLayout.fxml");
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load FinanceMainLayout");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load FinanceMainLayout");
+            log.error("Error", e);
         }
     }
 
@@ -250,8 +254,8 @@ public class NavigationRouter {
             ctrl.init(reviewsApp, AppContext.getInstance(), session);
             primaryStage.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("NavigationRouter: failed to load reviews-admin-dashboard");
-            e.printStackTrace();
+            log.error("{}", "NavigationRouter: failed to load reviews-admin-dashboard");
+            log.error("Error", e);
         }
     }
 

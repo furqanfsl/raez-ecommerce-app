@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Singleton SQLite connection.
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
  * Force a clean rebuild with {@code -Draez.db.reset=true}.
  */
 public class DBConnection {
+    private static final Logger log = LoggerFactory.getLogger(DBConnection.class);
+
 
     private static DBConnection instance;
     private Connection connection;
@@ -46,21 +50,19 @@ public class DBConnection {
 
     private DBConnection() {
         if (Boolean.getBoolean("raez.db.reset")) {
-            System.out.println("raez.db.reset=true → wiping DB file before boot.");
+            log.info("{}", "raez.db.reset=true → wiping DB file before boot.");
             deleteDatabaseFiles();
         }
         connect();
         executeSqlFile("/raez_unified_schema.sql");
         migrateProductsCollectionColumn();
         migrateProductsCollectionIdColumn();
-        migrateProductsImagePathColumn();
         migrateProductsImageUrlColumns();
-        migrateDropProductsImagePathColumn();
         if (isFirstBoot()) {
-            System.out.println("Empty DB detected — applying seed data.");
+            log.info("{}", "Empty DB detected — applying seed data.");
             executeSqlFile("/raez_seed_data.sql");
         } else {
-            System.out.println("DB already populated — skipping seed.");
+            log.info("{}", "DB already populated — skipping seed.");
             migrateCustomerPasswords();
             migrateAdminPasswords();
         }
@@ -76,12 +78,12 @@ public class DBConnection {
     private void migrateProductsCollectionColumn() {
         try (Statement st = connection.createStatement()) {
             st.executeUpdate("ALTER TABLE products ADD COLUMN collection TEXT");
-            System.out.println("Migrated products schema: added 'collection' column.");
+            log.info("{}", "Migrated products schema: added 'collection' column.");
         } catch (SQLException e) {
             // "duplicate column name" is the expected case on an already-migrated DB.
             String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
             if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
-                System.err.println("migrateProductsCollectionColumn warning: " + e.getMessage());
+                log.error("{}", "migrateProductsCollectionColumn warning: " + e.getMessage());
             }
         }
     }
@@ -93,65 +95,33 @@ public class DBConnection {
     private void migrateProductsCollectionIdColumn() {
         try (Statement st = connection.createStatement()) {
             st.executeUpdate("ALTER TABLE products ADD COLUMN collectionID INTEGER");
-            System.out.println("Migrated products schema: added 'collectionID' column.");
+            log.info("{}", "Migrated products schema: added 'collectionID' column.");
         } catch (SQLException e) {
             String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
             if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
-                System.err.println("migrateProductsCollectionIdColumn warning: " + e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Migration: persist primary product image path directly on products table.
-     */
-    private void migrateProductsImagePathColumn() {
-        try (Statement st = connection.createStatement()) {
-            st.executeUpdate("ALTER TABLE products ADD COLUMN imagePath TEXT");
-            System.out.println("Migrated products schema: added 'imagePath' column.");
-        } catch (SQLException e) {
-            String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-            if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
-                System.err.println("migrateProductsImagePathColumn warning: " + e.getMessage());
+                log.error("{}", "migrateProductsCollectionIdColumn warning: " + e.getMessage());
             }
         }
     }
 
     /**
      * Day-5 migration: adds imageUrl + imagePublicId for the Cloudinary storage layer.
-     * Old imagePath column is preserved until the cloud migration backfill runs.
      */
     private void migrateProductsImageUrlColumns() {
         for (String col : new String[]{"imageUrl", "imagePublicId"}) {
             try (Statement st = connection.createStatement()) {
                 st.executeUpdate("ALTER TABLE products ADD COLUMN " + col + " TEXT");
-                System.out.println("Migrated products schema: added '" + col + "' column.");
+                log.info("{}", "Migrated products schema: added '" + col + "' column.");
             } catch (SQLException e) {
                 String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
                 if (!msg.contains("duplicate column") && !msg.contains("already exists")) {
-                    System.err.println("migrateProductsImageUrlColumns warning: " + e.getMessage());
+                    log.error("{}", "migrateProductsImageUrlColumns warning: " + e.getMessage());
                 }
             }
         }
     }
 
-    /**
-     * Day-5 migration: drops the legacy products.imagePath column once the cloud
-     * URL backfill (MigrateImagesToCloud) has populated imageUrl for every row.
-     * Idempotent: silently no-ops once the column is gone. Requires SQLite 3.35+.
-     */
-    private void migrateDropProductsImagePathColumn() {
-        try (Statement st = connection.createStatement()) {
-            st.executeUpdate("ALTER TABLE products DROP COLUMN imagePath");
-            System.out.println("Migrated products schema: dropped legacy 'imagePath' column.");
-        } catch (SQLException e) {
-            String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-            if (msg.contains("no such column") || msg.contains("not found")) return;
-            System.err.println("migrateDropProductsImagePathColumn warning: " + e.getMessage());
-        }
-    }
-
-    /**
+/**
      * One-time migration: standardises customer demo account passwords to raez123.
      * Only updates rows that still carry one of the three legacy hash values
      * that were seeded before the password was standardised.
@@ -173,11 +143,11 @@ public class DBConnection {
                 ps.setString(2, oldHash);
                 int rows = ps.executeUpdate();
                 if (rows > 0) {
-                    System.out.println("Migrated customer password hash: " + oldHash.substring(0, 8) + "…");
+                    log.info("{}", "Migrated customer password hash: " + oldHash.substring(0, 8) + "…");
                 }
             }
         } catch (java.sql.SQLException e) {
-            System.err.println("migrateCustomerPasswords warning: " + e.getMessage());
+            log.error("{}", "migrateCustomerPasswords warning: " + e.getMessage());
         }
     }
 
@@ -209,10 +179,10 @@ public class DBConnection {
                 ps.setString(2, email);
                 ps.setString(3, targetHash);
                 int rows = ps.executeUpdate();
-                if (rows > 0) System.out.println("Migrated admin password for: " + email);
+                if (rows > 0) log.info("{}", "Migrated admin password for: " + email);
             }
         } catch (java.sql.SQLException e) {
-            System.err.println("migrateAdminPasswords warning: " + e.getMessage());
+            log.error("{}", "migrateAdminPasswords warning: " + e.getMessage());
         }
     }
 
@@ -224,9 +194,9 @@ public class DBConnection {
     private void migrateCollectionProducts() {
         try {
             executeSqlFile("/raez_migration_v2_collections.sql");
-            System.out.println("migrateCollectionProducts: collection data ensured.");
+            log.info("{}", "migrateCollectionProducts: collection data ensured.");
         } catch (Exception e) {
-            System.err.println("migrateCollectionProducts warning: " + e.getMessage());
+            log.error("{}", "migrateCollectionProducts warning: " + e.getMessage());
         }
     }
 
@@ -242,7 +212,7 @@ public class DBConnection {
              ResultSet rs = st.executeQuery(
                  "SELECT COUNT(*) FROM products WHERE sku LIKE 'HTR-%'")) {
             if (rs.next() && rs.getInt(1) > 0) {
-                System.out.println("migrateRoboticsStoreCatalog: HTR products already exist, skipping re-seed.");
+                log.info("{}", "migrateRoboticsStoreCatalog: HTR products already exist, skipping re-seed.");
                 return;
             }
         } catch (SQLException e) {
@@ -250,9 +220,9 @@ public class DBConnection {
         }
         try {
             executeSqlFile("/raez_migration_v3_robotics_store.sql");
-            System.out.println("migrateRoboticsStoreCatalog: robotics catalogue seeded.");
+            log.info("{}", "migrateRoboticsStoreCatalog: robotics catalogue seeded.");
         } catch (Exception e) {
-            System.err.println("migrateRoboticsStoreCatalog warning: " + e.getMessage());
+            log.error("{}", "migrateRoboticsStoreCatalog warning: " + e.getMessage());
         }
     }
 
@@ -332,7 +302,7 @@ public class DBConnection {
             try {
                 Files.deleteIfExists(Paths.get(DB_PATH + suffix));
             } catch (Exception e) {
-                System.err.println("DB cleanup warning (" + suffix + "): " + e.getMessage());
+                log.error("{}", "DB cleanup warning (" + suffix + "): " + e.getMessage());
             }
         }
     }
@@ -350,7 +320,7 @@ public class DBConnection {
                 st.execute("PRAGMA foreign_keys = ON");
                 st.execute("PRAGMA journal_mode = WAL");
             }
-            System.out.println("SQLite connected: " + DB_PATH);
+            log.info("{}", "SQLite connected: " + DB_PATH);
         } catch (Exception e) {
             connection = null;
             throw new IllegalStateException("DB connection failed: " + e.getMessage(), e);
@@ -368,7 +338,7 @@ public class DBConnection {
                 sql = reader.lines().collect(Collectors.joining("\n"));
             }
             executeSqlScript(sql);
-            System.out.println("Executed SQL resource: " + classpathResource);
+            log.info("{}", "Executed SQL resource: " + classpathResource);
         } catch (IllegalStateException e) {
             throw e;
         } catch (Exception e) {
@@ -400,7 +370,7 @@ public class DBConnection {
                         stmt.execute(trimmed);
                     } catch (SQLException e) {
                         // Log but continue — e.g. duplicate inserts on reconnect
-                        System.err.println("SQL warning (skipped): " + e.getMessage()
+                        log.error("{}", "SQL warning (skipped): " + e.getMessage()
                             + " | " + trimmed.substring(0, Math.min(80, trimmed.length())));
                     }
                 }

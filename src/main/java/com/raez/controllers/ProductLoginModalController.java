@@ -16,8 +16,12 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductLoginModalController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductLoginModalController.class);
+
 
     @FXML private TextField     emailField;
     @FXML private PasswordField passwordField;
@@ -67,7 +71,7 @@ public class ProductLoginModalController implements Initializable {
 
         } catch (Exception e) {
             showError("Login error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 
@@ -103,7 +107,7 @@ public class ProductLoginModalController implements Initializable {
             dialog.showAndWait();
         } catch (Exception e) {
             showError("Could not open registration: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 

@@ -11,11 +11,15 @@ import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Authenticates against {@code users} + {@code user_roles} + {@code roles} using BCrypt.
  */
 public final class AuthService {
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
 
     private AuthService() {}
 
@@ -72,8 +76,8 @@ public final class AuthService {
             User user = new User(userId, firstName, lastName, em, chosenRole, isActive, username, null);
             return Optional.of(new AuthenticatedSession(user, roleNames));
         } catch (SQLException e) {
-            System.err.println("AuthService.authenticate: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "AuthService.authenticate: " + e.getMessage());
+            log.error("Error", e);
             return Optional.empty();
         } catch (IllegalArgumentException e) {
             // Stored hash isn't valid BCrypt format (legacy / corrupted) — treat as auth failure.

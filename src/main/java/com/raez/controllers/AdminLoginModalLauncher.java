@@ -6,8 +6,12 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AdminLoginModalLauncher {
+    private static final Logger log = LoggerFactory.getLogger(AdminLoginModalLauncher.class);
+
 
     public static void show() {
         try {
@@ -28,8 +32,8 @@ public class AdminLoginModalLauncher {
             controller.setup(modal::close);
             modal.showAndWait();
         } catch (Exception e) {
-            System.err.println("AdminLoginModalLauncher error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "AdminLoginModalLauncher error: " + e.getMessage());
+            log.error("Error", e);
         }
     }
 }

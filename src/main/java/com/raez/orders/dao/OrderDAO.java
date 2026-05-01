@@ -10,8 +10,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderDAO {
+    private static final Logger log = LoggerFactory.getLogger(OrderDAO.class);
+
 
     public List<Order> getAllOrders() {
         String sql = """
@@ -50,7 +54,7 @@ public class OrderDAO {
             ps.setInt(2, orderId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("OrderDAO.updateOrderStatus: " + e.getMessage());
+            log.error("{}", "OrderDAO.updateOrderStatus: " + e.getMessage());
             return false;
         }
     }
@@ -64,7 +68,7 @@ public class OrderDAO {
             ResultSet rs = ps.executeQuery();
             return rs.next() ? rs.getInt("customerID") : -1;
         } catch (SQLException e) {
-            System.err.println("OrderDAO.getCustomerIdByUserId: " + e.getMessage());
+            log.error("{}", "OrderDAO.getCustomerIdByUserId: " + e.getMessage());
             return -1;
         }
     }
@@ -148,9 +152,9 @@ public class OrderDAO {
                     orderId,
                     LocalDate.now().plusDays(14),
                     "Auto-generated on order placement");
-            System.out.println("Finance invoice created for order #" + orderId);
+            log.info("{}", "Finance invoice created for order #" + orderId);
         } catch (Exception e) {
-            System.err.println("autoCreateInvoice (non-fatal): " + e.getMessage());
+            log.error("{}", "autoCreateInvoice (non-fatal): " + e.getMessage());
         }
     }
 
@@ -181,7 +185,7 @@ public class OrderDAO {
             return true;
         } catch (SQLException e) {
             try { conn.rollback(); } catch (SQLException ignore) {}
-            System.err.println("OrderDAO.markDelivered: " + e.getMessage());
+            log.error("{}", "OrderDAO.markDelivered: " + e.getMessage());
             return false;
         } finally {
             try { conn.setAutoCommit(true); } catch (SQLException ignore) {}
@@ -209,7 +213,7 @@ public class OrderDAO {
                 ));
             }
         } catch (SQLException e) {
-            System.err.println("OrderDAO.query: " + e.getMessage());
+            log.error("{}", "OrderDAO.query: " + e.getMessage());
         }
         return list;
     }

@@ -24,8 +24,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductHeaderController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductHeaderController.class);
+
 
     @FXML private Button     logoBtn;
     @FXML private TextField  searchField;
@@ -287,8 +291,8 @@ public class ProductHeaderController implements Initializable {
             ctrl.init(reviewsApp, AppContext.getInstance(), session);
             logoBtn.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("ProductHeaderController: failed to load reviews-customer-dashboard");
-            e.printStackTrace();
+            log.error("{}", "ProductHeaderController: failed to load reviews-customer-dashboard");
+            log.error("Error", e);
         }
     }
 
@@ -319,8 +323,8 @@ public class ProductHeaderController implements Initializable {
             Parent view = FXMLLoader.load(getClass().getResource(fxmlPath));
             logoBtn.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("Navigation failed for " + fxmlPath + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "Navigation failed for " + fxmlPath + ": " + e.getMessage());
+            log.error("Error", e);
         }
     }
 }

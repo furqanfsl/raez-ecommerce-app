@@ -11,8 +11,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainApp extends Application {
+    private static final Logger log = LoggerFactory.getLogger(MainApp.class);
+
 
     @Override
     public void start(Stage stage) {
@@ -48,8 +52,8 @@ public class MainApp extends Application {
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
-            System.err.println("MainApp: failed to load ProductHomepage: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "MainApp: failed to load ProductHomepage: " + e.getMessage());
+            log.error("Error", e);
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("RAEZ");
             alert.setHeaderText("Could not open the storefront");

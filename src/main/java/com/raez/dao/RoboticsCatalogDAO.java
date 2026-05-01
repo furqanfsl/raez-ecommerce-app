@@ -9,8 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoboticsCatalogDAO {
+    private static final Logger log = LoggerFactory.getLogger(RoboticsCatalogDAO.class);
+
 
     public record CollectionInfo(int collectionID, String name, String slug, String description) {}
     public record ProductWithCategory(Product product, String categoryName) {}
@@ -35,7 +39,7 @@ public class RoboticsCatalogDAO {
                 );
             }
         } catch (SQLException e) {
-            System.err.println("RoboticsCatalogDAO.getCollectionBySlug: " + e.getMessage());
+            log.error("{}", "RoboticsCatalogDAO.getCollectionBySlug: " + e.getMessage());
         }
         return null;
     }
@@ -81,7 +85,7 @@ public class RoboticsCatalogDAO {
                 rows.add(new ProductWithCategory(mapProduct(rs), rs.getString("categoryName")));
             }
         } catch (SQLException e) {
-            System.err.println("RoboticsCatalogDAO.getProductsByCollection: " + e.getMessage());
+            log.error("{}", "RoboticsCatalogDAO.getProductsByCollection: " + e.getMessage());
         }
         return rows;
     }
@@ -110,7 +114,7 @@ public class RoboticsCatalogDAO {
                 return new ProductWithCategory(mapProduct(rs), rs.getString("categoryName"));
             }
         } catch (SQLException e) {
-            System.err.println("RoboticsCatalogDAO.getProductWithCategoryById: " + e.getMessage());
+            log.error("{}", "RoboticsCatalogDAO.getProductWithCategoryById: " + e.getMessage());
         }
         return null;
     }

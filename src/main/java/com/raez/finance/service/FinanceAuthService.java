@@ -17,8 +17,12 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceAuthService {
+    private static final Logger log = LoggerFactory.getLogger(FinanceAuthService.class);
+
     private static boolean demoUsersChecked = false;
 
     // ── Checked exception: caller must switch to the set-password screen ──
@@ -220,7 +224,7 @@ public class FinanceAuthService {
             String hash = BCrypt.hashpw(tempPassword, BCrypt.gensalt(12));
             fUserDao.setTemporaryPasswordAndClearLastLogin(user.getId(), hash);
             // Dev mode: print to console. Production: send via SMTP.
-            System.out.println("[ForgotPassword] Temporary password for "
+            log.info("{}", "[ForgotPassword] Temporary password for "
                 + email.trim() + " → " + tempPassword);
         } catch (IllegalArgumentException e) {
             throw e;
@@ -265,11 +269,11 @@ public class FinanceAuthService {
                 try {
                     FinanceMailService.sendPasswordResetEmail(to, token, user.getUsername());
                 } catch (Exception ex) {
-                    System.err.println("[PasswordReset] Mail error: " + ex.getMessage());
-                    System.err.println("[PasswordReset] Token for account " + user.getUsername() + ": " + token);
+                    log.error("{}", "[PasswordReset] Mail error: " + ex.getMessage());
+                    log.error("{}", "[PasswordReset] Token for account " + user.getUsername() + ": " + token);
                 }
             } else {
-                System.err.println("[PasswordReset] SMTP disabled or host empty. Token for account "
+                log.error("{}", "[PasswordReset] SMTP disabled or host empty. Token for account "
                         + user.getUsername() + ": " + token);
             }
         } catch (IllegalArgumentException e) {

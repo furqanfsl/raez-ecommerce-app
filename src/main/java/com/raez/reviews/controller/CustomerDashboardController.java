@@ -22,12 +22,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * My Reviews — a clean list of the current customer's own reviews.
  * Filterable by time range (All time, last 30 days, last 90 days).
  */
 public class CustomerDashboardController {
+    private static final Logger log = LoggerFactory.getLogger(CustomerDashboardController.class);
+
 
     @FXML private Label welcomeLabel;
     @FXML private Label reviewCountLabel;
@@ -71,7 +75,7 @@ public class CustomerDashboardController {
                     getClass().getResource("/fxml/ProductHomepage.fxml"));
             reviewsList.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("CustomerDashboardController: back to shop failed: " + e.getMessage());
+            log.error("{}", "CustomerDashboardController: back to shop failed: " + e.getMessage());
         }
     }
 

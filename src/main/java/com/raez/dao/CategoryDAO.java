@@ -6,11 +6,15 @@ import com.raez.model.Category;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * All SQL operations for the {@code categories} table.
  */
 public class CategoryDAO {
+    private static final Logger log = LoggerFactory.getLogger(CategoryDAO.class);
+
 
     private Connection conn() {
         return DBConnection.getInstance().getConnection();
@@ -24,7 +28,7 @@ public class CategoryDAO {
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            System.err.println("CategoryDAO.getAll: " + e.getMessage());
+            log.error("{}", "CategoryDAO.getAll: " + e.getMessage());
         }
         return list;
     }
@@ -42,7 +46,7 @@ public class CategoryDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            System.err.println("CategoryDAO.getByProduct: " + e.getMessage());
+            log.error("{}", "CategoryDAO.getByProduct: " + e.getMessage());
         }
         return list;
     }
@@ -60,7 +64,7 @@ public class CategoryDAO {
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) return keys.getInt(1);
         } catch (SQLException e) {
-            System.err.println("CategoryDAO.insert: " + e.getMessage());
+            log.error("{}", "CategoryDAO.insert: " + e.getMessage());
         }
         return -1;
     }
@@ -73,7 +77,7 @@ public class CategoryDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return map(rs);
         } catch (SQLException e) {
-            System.err.println("CategoryDAO.findByName: " + e.getMessage());
+            log.error("{}", "CategoryDAO.findByName: " + e.getMessage());
         }
         return null;
     }
@@ -86,7 +90,7 @@ public class CategoryDAO {
             ps.setInt(2, categoryId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("CategoryDAO.linkProductCategory: " + e.getMessage());
+            log.error("{}", "CategoryDAO.linkProductCategory: " + e.getMessage());
         }
     }
 
@@ -97,7 +101,7 @@ public class CategoryDAO {
             ps.setInt(1, productId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("CategoryDAO.unlinkAllForProduct: " + e.getMessage());
+            log.error("{}", "CategoryDAO.unlinkAllForProduct: " + e.getMessage());
         }
     }
 

@@ -14,8 +14,12 @@ import javafx.stage.Stage;
 // FXMLLoader/Scene/Stage retained for openEdit() navigation
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomerAdminDashboardController {
+    private static final Logger log = LoggerFactory.getLogger(CustomerAdminDashboardController.class);
+
 
     @FXML private Label                        totalCustomersLabel;
     @FXML private Label                        totalRevenueLabel;
@@ -76,7 +80,7 @@ public class CustomerAdminDashboardController {
             totalRevenueLabel.setText("£" + String.format("%,.2f", rev));
             activeAccountsLabel.setText(String.valueOf(active));
             deactivatedAccountsLabel.setText(String.valueOf(inactive));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     private void loadAllCustomers() {
@@ -84,7 +88,7 @@ public class CustomerAdminDashboardController {
             List<CustomerUser> list = adminDAO.getAllCustomers();
             customersTable.setItems(FXCollections.observableArrayList(list));
             setNoResults(list.isEmpty());
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML
@@ -95,7 +99,7 @@ public class CustomerAdminDashboardController {
             List<CustomerUser> list = adminDAO.searchCustomers(keyword, status);
             customersTable.setItems(FXCollections.observableArrayList(list));
             setNoResults(list.isEmpty());
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML
@@ -115,7 +119,7 @@ public class CustomerAdminDashboardController {
             stage.setScene(new Scene(loader.load(), stage.getWidth(), stage.getHeight()));
             CustomerStaffEditController ctrl = loader.getController();
             ctrl.setContext(currentUser, customer);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     private void setNoResults(boolean show) {

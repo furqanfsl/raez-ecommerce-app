@@ -60,8 +60,12 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceMainLayoutController {
+    private static final Logger log = LoggerFactory.getLogger(FinanceMainLayoutController.class);
+
 
     private static final String VIEW_PATH = "/com/raez/finance/view/";
 
@@ -104,14 +108,14 @@ public class FinanceMainLayoutController {
 
     @FXML
     public void initialize() {
-        System.out.println("[FinanceMainLayout] initialize() started");
+        log.info("{}", "[FinanceMainLayout] initialize() started");
         safeLoad("FinanceSidebar",   this::loadSidebar);
         safeLoad("FinanceTopBar",    this::loadTopBar);
         safeLoad("FinanceFooter",    this::loadFooter);
         safeLoad("Dashboard", this::loadDashboard);
 
         FinanceSessionManager.setOnTimeoutCallback(() -> {
-            System.out.println("[FinanceMainLayout] Session timed out — redirecting to login.");
+            log.info("{}", "[FinanceMainLayout] Session timed out — redirecting to login.");
             handleLogout();
         });
 
@@ -128,7 +132,7 @@ public class FinanceMainLayoutController {
                 showToast(pt != null ? pt : "success", pm);
             }
         });
-        System.out.println("[FinanceMainLayout] initialize() completed");
+        log.info("{}", "[FinanceMainLayout] initialize() completed");
     }
 
     // ── Safe load wrapper ────────────────────────────────────────────────
@@ -138,21 +142,21 @@ public class FinanceMainLayoutController {
 
     private void safeLoad(String componentName, Loader loader) {
         try {
-            System.out.println("[FinanceMainLayout] Loading " + componentName + "...");
+            log.info("{}", "[FinanceMainLayout] Loading " + componentName + "...");
             loader.load();
-            System.out.println("[FinanceMainLayout] " + componentName + " loaded OK");
+            log.info("{}", "[FinanceMainLayout] " + componentName + " loaded OK");
         } catch (Exception e) {
-            System.err.println();
-            System.err.println("╔══════════════════════════════════════════════════════╗");
-            System.err.println("║  MAINLAYOUT COMPONENT FAILED: " + componentName);
-            System.err.println("╠══════════════════════════════════════════════════════╣");
+            log.error("");
+            log.error("{}", "╔══════════════════════════════════════════════════════╗");
+            log.error("{}", "║  MAINLAYOUT COMPONENT FAILED: " + componentName);
+            log.error("{}", "╠══════════════════════════════════════════════════════╣");
             Throwable t = e; int depth = 0;
             while (t != null) {
-                System.err.println("║  [" + depth + "] " + t.getClass().getSimpleName() + ": " + t.getMessage());
+                log.error("{}", "║  [" + depth + "] " + t.getClass().getSimpleName() + ": " + t.getMessage());
                 t = t.getCause(); depth++;
             }
-            System.err.println("╚══════════════════════════════════════════════════════╝");
-            e.printStackTrace(System.err);
+            log.error("{}", "╚══════════════════════════════════════════════════════╝");
+            log.error("Error", e);
         }
     }
 
@@ -184,7 +188,7 @@ public class FinanceMainLayoutController {
 
     private void loadFooter() throws Exception {
         URL url = getClass().getResource(VIEW_PATH + "FinanceFooter.fxml");
-        if (url == null) { System.out.println("[FinanceMainLayout] FinanceFooter.fxml not found — skipping"); return; }
+        if (url == null) { log.info("{}", "[FinanceMainLayout] FinanceFooter.fxml not found — skipping"); return; }
         Parent root = FXMLLoader.load(url);
         footerContainer.getChildren().setAll(root);
     }
@@ -407,7 +411,7 @@ public class FinanceMainLayoutController {
                 try {
                     r.refreshVisibleData();
                 } catch (Exception ex) {
-                    System.err.println("[FinanceMainLayout] auto-refresh failed: " + ex.getMessage());
+                    log.error("{}", "[FinanceMainLayout] auto-refresh failed: " + ex.getMessage());
                 }
             }
         } finally {
@@ -501,7 +505,7 @@ public class FinanceMainLayoutController {
             if (ctrl != null) { ctrl.setMainLayoutController(this); ctrl.setQuery(query); root.setUserData(ctrl); }
             setContent(root);
         } catch (Exception e) {
-            System.err.println("[FinanceMainLayout] showGlobalSearch failed:"); e.printStackTrace();
+            log.error("{}", "[FinanceMainLayout] showGlobalSearch failed:"); log.error("Error", e);
         }
     }
 
@@ -523,7 +527,7 @@ public class FinanceMainLayoutController {
             }
             setContent(root);
         } catch (Exception e) {
-            System.err.println("[FinanceMainLayout] navigateToDetailedReportsWithSearch failed:"); e.printStackTrace();
+            log.error("{}", "[FinanceMainLayout] navigateToDetailedReportsWithSearch failed:"); log.error("Error", e);
         }
     }
 
@@ -537,7 +541,7 @@ public class FinanceMainLayoutController {
             if (ctrl != null) { ctrl.setMainLayoutController(this); root.setUserData(ctrl); }
             setContent(root);
         } catch (Exception e) {
-            System.err.println("[FinanceMainLayout] navigateToAiInsights failed:"); e.printStackTrace();
+            log.error("{}", "[FinanceMainLayout] navigateToAiInsights failed:"); log.error("Error", e);
         }
     }
 
@@ -559,7 +563,7 @@ public class FinanceMainLayoutController {
             setContent(root);
             if (ctrl != null) ctrl.switchToTab(reportType != null ? reportType : "orders");
         } catch (Exception e) {
-            System.err.println("[FinanceMainLayout] navigateToReportsAndExport failed:"); e.printStackTrace();
+            log.error("{}", "[FinanceMainLayout] navigateToReportsAndExport failed:"); log.error("Error", e);
         }
     }
 
@@ -585,7 +589,7 @@ public class FinanceMainLayoutController {
             StackPane.setAlignment(toast, Pos.TOP_RIGHT);
             StackPane.setMargin(toast, new Insets(12, 12, 0, 0));
         } catch (Exception e) {
-            System.err.println("[FinanceMainLayout] showToast failed: " + e.getMessage());
+            log.error("{}", "[FinanceMainLayout] showToast failed: " + e.getMessage());
         }
     }
 
@@ -949,7 +953,7 @@ public class FinanceMainLayoutController {
             try { FinanceExportService.exportMergedReport(title, data, file); showToast("success", "Exported: " + file.getName()); }
             catch (Exception ex) { showToast("error", "Export failed: " + ex.getMessage()); }
         });
-        task.setOnFailed(ev -> { if (task.getException() != null) task.getException().printStackTrace(); showToast("error", "Export failed."); });
+        task.setOnFailed(ev -> { if (task.getException() != null) log.error("Error", task.getException()); showToast("error", "Export failed."); });
         new Thread(task, "merged-export").start();
     }
 

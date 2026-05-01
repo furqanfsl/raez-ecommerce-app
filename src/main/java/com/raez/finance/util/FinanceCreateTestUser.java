@@ -2,6 +2,8 @@ package com.raez.finance.util;
 
 import com.raez.finance.dao.FinanceUserDao;
 import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Temporary utility to create one FinanceUser for testing login.
@@ -15,6 +17,8 @@ import org.mindrot.jbcrypt.BCrypt;
  * Example: test@test.com mypass testuser Test FinanceUser ADMIN 1
  */
 public class FinanceCreateTestUser {
+    private static final Logger log = LoggerFactory.getLogger(FinanceCreateTestUser.class);
+
 
     public static void main(String[] args) {
         String email, password, username, firstName, lastName, roleStr;
@@ -37,11 +41,11 @@ public class FinanceCreateTestUser {
             lastName = "FinanceUser";
             roleStr = "ADMIN";
             isActive = true;
-            System.out.println("No args provided – creating default test user (email=test@raez.com, password=Test123!)");
+            log.info("{}", "No args provided – creating default test user (email=test@raez.com, password=Test123!)");
         }
 
         if (!"ADMIN".equals(roleStr) && !"FINANCE_USER".equals(roleStr)) {
-            System.err.println("role must be ADMIN or FINANCE_USER");
+            log.error("{}", "role must be ADMIN or FINANCE_USER");
             System.exit(1);
         }
 
@@ -51,20 +55,20 @@ public class FinanceCreateTestUser {
         try {
             dao.insertUser(email, username, passwordHash, roleStr, firstName, lastName, "",
                 null, null, null, null, isActive);
-            System.out.println("Created FinanceUser:");
-            System.out.println("  email: " + email);
-            System.out.println("  username: " + username);
-            System.out.println("  firstName: " + firstName + ", lastName: " + lastName);
-            System.out.println("  role: " + roleStr + ", active: " + isActive);
-            System.out.println();
-            System.out.println("You can now login with email/username: " + email + " (or " + username + ") and your password.");
-            System.out.println("(Role Selection → Admin FinanceLogin for ADMIN; Finance FinanceUser FinanceLogin for FINANCE_USER)");
+            log.info("{}", "Created FinanceUser:");
+            log.info("{}", "  email: " + email);
+            log.info("{}", "  username: " + username);
+            log.info("{}", "  firstName: " + firstName + ", lastName: " + lastName);
+            log.info("{}", "  role: " + roleStr + ", active: " + isActive);
+            log.info("");
+            log.info("{}", "You can now login with email/username: " + email + " (or " + username + ") and your password.");
+            log.info("{}", "(Role Selection → Admin FinanceLogin for ADMIN; Finance FinanceUser FinanceLogin for FINANCE_USER)");
         } catch (Exception e) {
-            System.err.println("Failed to create user: " + e.getMessage());
+            log.error("{}", "Failed to create user: " + e.getMessage());
             if (e.getMessage() != null && e.getMessage().contains("UNIQUE")) {
-                System.err.println("That email or username already exists. Use different args or run with custom email/username.");
+                log.error("{}", "That email or username already exists. Use different args or run with custom email/username.");
             }
-            e.printStackTrace();
+            log.error("Error", e);
             System.exit(1);
         }
     }

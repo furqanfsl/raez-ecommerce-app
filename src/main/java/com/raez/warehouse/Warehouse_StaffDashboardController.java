@@ -25,8 +25,12 @@ import javafx.stage.Stage;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Warehouse_StaffDashboardController {
+    private static final Logger log = LoggerFactory.getLogger(Warehouse_StaffDashboardController.class);
+
 
     private final WarehouseService           warehouseService           = new WarehouseService();
     private final Warehouse_DeliveryService  warehouse_DeliveryService  = new Warehouse_DeliveryService();
@@ -352,7 +356,7 @@ public class Warehouse_StaffDashboardController {
                         .ifPresent(w -> warehousesTable.getSelectionModel().select(w));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error", e);
             Warehouse_DialogUtil.info("Error", "Could not open Add Warehouse dialog.");
         }
     }
@@ -389,7 +393,7 @@ public class Warehouse_StaffDashboardController {
                 refreshComputedUI();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error", e);
             Warehouse_DialogUtil.info("Error", "Could not open Add Product dialog.");
         }
     }
@@ -435,7 +439,7 @@ public class Warehouse_StaffDashboardController {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error", e);
             Warehouse_DialogUtil.info("Error", "Could not open Transfer Stock dialog.");
         }
     }
@@ -478,7 +482,7 @@ public class Warehouse_StaffDashboardController {
                 productsTable.getSelectionModel().select(result.getProduct());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error", e);
             Warehouse_DialogUtil.info("Error", "Could not open Edit Product dialog.");
         }
     }
@@ -515,7 +519,7 @@ public class Warehouse_StaffDashboardController {
                 warehousesTable.getSelectionModel().select(updated);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error", e);
             Warehouse_DialogUtil.info("Error", "Could not open Edit Warehouse dialog.");
         }
     }
@@ -575,7 +579,7 @@ public class Warehouse_StaffDashboardController {
 
             Warehouse_DialogUtil.info("Report Downloaded", "PDF saved to:\n" + filePath);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error", e);
             Warehouse_DialogUtil.info("Error", "Could not generate PDF: " + e.getMessage());
         }
     }

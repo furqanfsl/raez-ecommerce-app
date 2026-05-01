@@ -5,8 +5,12 @@ import com.raez.warehouse.util.Warehouse_ValidationUtil;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Warehouse_AuthService {
+    private static final Logger log = LoggerFactory.getLogger(Warehouse_AuthService.class);
+
 
     public AuthResult authenticateStaff(String email, String password) {
         if (email == null || email.isBlank())
@@ -59,7 +63,7 @@ public class Warehouse_AuthService {
             return AuthResult.success(email.trim(), rs.getString("roleName"), rs.getInt("userID"));
 
         } catch (SQLException e) {
-            System.err.println("Warehouse_AuthService.verify error: " + e.getMessage());
+            log.error("{}", "Warehouse_AuthService.verify error: " + e.getMessage());
             return AuthResult.fail("Database error. Please try again.");
         }
     }

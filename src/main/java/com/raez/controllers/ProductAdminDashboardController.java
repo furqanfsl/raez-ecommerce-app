@@ -15,8 +15,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductAdminDashboardController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductAdminDashboardController.class);
+
 
     @FXML private Label      statTotal;
     @FXML private Label      statActive;
@@ -134,7 +138,7 @@ public class ProductAdminDashboardController implements Initializable {
                     product.images.stream().map(i -> i.imageURL).collect(Collectors.toList()));
                 loadFromDb();
             } catch (Exception e) {
-                System.err.println("Add failed: " + e.getMessage());
+                log.error("{}", "Add failed: " + e.getMessage());
             }
         });
     }
@@ -149,7 +153,7 @@ public class ProductAdminDashboardController implements Initializable {
                     updated.images.stream().map(i -> i.imageURL).collect(Collectors.toList()));
                 loadFromDb();
             } catch (Exception e) {
-                System.err.println("Update failed: " + e.getMessage());
+                log.error("{}", "Update failed: " + e.getMessage());
             }
         });
     }
@@ -190,7 +194,7 @@ public class ProductAdminDashboardController implements Initializable {
         sb.append("]");
         try (java.io.FileWriter fw = new java.io.FileWriter(file)) {
             fw.write(sb.toString());
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML private void handleImport() {
@@ -206,8 +210,8 @@ public class ProductAdminDashboardController implements Initializable {
             Parent view = FXMLLoader.load(getClass().getResource("/fxml/ProductHomepage.fxml"));
             sortMenuBtn.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("Back to home failed: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "Back to home failed: " + e.getMessage());
+            log.error("Error", e);
         }
     }
 

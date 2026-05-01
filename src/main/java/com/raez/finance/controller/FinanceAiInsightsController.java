@@ -33,11 +33,15 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dedicated analytics page: revenue / acquisition forecasts (Commons Math regression), churn counts, charts.
  */
 public class FinanceAiInsightsController implements FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceAiInsightsController.class);
+
 
     private static final DateTimeFormatter CHART_MONTH = DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH);
     private static final String NEXT_MONTH_LABEL = "Next mo. (est.)";
@@ -298,7 +302,7 @@ public class FinanceAiInsightsController implements FinanceUiAutoRefreshable {
         };
         task.setOnFailed(e -> {
             Throwable ex = task.getException();
-            if (ex != null) ex.printStackTrace();
+            if (ex != null) log.error("Error", ex);
             Platform.runLater(() -> {
                 if (lblRevTrend != null) lblRevTrend.setText("Could not load predictions.");
             });

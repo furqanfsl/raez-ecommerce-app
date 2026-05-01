@@ -79,6 +79,18 @@
             <version>1.36.0</version>
         </dependency>
 
+        <!-- SLF4J + Logback — structured logging (Day 6) -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.13</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.14</version>
+        </dependency>
+
         <!-- JUnit 5 API -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -138,4 +150,135 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            Installer profile (D6.6) — produces a Windows .exe via jpackage.
+            Run with:  mvn -Pinstaller package
+            Output:    target/installer/Raez-1.0.0.exe
+            Requires:  JDK 21 (jpackage ships with the JDK) + WiX Toolset 3.x on PATH
+                       (https://wixtoolset.org/releases/) for .exe / .msi types.
+                       Without WiX, switch -type to app-image to get an unpacked dir.
+            Icon at:   src/main/resources/icon.png  (256x256 PNG; D6.7 adds it).
+        -->
+        <profile>
+            <id>installer</id>
+            <build>
+                <plugins>
+                    <!-- Step 1: stage main jar + runtime dependencies under target/jpackage-input -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.6.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-runtime-deps</id>
+                                <phase>package</phase>
+                                <goals><goal>copy-dependencies</goal></goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/jpackage-input</outputDirectory>
+                                    <includeScope>runtime</includeScope>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Step 2: copy main jar into the same staging dir -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.3.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-main-jar</id>
+                                <phase>package</phase>
+                                <goals><goal>copy-resources</goal></goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/jpackage-input</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${project.build.directory}</directory>
+                                            <includes>
+                                                <include>${project.build.finalName}.jar</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Step 3: invoke jpackage on the staging dir -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>jpackage</id>
+                                <phase>package</phase>
+                                <goals><goal>exec</goal></goals>
+                                <configuration>
+                                    <executable>jpackage</executable>
+                                    <arguments>
+                                        <argument>--type</argument>          <argument>exe</argument>
+                                        <argument>--name</argument>          <argument>Raez</argument>
+                                        <argument>--app-version</argument>   <argument>1.0.0</argument>
+                                        <argument>--vendor</argument>        <argument>Anass Nadeem</argument>
+                                        <argument>--description</argument>   <argument>Raez Robotics Storefront</argument>
+                                        <argument>--input</argument>         <argument>${project.build.directory}/jpackage-input</argument>
+                                        <argument>--main-jar</argument>      <argument>${project.build.finalName}.jar</argument>
+                                        <argument>--main-class</argument>    <argument>com.raez.model.MainLauncher</argument>
+                                        <argument>--dest</argument>          <argument>${project.build.directory}/installer</argument>
+                                        <argument>--icon</argument>          <argument>${project.basedir}/src/main/resources/icon.png</argument>
+                                        <argument>--win-shortcut</argument>
+                                        <argument>--win-menu</argument>
+                                        <argument>--win-dir-chooser</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Step 4: ensure the main jar declares its main-class so jpackage can launch it -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.4.1</version>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>com.raez.model.MainLauncher</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+            Demo profile (D6.5) — recruiter-friendly offline mode.
+            Run with:  mvn -Pdemo javafx:run
+            Non-destructive: forces local image storage (no Cloudinary creds
+            needed) and lets DBConnection seed a fresh DB only if raez.db is
+            missing. Will NOT wipe an existing DB. To explicitly wipe, run
+            with -Draez.db.reset=true alongside the profile.
+        -->
+        <profile>
+            <id>demo</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.openjfx</groupId>
+                        <artifactId>javafx-maven-plugin</artifactId>
+                        <configuration>
+                            <mainClass>com.raez.model.MainLauncher</mainClass>
+                            <options>
+                                <option>-Draez.storage=local</option>
+                            </options>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

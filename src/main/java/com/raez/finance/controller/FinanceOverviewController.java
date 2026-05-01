@@ -64,8 +64,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceOverviewController implements FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceOverviewController.class);
+
 
     private static final String VIEW_PATH  = "/com/raez/finance/view/";
     private static final String[] PIE_COLORS = {
@@ -344,7 +348,7 @@ public class FinanceOverviewController implements FinanceUiAutoRefreshable {
             @Override
             protected void failed() {
                 Throwable ex = getException();
-                if (ex != null) ex.printStackTrace();
+                if (ex != null) log.error("Error", ex);
             }
         };
 
@@ -1036,7 +1040,7 @@ public class FinanceOverviewController implements FinanceUiAutoRefreshable {
             Parent root = FXMLLoader.load(url);
             mainLayoutController.setContent(root);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Error", ex);
         }
     }
 

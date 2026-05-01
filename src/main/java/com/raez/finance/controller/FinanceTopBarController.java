@@ -37,8 +37,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceTopBarController {
+    private static final Logger log = LoggerFactory.getLogger(FinanceTopBarController.class);
+
 
     private static final String VIEW_PATH        = "/com/raez/finance/view/";
     private static final int    SUGGESTION_LIMIT = 5;
@@ -664,7 +668,7 @@ public class FinanceTopBarController {
             }
             mainLayoutController.setContent(root);
         } catch (Exception ex) {
-            System.err.println("[FinanceTopBar] Navigation failed: " + ex.getMessage());
+            log.error("{}", "[FinanceTopBar] Navigation failed: " + ex.getMessage());
         }
     }
 

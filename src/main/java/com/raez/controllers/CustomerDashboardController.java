@@ -25,8 +25,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomerDashboardController {
+    private static final Logger log = LoggerFactory.getLogger(CustomerDashboardController.class);
+
 
     // Header
     @FXML private Label customerNameLabel;
@@ -119,7 +123,7 @@ public class CustomerDashboardController {
                 lastNameField.setText(parts.length > 1 ? parts[1] : "");
             }
             emailField.setText(currentUser.getEmail());
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
 
         // Load profile (phone, address)
         try {
@@ -128,7 +132,7 @@ public class CustomerDashboardController {
                 phoneField.setText(nvl(currentProfile.getPhone()));
                 addressField.setText(nvl(currentProfile.getAddress()));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
 
         // Load preferences
         try {
@@ -142,13 +146,13 @@ public class CustomerDashboardController {
                     notificationsCombo.setValue(notif);
                 deliveryInstructionsField.setText(nvl(prefs.getDeliveryInstructions()));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
 
         // Load orders
         try {
             ordersTable.setItems(FXCollections.observableArrayList(
                 orderDAO.getOrdersByUserId(currentUser.getId())));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     // ── TAB SWITCHING ──────────────────────────────────────────────────────

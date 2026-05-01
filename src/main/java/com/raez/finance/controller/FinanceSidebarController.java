@@ -23,8 +23,12 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceSidebarController {
+    private static final Logger log = LoggerFactory.getLogger(FinanceSidebarController.class);
+
 
     private static final String VIEW_PATH    = "/com/raez/finance/view/";
     private static final String CHEVRON_DOWN = "M19 9l-7 7-7-7";
@@ -90,7 +94,7 @@ public class FinanceSidebarController {
                     StandardOpenOption.APPEND
             );
         } catch (Exception e) {
-            System.err.println("[agentLog:FinanceSidebar] failed to write log: " + e.getMessage());
+            log.error("{}", "[agentLog:FinanceSidebar] failed to write log: " + e.getMessage());
         }
     }
 
@@ -269,7 +273,7 @@ public class FinanceSidebarController {
                      "fxmlName=" + fxmlName + ";urlNull=" + (url == null));
 
             if (url == null) {
-                System.err.println("[FinanceSidebar] Resource not found: " + fxmlName);
+                log.error("{}", "[FinanceSidebar] Resource not found: " + fxmlName);
                 return;
             }
 
@@ -313,8 +317,8 @@ public class FinanceSidebarController {
             setActiveButton(activeBtn);
 
         } catch (Exception ex) {
-            System.err.println("[FinanceSidebar] Failed to load " + fxmlName + ": " + ex.getMessage());
-            ex.printStackTrace();
+            log.error("{}", "[FinanceSidebar] Failed to load " + fxmlName + ": " + ex.getMessage());
+            log.error("Error", ex);
         }
     }
 

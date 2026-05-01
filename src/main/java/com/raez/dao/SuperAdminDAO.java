@@ -11,8 +11,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SuperAdminDAO {
+    private static final Logger log = LoggerFactory.getLogger(SuperAdminDAO.class);
+
 
     public int countActiveUsers() {
         return countScalar(
@@ -68,7 +72,7 @@ public class SuperAdminDAO {
                 out.add(u);
             }
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.listAllUsers failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.listAllUsers failed: " + e.getMessage());
         }
         return out;
     }
@@ -80,7 +84,7 @@ public class SuperAdminDAO {
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) out.add(rs.getString("roleName"));
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.listRoleNames failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.listRoleNames failed: " + e.getMessage());
         }
         return out;
     }
@@ -120,7 +124,7 @@ public class SuperAdminDAO {
             c.setAutoCommit(true);
             return userId;
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.createUser failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.createUser failed: " + e.getMessage());
             return -1;
         }
     }
@@ -133,7 +137,7 @@ public class SuperAdminDAO {
             ps.setInt(2, userID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.setUserActive failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.setUserActive failed: " + e.getMessage());
             return false;
         }
     }
@@ -161,7 +165,7 @@ public class SuperAdminDAO {
             c.setAutoCommit(true);
             return true;
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.updateUser failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.updateUser failed: " + e.getMessage());
             return false;
         }
     }
@@ -172,7 +176,7 @@ public class SuperAdminDAO {
             ps.setInt(1, userID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.deleteUser failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.deleteUser failed: " + e.getMessage());
             return false;
         }
     }

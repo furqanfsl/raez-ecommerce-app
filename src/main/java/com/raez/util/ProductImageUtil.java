@@ -12,8 +12,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ProductImageUtil {
+    private static final Logger log = LoggerFactory.getLogger(ProductImageUtil.class);
+
 
     private static final Path SOURCE_IMAGE_DIR = Path.of(
         System.getProperty("user.dir"), "src", "main", "resources", "images", "products");
@@ -104,7 +108,7 @@ public final class ProductImageUtil {
                 return new Image(url, true);
             }
         } catch (Exception e) {
-            System.err.println("ProductImageUtil.loadFromProductPath: " + e.getMessage());
+            log.error("{}", "ProductImageUtil.loadFromProductPath: " + e.getMessage());
         }
         return null;
     }

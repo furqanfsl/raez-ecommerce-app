@@ -13,8 +13,12 @@ import com.raez.storage.ImageStorageFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductService {
+    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
+
 
     private final ProductDAO   productDAO   = new ProductDAO();
     private final CategoryDAO  categoryDAO  = new CategoryDAO();
@@ -92,7 +96,7 @@ public class ProductService {
             try {
                 IMAGE_STORAGE.delete(oldPublicIdToDelete);
             } catch (Exception ex) {
-                System.err.println("Old image delete failed (publicId=" + oldPublicIdToDelete
+                log.error("{}", "Old image delete failed (publicId=" + oldPublicIdToDelete
                     + "): " + ex.getMessage());
             }
         }
@@ -132,10 +136,10 @@ public class ProductService {
     private void autoCheckStatus(int productId, int stock, String name) {
         if (stock == 0) {
             productDAO.setStatus(productId, "INACTIVE");
-            System.out.println("Auto-INACTIVE: '" + name + "' (stock = 0)");
+            log.info("{}", "Auto-INACTIVE: '" + name + "' (stock = 0)");
         } else {
             productDAO.setStatus(productId, "ACTIVE");
-            System.out.println("Auto-ACTIVE: '" + name + "' (stock = " + stock + ")");
+            log.info("{}", "Auto-ACTIVE: '" + name + "' (stock = " + stock + ")");
         }
     }
 
@@ -192,10 +196,10 @@ public class ProductService {
                 p.stock = (int) s[4];
                 add(p, List.of((String) s[5]), List.of((String) s[6]));
             } catch (Exception e) {
-                System.err.println("Seed failed for " + s[1] + ": " + e.getMessage());
+                log.error("{}", "Seed failed for " + s[1] + ": " + e.getMessage());
             }
         }
-        System.out.println("Seed data loaded successfully.");
+        log.info("{}", "Seed data loaded successfully.");
     }
 
     // ── Private helpers ──────────────────────────────────

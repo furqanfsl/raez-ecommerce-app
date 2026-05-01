@@ -8,6 +8,7 @@ import com.raez.service.ProductService;
 import com.raez.util.GlassPlaceholder;
 import com.raez.util.ProductImageUtil;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -16,6 +17,7 @@ import java.util.HashSet;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -27,8 +29,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductListController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductListController.class);
+
 
     @FXML private VBox  productContainer;
     @FXML private Label itemCountLabel;
@@ -117,9 +123,46 @@ public class ProductListController implements Initializable {
         loadProducts();
     }
 
+    /**
+     * D6.3: kicks off the DB query off the FX thread, shows a ProgressIndicator
+     * while it runs, then renders on success. Update-UI work stays on the FX
+     * thread (Task.setOnSucceeded fires there). Pattern to copy elsewhere:
+     *   1. Show spinner placeholder synchronously.
+     *   2. Task<T>.call() does the DAO hit (no UI access here).
+     *   3. setOnSucceeded → render with task.getValue().
+     *   4. setOnFailed   → log + show inline error.
+     */
     public void loadProducts() {
-        List<Product> all = service.getActive();
+        if (productContainer == null) {
+            log.error("productContainer is NULL");
+            return;
+        }
+        productContainer.getChildren().clear();
 
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setMaxSize(60, 60);
+        VBox spinnerBox = new VBox(spinner);
+        spinnerBox.setAlignment(Pos.CENTER);
+        spinnerBox.setPadding(new Insets(40));
+        productContainer.getChildren().add(spinnerBox);
+
+        Task<List<Product>> task = new Task<>() {
+            @Override protected List<Product> call() { return service.getActive(); }
+        };
+        task.setOnSucceeded(e -> renderProducts(task.getValue()));
+        task.setOnFailed(e -> {
+            log.error("loadProducts failed", task.getException());
+            productContainer.getChildren().clear();
+            Label err = new Label("Failed to load products.");
+            err.setStyle("-fx-text-fill: #f87171; -fx-padding: 40;");
+            productContainer.getChildren().add(err);
+        });
+        Thread t = new Thread(task, "load-products");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void renderProducts(List<Product> all) {
         List<Product> products = all.stream()
             .filter(p -> {
                 if (!searchText.isEmpty()) {
@@ -153,15 +196,10 @@ public class ProductListController implements Initializable {
             case RECOMMENDED -> { /* keep service order */ }
         }
 
-        System.out.println("Products loaded: " + products.size());
+        log.info("{}", "Products loaded: " + products.size());
 
         if (itemCountLabel != null)
             itemCountLabel.setText(products.size() + " items");
-
-        if (productContainer == null) {
-            System.err.println("productContainer is NULL");
-            return;
-        }
 
         productContainer.getChildren().clear();
 
@@ -521,10 +559,10 @@ public class ProductListController implements Initializable {
                     return; // success — stop retrying
                 }
 
-                System.err.println("Image attempt " + attempt + " failed (not found/error): " + productName);
+                log.error("{}", "Image attempt " + attempt + " failed (not found/error): " + productName);
 
             } catch (Exception e) {
-                System.err.println("Image attempt " + attempt + " failed (" + e.getMessage() + "): " + productName);
+                log.error("{}", "Image attempt " + attempt + " failed (" + e.getMessage() + "): " + productName);
             }
 
             // Wait before retrying
@@ -532,6 +570,6 @@ public class ProductListController implements Initializable {
                 try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
             }
         }
-        System.err.println("All image attempts failed for: " + productName);
+        log.error("{}", "All image attempts failed for: " + productName);
     }
 }

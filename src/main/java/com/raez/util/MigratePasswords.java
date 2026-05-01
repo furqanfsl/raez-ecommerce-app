@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * One-shot migration from SHA-256 password hashes to BCrypt ($2a$).
@@ -28,6 +30,8 @@ import java.util.Map;
  * Run: mvn exec:java -Dexec.mainClass=com.raez.util.MigratePasswords
  */
 public final class MigratePasswords {
+    private static final Logger log = LoggerFactory.getLogger(MigratePasswords.class);
+
 
     private static final Map<String, String> KNOWN_SHA256 = Map.ofEntries(
         // SHA-256("raez123")  — standardised demo customer / staff password
@@ -63,7 +67,7 @@ public final class MigratePasswords {
                     + csv(rs.getString("passwordHash")) + "\n");
             }
         }
-        System.out.println("Backup written: " + backup);
+        log.info("{}", "Backup written: " + backup);
 
         int migrated = 0, alreadyBcrypt = 0, unknown = 0, empty = 0;
 
@@ -80,7 +84,7 @@ public final class MigratePasswords {
                 String hash  = rs.getString("passwordHash");
 
                 if (hash == null || hash.isBlank()) {
-                    System.out.println("  [skip empty]  userID=" + id + " email=" + email);
+                    log.info("{}", "  [skip empty]  userID=" + id + " email=" + email);
                     empty++;
                     continue;
                 }
@@ -90,7 +94,7 @@ public final class MigratePasswords {
                 }
                 String plain = KNOWN_SHA256.get(hash.toLowerCase());
                 if (plain == null) {
-                    System.err.println("  [WARN unknown]  userID=" + id + " email=" + email
+                    log.error("{}", "  [WARN unknown]  userID=" + id + " email=" + email
                         + " — hash not in known-plaintext map. User must reset password.");
                     unknown++;
                     continue;
@@ -103,7 +107,7 @@ public final class MigratePasswords {
             }
         }
 
-        System.out.println("Migrated " + migrated + " users (skipped "
+        log.info("{}", "Migrated " + migrated + " users (skipped "
             + alreadyBcrypt + " already-hashed, "
             + unknown + " unknown, "
             + empty + " empty)");

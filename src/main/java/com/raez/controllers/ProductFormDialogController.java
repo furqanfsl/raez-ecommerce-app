@@ -25,8 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductFormDialogController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductFormDialogController.class);
+
 
     @FXML private Label       dialogTitle;
     @FXML private TextField   nameField;
@@ -151,7 +155,7 @@ public class ProductFormDialogController implements Initializable {
                 stagedImageUrl = url;
                 stagedImagePublicId = IMAGE_STORAGE.getPublicIdFromUrl(url);
             } catch (Exception cloudFail) {
-                System.err.println("Cloud upload failed, copying locally: " + cloudFail.getMessage());
+                log.error("{}", "Cloud upload failed, copying locally: " + cloudFail.getMessage());
                 url = ProductImageUtil.copyImageToResources(selected);
                 stagedImageUrl = null;
                 stagedImagePublicId = null;

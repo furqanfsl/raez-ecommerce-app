@@ -10,8 +10,12 @@ import javafx.scene.control.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AdminLoginModalController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(AdminLoginModalController.class);
+
 
     @FXML private TextField     emailField;
     @FXML private PasswordField passwordField;
@@ -58,7 +62,7 @@ public class AdminLoginModalController implements Initializable {
 
         } catch (Exception e) {
             showError("Login error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 

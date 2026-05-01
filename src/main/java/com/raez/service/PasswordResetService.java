@@ -10,12 +10,16 @@ import java.sql.SQLException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles password recovery: generates a short recovery code, stores it in
  * password_reset_tokens, and sends it to the user via EmailService.
  */
 public class PasswordResetService {
+    private static final Logger log = LoggerFactory.getLogger(PasswordResetService.class);
+
 
     private static final SecureRandom RNG = new SecureRandom();
 
@@ -56,7 +60,7 @@ public class PasswordResetService {
                 return rs.next() ? rs.getInt(1) : null;
             }
         } catch (SQLException e) {
-            System.err.println("PasswordResetService.findUserId failed: " + e.getMessage());
+            log.error("{}", "PasswordResetService.findUserId failed: " + e.getMessage());
             return null;
         }
     }
@@ -71,7 +75,7 @@ public class PasswordResetService {
             ps.setString(3, expiry);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("PasswordResetService.storeToken failed: " + e.getMessage());
+            log.error("{}", "PasswordResetService.storeToken failed: " + e.getMessage());
             return false;
         }
     }
@@ -117,7 +121,7 @@ public class PasswordResetService {
                 return ResetResult.SUCCESS;
             }
         } catch (SQLException e) {
-            System.err.println("PasswordResetService.verifyAndReset failed: " + e.getMessage());
+            log.error("{}", "PasswordResetService.verifyAndReset failed: " + e.getMessage());
             return ResetResult.FAILED;
         }
     }

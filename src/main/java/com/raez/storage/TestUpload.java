@@ -5,12 +5,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestUpload {
+    private static final Logger log = LoggerFactory.getLogger(TestUpload.class);
+
     public static void main(String[] args) throws Exception {
         Path dir = Path.of("src/main/resources/images/products");
         if (!Files.isDirectory(dir)) {
-            System.err.println("Image directory not found: " + dir.toAbsolutePath());
+            log.error("{}", "Image directory not found: " + dir.toAbsolutePath());
             System.exit(1);
         }
         Optional<Path> first;
@@ -18,20 +22,20 @@ public class TestUpload {
             first = s.filter(Files::isRegularFile).findFirst();
         }
         if (first.isEmpty()) {
-            System.err.println("No files found in " + dir.toAbsolutePath());
+            log.error("{}", "No files found in " + dir.toAbsolutePath());
             System.exit(1);
         }
         File file = first.get().toFile();
-        System.out.println("Uploading: " + file.getAbsolutePath());
+        log.info("{}", "Uploading: " + file.getAbsolutePath());
 
         ImageStorage storage = ImageStorageFactory.create();
-        System.out.println("Storage: " + storage.getClass().getSimpleName());
+        log.info("{}", "Storage: " + storage.getClass().getSimpleName());
 
         long t0 = System.currentTimeMillis();
         String url = storage.upload(file);
         long ms = System.currentTimeMillis() - t0;
 
-        System.out.println("URL: " + url);
-        System.out.println("Time: " + ms + "ms");
+        log.info("{}", "URL: " + url);
+        log.info("{}", "Time: " + ms + "ms");
     }
 }

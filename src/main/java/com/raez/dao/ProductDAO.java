@@ -6,12 +6,16 @@ import com.raez.model.Product;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * All SQL operations for the {@code products} table.
  * Does NOT load categories/images — ProductService handles that.
  */
 public class ProductDAO {
+    private static final Logger log = LoggerFactory.getLogger(ProductDAO.class);
+
 
     private Connection conn() { return DBConnection.getInstance().getConnection(); }
 
@@ -23,8 +27,8 @@ public class ProductDAO {
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            System.err.println("ProductDAO.getAll: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "ProductDAO.getAll: " + e.getMessage());
+            log.error("Error", e);
         }
         return list;
     }
@@ -37,7 +41,7 @@ public class ProductDAO {
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            System.err.println("ProductDAO.getActive: " + e.getMessage());
+            log.error("{}", "ProductDAO.getActive: " + e.getMessage());
         }
         return list;
     }
@@ -50,7 +54,7 @@ public class ProductDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return map(rs);
         } catch (SQLException e) {
-            System.err.println("ProductDAO.getById: " + e.getMessage());
+            log.error("{}", "ProductDAO.getById: " + e.getMessage());
         }
         return null;
     }
@@ -70,7 +74,21 @@ public class ProductDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            System.err.println("ProductDAO.search: " + e.getMessage());
+            log.error("{}", "ProductDAO.search: " + e.getMessage());
+        }
+        return list;
+    }
+
+    /** Filter products by categoryID. Returns only products with the given primary category. */
+    public List<Product> findByCategory(int categoryId) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT * FROM products WHERE categoryID = ? ORDER BY name";
+        try (PreparedStatement ps = conn().prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) list.add(map(rs));
+        } catch (SQLException e) {
+            log.error("{}", "ProductDAO.findByCategory: " + e.getMessage());
         }
         return list;
     }
@@ -85,7 +103,7 @@ public class ProductDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            System.err.println("ProductDAO.filterByPrice: " + e.getMessage());
+            log.error("{}", "ProductDAO.filterByPrice: " + e.getMessage());
         }
         return list;
     }
@@ -99,7 +117,7 @@ public class ProductDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            System.err.println("ProductDAO.filterByStatus: " + e.getMessage());
+            log.error("{}", "ProductDAO.filterByStatus: " + e.getMessage());
         }
         return list;
     }
@@ -150,7 +168,7 @@ public class ProductDAO {
                 return id;
             }
         } catch (SQLException e) {
-            System.err.println("ProductDAO.insert: " + e.getMessage());
+            log.error("{}", "ProductDAO.insert: " + e.getMessage());
         }
         return -1;
     }
@@ -200,7 +218,7 @@ public class ProductDAO {
             ps.setInt(11, p.productID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("ProductDAO.update: " + e.getMessage());
+            log.error("{}", "ProductDAO.update: " + e.getMessage());
             return false;
         }
     }
@@ -281,18 +299,18 @@ public class ProductDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("ProductDAO.delete: " + e.getMessage());
+            log.error("{}", "ProductDAO.delete: " + e.getMessage());
             try {
                 conn.rollback();
             } catch (SQLException ex) {
-                System.err.println("ProductDAO.delete rollback failed: " + ex.getMessage());
+                log.error("{}", "ProductDAO.delete rollback failed: " + ex.getMessage());
             }
             return false;
         } finally {
             try {
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
-                System.err.println("ProductDAO.delete autoCommit reset failed: " + e.getMessage());
+                log.error("{}", "ProductDAO.delete autoCommit reset failed: " + e.getMessage());
             }
         }
     }
@@ -305,7 +323,7 @@ public class ProductDAO {
             ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("ProductDAO.setStatus: " + e.getMessage());
+            log.error("{}", "ProductDAO.setStatus: " + e.getMessage());
             return false;
         }
     }
@@ -341,7 +359,7 @@ public class ProductDAO {
                         new double[]{rs.getDouble("avg"), rs.getInt("cnt")});
             }
         } catch (SQLException e) {
-            System.err.println("ProductDAO.getRatingsMap: " + e.getMessage());
+            log.error("{}", "ProductDAO.getRatingsMap: " + e.getMessage());
         }
         return map;
     }
