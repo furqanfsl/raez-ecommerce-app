@@ -6,6 +6,7 @@ import com.raez.model.User;
 import com.raez.orders.dao.OrderDAO;
 import com.raez.util.Validators;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -69,32 +70,48 @@ public class CartController {
         User user = NavigationRouter.getInstance().getCurrentUser();
         if (user == null) { setStatus("Not logged in.", false); return; }
 
-        int customerId = orderDAO.getCustomerIdByUserId(user.userID);
-        if (customerId < 0) {
-            setStatus("Customer record not found. Please contact support.", false);
-            return;
-        }
-
-        String address = addressField.getText().trim();
-        if (address.isEmpty()) {
-            User u = NavigationRouter.getInstance().getCurrentUser();
-            address = u.email;
-        }
-
+        // Boundary validation up-front, on the FX thread, before going off-thread.
         try {
-            // Boundary validation: every cart item must have a positive quantity and price.
             for (var item : cartManager.getItems().values()) {
                 Validators.positiveInt(item.quantity, "Quantity for '" + item.productName + "'");
                 Validators.positive(item.price, "Price for '" + item.productName + "'");
             }
-            int orderId = orderDAO.createOrder(customerId, cartManager.getItems(), address);
+        } catch (Exception e) {
+            setStatus("Checkout failed: " + e.getMessage(), false);
+            return;
+        }
+
+        String addr = addressField.getText().trim();
+        if (addr.isEmpty()) addr = user.email;
+        final String address = addr;
+        final int userId = user.userID;
+        final Map<Integer, CartManager.CartItem> snapshot = Map.copyOf(cartManager.getItems());
+
+        checkoutBtn.setDisable(true);
+        setStatus("Placing order…", true);
+
+        Task<Integer> task = new Task<>() {
+            @Override protected Integer call() throws Exception {
+                int customerId = orderDAO.getCustomerIdByUserId(userId);
+                if (customerId < 0) throw new IllegalStateException("Customer record not found.");
+                return orderDAO.createOrder(customerId, snapshot, address);
+            }
+        };
+        task.setOnSucceeded(ev -> {
+            int orderId = task.getValue();
             cartManager.clear();
             refreshCart();
             setStatus("Order #" + orderId + " placed! Status: Processing.\n" +
                       "The warehouse will pack it shortly.", true);
-        } catch (Exception e) {
-            setStatus("Checkout failed: " + e.getMessage(), false);
-        }
+        });
+        task.setOnFailed(ev -> {
+            checkoutBtn.setDisable(cartManager.isEmpty());
+            Throwable t = task.getException();
+            setStatus("Checkout failed: " + (t == null ? "unknown" : t.getMessage()), false);
+        });
+        Thread thread = new Thread(task, "checkout-" + userId);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void refreshCart() {
