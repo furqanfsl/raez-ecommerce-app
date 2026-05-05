@@ -67,6 +67,7 @@ public class ProductService {
         saveCategories(id, categoryNames);
         saveImages(id, imageUrls);
         inventoryDAO.setStock(id, p.stock);
+        autoCheckStatus(id, p.stock, p.name);
 
         return getById(id);
     }

@@ -2,7 +2,7 @@ package com.raez.service;
 
 import com.raez.db.DBConnection;
 import com.raez.model.User;
-import org.mindrot.jbcrypt.BCrypt;
+import com.raez.util.PasswordVerifier;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +27,8 @@ public final class AuthService {
 
     /**
      * Looks up the user by email, then verifies the supplied plaintext against
-     * the stored BCrypt hash via {@link BCrypt#checkpw(String, String)}.
+     * the stored hash via {@link PasswordVerifier#verify(String, String)}
+     * (BCrypt for migrated rows, SHA-256 fallback for legacy seed rows).
      */
     public static Optional<AuthenticatedSession> authenticate(String email, String password) {
         if (email == null || email.isBlank() || password == null) {
@@ -69,7 +70,7 @@ public final class AuthService {
             if (userId == null || storedHash == null || storedHash.isBlank()) {
                 return Optional.empty();
             }
-            if (!BCrypt.checkpw(password, storedHash)) {
+            if (!PasswordVerifier.verify(password, storedHash)) {
                 return Optional.empty();
             }
             String chosenRole = pickRoleForRouting(roleNames);
@@ -78,9 +79,6 @@ public final class AuthService {
         } catch (SQLException e) {
             log.error("{}", "AuthService.authenticate: " + e.getMessage());
             log.error("Error", e);
-            return Optional.empty();
-        } catch (IllegalArgumentException e) {
-            // Stored hash isn't valid BCrypt format (legacy / corrupted) — treat as auth failure.
             return Optional.empty();
         }
     }

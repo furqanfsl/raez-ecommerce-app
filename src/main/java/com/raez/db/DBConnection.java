@@ -38,10 +38,18 @@ public class DBConnection {
         if (override != null && !override.isBlank()) {
             return Paths.get(override.trim()).toAbsolutePath().normalize().toString();
         }
-        return Paths.get(System.getProperty("user.dir"), "raez.db")
+        // Prefer the working directory when it's writable (dev mode: repo root).
+        // Fall back to ~/.raez/raez.db when it isn't (installed app launched from
+        // Program Files, where SQLite would otherwise hit "Access is denied").
+        Path cwd = Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize();
+        if (Files.isWritable(cwd)) {
+            return cwd.resolve("raez.db").toString();
+        }
+        Path userHome = Paths.get(System.getProperty("user.home"), ".raez", "raez.db")
             .toAbsolutePath()
-            .normalize()
-            .toString();
+            .normalize();
+        log.info("{}", "Working dir not writable; using DB at " + userHome);
+        return userHome.toString();
     }
 
     // SHA-256("raez123") — standardised demo password for all customer accounts
@@ -68,6 +76,88 @@ public class DBConnection {
         }
         migrateCollectionProducts();
         migrateRoboticsStoreCatalog();
+        migrateProductImageBackfill();
+        migrateProductImageDefaults();
+    }
+
+    /**
+     * Backfills the real Cloudinary imageUrls captured from the dev DB for every
+     * SKU that was uploaded through the admin UI. Idempotent — every UPDATE is
+     * gated by {@code WHERE imageUrl IS NULL OR imageUrl = ''}, so a dev DB with
+     * its own uploads is never overwritten.
+     */
+    private void migrateProductImageBackfill() {
+        try {
+            executeSqlFile("/raez_migration_v4_image_backfill.sql");
+        } catch (RuntimeException e) {
+            log.error("{}", "migrateProductImageBackfill warning: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Idempotent: assigns a public placeholder image URL to any product whose
+     * imageUrl is still NULL. Lets a freshly-installed app (e.g. the jpackage
+     * .exe spinning up `~/.raez/raez.db`) render a populated catalog without
+     * the recruiter needing Cloudinary creds. Skipped per-row when the user
+     * has already uploaded a real image, so dev DBs aren't overwritten.
+     */
+    private void migrateProductImageDefaults() {
+        // Series flagships + a per-category fallback. Public Unsplash CDN URLs.
+        String robotMain     = "https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=600&q=80";
+        String robotMini     = "https://images.unsplash.com/photo-1561144257-e32e8506bda8?w=600&q=80";
+        String robotAccessor = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80";
+        String robotService  = "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=80";
+
+        java.util.Map<String, String> bySku = java.util.Map.ofEntries(
+            java.util.Map.entry("HTR-001", "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&q=80"),
+            java.util.Map.entry("HTR-013", "https://images.unsplash.com/photo-1546776230-bb86256870ce?w=600&q=80"),
+            java.util.Map.entry("HTR-025", "https://images.unsplash.com/photo-1564466809058-bf4114d55352?w=600&q=80"),
+            java.util.Map.entry("HTR-037", "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=600&q=80"),
+            java.util.Map.entry("HTR-049", "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=80"),
+            java.util.Map.entry("HTR-050", "https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=600&q=80"),
+            java.util.Map.entry("HTR-051", "https://images.unsplash.com/photo-1605379399642-870262d3d051?w=600&q=80")
+        );
+
+        try {
+            // Per-SKU overrides for series flagships.
+            try (java.sql.PreparedStatement ps = connection.prepareStatement(
+                    "UPDATE products SET imageUrl = ? WHERE sku = ? AND (imageUrl IS NULL OR imageUrl = '')")) {
+                for (var entry : bySku.entrySet()) {
+                    ps.setString(1, entry.getValue());
+                    ps.setString(2, entry.getKey());
+                    ps.executeUpdate();
+                }
+            }
+
+            // Per-category fallbacks for any HTR product still without an image.
+            String catUpdate =
+                "UPDATE products SET imageUrl = ? " +
+                "WHERE (imageUrl IS NULL OR imageUrl = '') " +
+                "  AND sku LIKE 'HTR-%' " +
+                "  AND categoryID IN (SELECT categoryID FROM categories WHERE categoryName = ?)";
+            try (java.sql.PreparedStatement ps = connection.prepareStatement(catUpdate)) {
+                for (Object[] pair : new Object[][]{
+                        {robotMain, "Main Robot"},
+                        {robotMini, "Mini Robot"},
+                        {robotAccessor, "Accessory"},
+                        {robotService, "Service"}}) {
+                    ps.setString(1, (String) pair[0]);
+                    ps.setString(2, (String) pair[1]);
+                    ps.executeUpdate();
+                }
+            }
+
+            // Catch-all for any remaining product with no image (non-HTR).
+            try (Statement st = connection.createStatement()) {
+                st.executeUpdate(
+                    "UPDATE products SET imageUrl = '" + robotMain + "' " +
+                    "WHERE imageUrl IS NULL OR imageUrl = ''");
+            }
+
+            log.info("{}", "migrateProductImageDefaults: ensured placeholder imageUrls.");
+        } catch (SQLException e) {
+            log.error("{}", "migrateProductImageDefaults warning: " + e.getMessage());
+        }
     }
 
     /**

@@ -228,7 +228,11 @@
                                         <argument>--main-jar</argument>      <argument>${project.build.finalName}.jar</argument>
                                         <argument>--main-class</argument>    <argument>com.raez.model.MainLauncher</argument>
                                         <argument>--dest</argument>          <argument>${project.build.directory}/installer</argument>
-                                        <argument>--icon</argument>          <argument>${project.basedir}/src/main/resources/icon.png</argument>
+                                        <argument>--icon</argument>          <argument>${project.basedir}/src/main/resources/icon.ico</argument>
+                                        <!-- JDK modules JavaFX needs at runtime; without these the bundled
+                                             jlink runtime is too minimal and the launcher fails with
+                                             "Failed to launch JVM". -->
+                                        <argument>--add-modules</argument>   <argument>java.base,java.desktop,java.logging,java.naming,java.scripting,java.sql,java.xml,jdk.unsupported,jdk.crypto.ec</argument>
                                         <argument>--win-shortcut</argument>
                                         <argument>--win-menu</argument>
                                         <argument>--win-dir-chooser</argument>

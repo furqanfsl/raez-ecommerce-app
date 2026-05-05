@@ -3,6 +3,7 @@ package com.raez.customer.dao;
 import com.raez.customer.model.CustomerProfile;
 import com.raez.customer.model.CustomerUser;
 import com.raez.db.DBConnection;
+import com.raez.util.PasswordVerifier;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
@@ -26,12 +27,7 @@ public class CustomerDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 String storedHash = rs.getString("passwordHash");
-                if (storedHash == null || storedHash.isBlank()) return null;
-                try {
-                    if (BCrypt.checkpw(password, storedHash)) return mapUser(rs);
-                } catch (IllegalArgumentException e) {
-                    return null; // legacy / corrupted hash
-                }
+                if (PasswordVerifier.verify(password, storedHash)) return mapUser(rs);
             }
         }
         return null;
