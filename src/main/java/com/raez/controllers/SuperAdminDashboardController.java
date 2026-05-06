@@ -47,6 +47,7 @@ public class SuperAdminDashboardController implements Initializable {
     @FXML private TextField     smtpUsernameField;
     @FXML private PasswordField smtpPasswordField;
     @FXML private TextField     smtpFromField;
+    @FXML private TextField     smtpFromNameField;
     @FXML private CheckBox      smtpTlsBox;
     @FXML private CheckBox      smtpEnabledBox;
     @FXML private Label         smtpStatusLabel;
@@ -189,27 +190,20 @@ public class SuperAdminDashboardController implements Initializable {
 
     private void loadSmtp() {
         SmtpSettings s = smtpDao.load();
-        smtpHostField    .setText(s.host);
+        smtpHostField    .setText(s.host        != null ? s.host        : "");
         smtpPortField    .setText(String.valueOf(s.port));
-        smtpUsernameField.setText(s.username);
-        smtpPasswordField.setText(s.password);
-        smtpFromField    .setText(s.fromAddress);
+        smtpUsernameField.setText(s.username    != null ? s.username    : "");
+        smtpPasswordField.setText(s.password    != null ? s.password    : "");
+        smtpFromField    .setText(s.fromAddress != null ? s.fromAddress : "");
+        if (smtpFromNameField != null)
+            smtpFromNameField.setText(s.fromName != null ? s.fromName : "RAEZ");
         smtpTlsBox       .setSelected(s.useTls);
         smtpEnabledBox   .setSelected(s.isEnabled);
     }
 
     @FXML
     private void handleSaveSmtp() {
-        SmtpSettings s = new SmtpSettings();
-        s.host        = smtpHostField.getText().trim();
-        s.username    = smtpUsernameField.getText().trim();
-        s.password    = smtpPasswordField.getText();
-        s.fromAddress = smtpFromField.getText().trim();
-        s.useTls      = smtpTlsBox.isSelected();
-        s.isEnabled   = smtpEnabledBox.isSelected();
-        try { s.port = Integer.parseInt(smtpPortField.getText().trim()); }
-        catch (NumberFormatException e) { s.port = 587; }
-
+        SmtpSettings s = buildSmtpFromFields();
         if (smtpDao.save(s)) {
             smtpStatusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #16a34a;");
             smtpStatusLabel.setText("SMTP settings saved.");
@@ -217,6 +211,53 @@ public class SuperAdminDashboardController implements Initializable {
             smtpStatusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #dc2626;");
             smtpStatusLabel.setText("Failed to save SMTP settings.");
         }
+    }
+
+    @FXML
+    private void handleTestSmtp() {
+        SmtpSettings s = buildSmtpFromFields();
+        if (!s.isEnabled || s.host == null || s.host.isBlank()) {
+            smtpStatusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #f59e0b;");
+            smtpStatusLabel.setText("SMTP is not enabled — tick \"Enable email sending\" and Save first.");
+            return;
+        }
+        // Send to the SMTP username (the real inbox); fromAddress may be an alias
+        String dest = s.username != null && !s.username.isBlank() ? s.username : s.fromAddress;
+        if (dest == null || dest.isBlank()) {
+            smtpStatusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #dc2626;");
+            smtpStatusLabel.setText("Fill in the Username field first — the test email goes there.");
+            return;
+        }
+        smtpStatusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #6b7280;");
+        smtpStatusLabel.setText("Sending test email to " + dest + " …");
+        new Thread(() -> {
+            boolean ok = com.raez.service.EmailService.send(
+                dest, "RAEZ SMTP Test", "If you receive this, your SMTP settings are working correctly.");
+            Platform.runLater(() -> {
+                if (ok) {
+                    smtpStatusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #16a34a;");
+                    smtpStatusLabel.setText("Test email sent to " + dest + ".");
+                } else {
+                    smtpStatusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #dc2626;");
+                    smtpStatusLabel.setText("Test failed — check host/port/credentials or server logs.");
+                }
+            });
+        }, "raez-smtp-test").start();
+    }
+
+    private SmtpSettings buildSmtpFromFields() {
+        SmtpSettings s = new SmtpSettings();
+        s.host        = smtpHostField.getText().trim();
+        s.username    = smtpUsernameField.getText().trim();
+        s.password    = smtpPasswordField.getText();
+        s.fromAddress = smtpFromField.getText().trim();
+        s.fromName    = smtpFromNameField != null && !smtpFromNameField.getText().isBlank()
+                        ? smtpFromNameField.getText().trim() : "RAEZ";
+        s.useTls      = smtpTlsBox.isSelected();
+        s.isEnabled   = smtpEnabledBox.isSelected();
+        try { s.port = Integer.parseInt(smtpPortField.getText().trim()); }
+        catch (NumberFormatException e) { s.port = 587; }
+        return s;
     }
 
     // ── Module navigation ──────────────────────────────────────────────────

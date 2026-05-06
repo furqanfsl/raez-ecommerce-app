@@ -169,6 +169,11 @@
                             </Label>
                             <TextField fx:id="smtpFromField" promptText="no-reply@raez.org.uk" styleClass="admin-input" />
 
+                            <Label text="From Display Name" styleClass="admin-field-label">
+                                <padding><Insets top="2" /></padding>
+                            </Label>
+                            <TextField fx:id="smtpFromNameField" promptText="RAEZ" styleClass="admin-input" />
+
                             <CheckBox fx:id="smtpTlsBox" text="Use TLS" selected="true" />
                             <CheckBox fx:id="smtpEnabledBox" text="Enable email sending" />
 
@@ -179,6 +184,8 @@
                                 <Button text="Save SMTP Settings" onAction="#handleSaveSmtp"
                                         maxWidth="Infinity" HBox.hgrow="ALWAYS"
                                         styleClass="admin-btn-primary" />
+                                <Button text="Send Test Email" onAction="#handleTestSmtp"
+                                        styleClass="admin-btn-secondary" />
                             </HBox>
                         </VBox>
                     </HBox>

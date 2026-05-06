@@ -194,6 +194,35 @@
     -fx-text-fill: white;
 }
 
+/* ─────────────────────────── CheckBox ─────────────────────────── */
+
+/* Modena's default checkbox text can be near-invisible on some platforms;
+   force it to the standard dark text colour everywhere in admin views. */
+.check-box > .label {
+    -fx-text-fill: -raez-text;
+    -fx-font-size: 13;
+}
+.check-box:focused > .label {
+    -fx-text-fill: -raez-text;
+}
+.check-box > .box {
+    -fx-background-color: -raez-bg-card;
+    -fx-border-color: -raez-border-strong;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+}
+.check-box:selected > .box {
+    -fx-background-color: -raez-cyan-dark;
+    -fx-border-color: -raez-cyan-dark;
+}
+.check-box:selected > .box > .mark {
+    -fx-background-color: white;
+}
+.check-box:hover > .box {
+    -fx-border-color: -raez-cyan;
+}
+
 /* ─────────────────────────── Form inputs ─────────────────────────── */
 
 .admin-input,

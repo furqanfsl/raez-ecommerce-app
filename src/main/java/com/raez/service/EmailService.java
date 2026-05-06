@@ -39,6 +39,10 @@ public class EmailService {
         props.put("mail.smtp.host", s.host);
         props.put("mail.smtp.port", String.valueOf(s.port));
         props.put("mail.smtp.auth", s.username != null && !s.username.isBlank() ? "true" : "false");
+        // Fail fast — without these timeouts a wrong host hangs for 60+ seconds
+        props.put("mail.smtp.connectiontimeout", "6000");
+        props.put("mail.smtp.timeout",           "6000");
+        props.put("mail.smtp.writetimeout",      "6000");
         if (s.useTls) {
             props.put("mail.smtp.starttls.enable", "true");
             props.put("mail.smtp.starttls.required", "true");
