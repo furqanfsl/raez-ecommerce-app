@@ -34,7 +34,7 @@ public class PasswordResetService {
         if (userId == null) return Result.EMAIL_NOT_FOUND;
 
         String code = generateCode();
-        String expiry = LocalDateTime.now().plusMinutes(30)
+        String expiry = LocalDateTime.now().plusMinutes(7)
                           .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         if (!storeToken(userId, code, expiry)) return Result.FAILED;
@@ -43,12 +43,33 @@ public class PasswordResetService {
             "Hello,\n\n" +
             "A password reset was requested for your RAEZ account.\n" +
             "Your recovery code: " + code + "\n\n" +
-            "This code expires in 30 minutes.\n" +
+            "This code expires in 7 minutes.\n" +
             "If you did not request this, ignore this email.\n\n" +
             "— RAEZ Support";
 
         boolean sent = EmailService.send(email, "RAEZ Password Recovery Code", body);
         return sent ? Result.SENT : Result.SMTP_DISABLED;
+    }
+
+    /**
+     * Returns the most-recent unused recovery code for this email.
+     * Only called when SMTP is disabled so the dialog can display it directly.
+     */
+    public static String getLatestPendingCode(String email) {
+        String sql =
+            "SELECT t.token FROM password_reset_tokens t " +
+            "JOIN users u ON u.userID = t.userID " +
+            "WHERE u.email = ? AND t.isUsed = 0 " +
+            "ORDER BY t.tokenID DESC LIMIT 1";
+        try (Connection c = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, email.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString("token") : null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static Integer findUserId(String email) {
