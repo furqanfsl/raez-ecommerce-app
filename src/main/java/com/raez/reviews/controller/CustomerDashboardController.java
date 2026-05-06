@@ -106,76 +106,86 @@ public class CustomerDashboardController {
     }
 
     private VBox buildEmptyState(boolean noReviewsAtAll) {
-        VBox box = new VBox(6);
+        VBox box = new VBox(8);
         box.setAlignment(Pos.CENTER);
-        box.setStyle("-fx-padding: 48 0; -fx-background-color: #f9fafb;" +
-                     "-fx-background-radius: 10; -fx-border-color: #e5e7eb;" +
-                     "-fx-border-radius: 10; -fx-border-width: 1;");
+        box.setStyle("-fx-padding: 56 0; -fx-background-color: rgba(13,21,32,0.78);" +
+                     "-fx-background-radius: 18; -fx-border-color: rgba(255,255,255,0.10);" +
+                     "-fx-border-radius: 18; -fx-border-width: 0.5;" +
+                     "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 18, 0.20, 0, 6);");
         Label icon = new Label("★");
-        icon.setStyle("-fx-font-size: 36; -fx-text-fill: #d1d5db;");
+        icon.setStyle("-fx-font-size: 40; -fx-text-fill: rgba(94,234,212,0.45);");
         Label title = new Label(noReviewsAtAll
                 ? "You haven't written any reviews yet."
                 : "No reviews in this time range.");
-        title.setStyle("-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #374151;");
+        title.setStyle("-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: white;");
         Label body = new Label(noReviewsAtAll
-                ? "Once you buy a product and it's delivered, you can leave a review here."
+                ? "Once your order is delivered you have 30 days to leave a review here."
                 : "Try a wider time range.");
-        body.setStyle("-fx-font-size: 13; -fx-text-fill: #6b7280;");
+        body.setStyle("-fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.60);");
         box.getChildren().addAll(icon, title, body);
         return box;
     }
 
     private VBox buildReviewCard(Review r) {
-        VBox card = new VBox(8);
-        card.setStyle("-fx-background-color: white; -fx-padding: 18 22;" +
-                      "-fx-border-color: #e5e7eb; -fx-border-radius: 10;" +
-                      "-fx-background-radius: 10;" +
-                      "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0.1, 0, 1);");
+        VBox card = new VBox(10);
+        card.setStyle("-fx-background-color: rgba(13,21,32,0.78);" +
+                      "-fx-padding: 20 24;" +
+                      "-fx-border-color: rgba(255,255,255,0.10); -fx-border-radius: 18;" +
+                      "-fx-background-radius: 18; -fx-border-width: 0.5;" +
+                      "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 16, 0.18, 0, 6);");
 
-        HBox topRow = new HBox(10);
+        HBox topRow = new HBox(12);
         topRow.setAlignment(Pos.CENTER_LEFT);
         Label product = new Label(r.getProductName() != null ? r.getProductName() : "Product #" + r.getProductId());
-        product.setStyle("-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #111827;");
+        product.setStyle("-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;" +
+                         "-fx-font-size: 15; -fx-font-weight: 900; -fx-text-fill: white;");
         Label stars = new Label(renderStars(r.getRating()));
-        stars.setStyle("-fx-font-size: 14; -fx-text-fill: #f59e0b;");
+        stars.setStyle("-fx-font-size: 13; -fx-text-fill: #fbbf24; -fx-font-weight: bold;");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Label date = new Label(r.getUpdatedAt() != null ? r.getUpdatedAt().format(DATE_FMT) : "");
-        date.setStyle("-fx-font-size: 12; -fx-text-fill: #6b7280;");
+        date.setStyle("-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.50);");
         topRow.getChildren().addAll(product, stars, spacer, date);
 
         Label comment = new Label(r.getComment() == null || r.getComment().isBlank()
                 ? "(no comment)" : r.getComment());
         comment.setWrapText(true);
-        comment.setStyle("-fx-font-size: 13; -fx-text-fill: #374151; -fx-line-spacing: 2;");
+        comment.setStyle("-fx-font-size: 13; -fx-text-fill: rgba(255,255,255,0.82); -fx-line-spacing: 2;");
 
-        HBox meta = new HBox(16);
+        HBox meta = new HBox(14);
         meta.setAlignment(Pos.CENTER_LEFT);
         Label helpful = new Label("👍 " + r.getHelpfulCount());
-        helpful.setStyle("-fx-font-size: 12; -fx-text-fill: #16a34a;");
+        helpful.setStyle("-fx-font-size: 12; -fx-text-fill: #5eead4;");
         Label unhelpful = new Label("👎 " + r.getUnhelpfulCount());
-        unhelpful.setStyle("-fx-font-size: 12; -fx-text-fill: #9ca3af;");
+        unhelpful.setStyle("-fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.45);");
         Label status = new Label(r.getStatus() != null ? r.getStatus().name() : "");
-        status.setStyle("-fx-font-size: 11; -fx-text-fill: #6b7280; -fx-background-color: #f3f4f6;" +
-                        "-fx-padding: 2 8; -fx-background-radius: 10;");
+        status.setStyle("-fx-font-size: 10; -fx-font-weight: bold; -fx-letter-spacing: 1;" +
+                        "-fx-text-fill: rgba(255,255,255,0.70);" +
+                        "-fx-background-color: rgba(255,255,255,0.08);" +
+                        "-fx-padding: 3 10; -fx-background-radius: 999;");
 
         Region metaSpacer = new Region();
         HBox.setHgrow(metaSpacer, Priority.ALWAYS);
 
         Button editBtn = new Button("Edit");
-        editBtn.setStyle("-fx-background-color: white; -fx-border-color: #e5e7eb;" +
-                         "-fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 12;" +
-                         "-fx-padding: 6 12; -fx-cursor: hand;");
+        editBtn.setStyle("-fx-background-color: rgba(94,234,212,0.16);" +
+                         "-fx-text-fill: #5eead4;" +
+                         "-fx-border-color: rgba(94,234,212,0.35);" +
+                         "-fx-border-radius: 18; -fx-background-radius: 18;" +
+                         "-fx-font-size: 12; -fx-font-weight: bold;" +
+                         "-fx-padding: 7 16; -fx-cursor: hand; -fx-border-width: 0.5;");
         boolean editable = appContext.getReviewService().isEditableByCustomer(r, session.getCustomerId());
         editBtn.setDisable(!editable);
         editBtn.setOnAction(e -> openEditor(r));
 
         Button deleteBtn = new Button("Delete");
-        deleteBtn.setStyle("-fx-background-color: white; -fx-border-color: #fecaca;" +
-                           "-fx-text-fill: #dc2626; -fx-border-radius: 6;" +
-                           "-fx-background-radius: 6; -fx-font-size: 12;" +
-                           "-fx-padding: 6 12; -fx-cursor: hand;");
+        deleteBtn.setStyle("-fx-background-color: rgba(248,113,113,0.16);" +
+                           "-fx-text-fill: #fca5a5;" +
+                           "-fx-border-color: rgba(248,113,113,0.35);" +
+                           "-fx-border-radius: 18; -fx-background-radius: 18;" +
+                           "-fx-font-size: 12; -fx-font-weight: bold;" +
+                           "-fx-padding: 7 16; -fx-cursor: hand; -fx-border-width: 0.5;");
         deleteBtn.setDisable(!editable);
         deleteBtn.setOnAction(e -> deleteReview(r));
 
@@ -183,7 +193,7 @@ public class CustomerDashboardController {
 
         Duration remaining = appContext.getReviewService().getRemainingEditDuration(r, session.getCustomerId());
         Label window = new Label(formatEditWindow(remaining));
-        window.setStyle("-fx-font-size: 11; -fx-text-fill: #9ca3af;");
+        window.setStyle("-fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.40);");
 
         card.getChildren().addAll(topRow, comment, meta, window);
         return card;

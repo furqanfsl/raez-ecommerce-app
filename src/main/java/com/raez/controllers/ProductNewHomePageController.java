@@ -36,8 +36,13 @@ import javafx.scene.layout.VBox;
 import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.scene.Group;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -162,6 +167,32 @@ public class ProductNewHomePageController implements Initializable {
         eyePulse.play();
         heroAnimations.add(eyePulse);
 
+        // 2b. Periodic blink — eyes scaleY 1 → 0.08 → 1 with a small gap.
+        Circle leftPupil  = (Circle) robot.getProperties().get("leftPupil");
+        Circle rightPupil = (Circle) robot.getProperties().get("rightPupil");
+        if (leftEye != null && rightEye != null) {
+            Timeline blink = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                    new KeyValue(leftEye.scaleYProperty(),  1.0, Interpolator.EASE_BOTH),
+                    new KeyValue(rightEye.scaleYProperty(), 1.0, Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(4.6),
+                    new KeyValue(leftEye.scaleYProperty(),  1.0, Interpolator.EASE_BOTH),
+                    new KeyValue(rightEye.scaleYProperty(), 1.0, Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(4.78),
+                    new KeyValue(leftEye.scaleYProperty(),  0.08, Interpolator.EASE_BOTH),
+                    new KeyValue(rightEye.scaleYProperty(), 0.08, Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(4.98),
+                    new KeyValue(leftEye.scaleYProperty(),  1.0, Interpolator.EASE_BOTH),
+                    new KeyValue(rightEye.scaleYProperty(), 1.0, Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(6.0),
+                    new KeyValue(leftEye.scaleYProperty(),  1.0),
+                    new KeyValue(rightEye.scaleYProperty(), 1.0))
+            );
+            blink.setCycleCount(Timeline.INDEFINITE);
+            blink.play();
+            heroAnimations.add(blink);
+        }
+
         // 3. Chest panel glow pulse — the central indicator (btn1) throbs cyan
         Circle chestPanel = (Circle) robot.getProperties().get("chestPanel");
         if (chestPanel != null) {
@@ -187,8 +218,8 @@ public class ProductNewHomePageController implements Initializable {
         Circle antennaTip = (Circle) robot.getProperties().get("antennaTip");
         if (antennaTip != null) {
             ScaleTransition antPulse = new ScaleTransition(Duration.seconds(1.6), antennaTip);
-            antPulse.setFromX(1.0); antPulse.setToX(1.5);
-            antPulse.setFromY(1.0); antPulse.setToY(1.5);
+            antPulse.setFromX(1.0); antPulse.setToX(1.6);
+            antPulse.setFromY(1.0); antPulse.setToY(1.6);
             antPulse.setAutoReverse(true);
             antPulse.setCycleCount(Timeline.INDEFINITE);
             antPulse.setInterpolator(Interpolator.EASE_BOTH);
@@ -196,9 +227,23 @@ public class ProductNewHomePageController implements Initializable {
             heroAnimations.add(antPulse);
         }
 
+        // 4b. Antenna sway — gentle rotation about its base. Whole assembly rotates.
+        Group antennaAssembly = (Group) robot.getProperties().get("antennaAssembly");
+        if (antennaAssembly != null) {
+            RotateTransition antSway = new RotateTransition(Duration.seconds(3.2), antennaAssembly);
+            antSway.setFromAngle(-9); antSway.setToAngle(9);
+            antSway.setAutoReverse(true);
+            antSway.setCycleCount(Timeline.INDEFINITE);
+            antSway.setInterpolator(Interpolator.EASE_BOTH);
+            antSway.play();
+            heroAnimations.add(antSway);
+        }
+
         // 5. Arm swing — slowed and smoothed to feel intentional, not jittery
         Rectangle leftArm  = (Rectangle) robot.getProperties().get("leftArm");
         Rectangle rightArm = (Rectangle) robot.getProperties().get("rightArm");
+        Circle leftHand   = (Circle) robot.getProperties().get("leftHand");
+        Circle rightHand  = (Circle) robot.getProperties().get("rightHand");
         if (leftArm != null && rightArm != null) {
             leftArm.setRotate(0);
             rightArm.setRotate(0);
@@ -216,71 +261,242 @@ public class ProductNewHomePageController implements Initializable {
             heroAnimations.add(rightSwing);
         }
 
-        // 6. Optional parallax — pointer nudges robot X via layoutX and Y via layoutY.
-        //    translateX/Y is reserved for the floating TranslateTransition, so we use
-        //    layout offsets for parallax to avoid fighting the animation.
+        // 5b. Periodic wave — every ~9 seconds the right arm + hand swing way out
+        // (a friendly "hi"), then settle back into the idle swing rhythm.
+        Group rightArmAssembly = (Group) robot.getProperties().get("rightArmAssembly");
+        if (rightArmAssembly != null) {
+            // Pivot is the shoulder (rectangle's top-center). Group rotation defaults
+            // to its own bounds center, which works since the hand sits below.
+            Timeline waveLoop = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                    new KeyValue(rightArmAssembly.rotateProperty(), 0,   Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(8.0),
+                    new KeyValue(rightArmAssembly.rotateProperty(), 0,   Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(8.6),
+                    new KeyValue(rightArmAssembly.rotateProperty(), -42, Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(9.0),
+                    new KeyValue(rightArmAssembly.rotateProperty(), -28, Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(9.4),
+                    new KeyValue(rightArmAssembly.rotateProperty(), -42, Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(9.8),
+                    new KeyValue(rightArmAssembly.rotateProperty(), -28, Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(10.4),
+                    new KeyValue(rightArmAssembly.rotateProperty(), 0,   Interpolator.EASE_BOTH)),
+                new KeyFrame(Duration.seconds(13.0),
+                    new KeyValue(rightArmAssembly.rotateProperty(), 0))
+            );
+            waveLoop.setCycleCount(Timeline.INDEFINITE);
+            waveLoop.play();
+            heroAnimations.add(waveLoop);
+        }
+
+        // 5c. Hand "fingers" wiggle on hover (subtle ScaleTransition, not infinite)
+        if (leftHand != null && rightHand != null) {
+            ScaleTransition handBob = new ScaleTransition(Duration.seconds(2.4), leftHand);
+            handBob.setFromX(1.0); handBob.setToX(1.08);
+            handBob.setFromY(1.0); handBob.setToY(1.08);
+            handBob.setAutoReverse(true);
+            handBob.setCycleCount(Timeline.INDEFINITE);
+            handBob.setInterpolator(Interpolator.EASE_BOTH);
+            handBob.play();
+            heroAnimations.add(handBob);
+        }
+
+        // 6. Scan line — vertical sweep across the head visor
+        Rectangle scanLine = (Rectangle) robot.getProperties().get("scanLine");
+        if (scanLine != null) {
+            Timeline scan = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                    new KeyValue(scanLine.translateYProperty(), -5,  Interpolator.LINEAR),
+                    new KeyValue(scanLine.opacityProperty(),    0.0, Interpolator.LINEAR)),
+                new KeyFrame(Duration.seconds(0.8),
+                    new KeyValue(scanLine.opacityProperty(),    0.85, Interpolator.LINEAR)),
+                new KeyFrame(Duration.seconds(2.4),
+                    new KeyValue(scanLine.translateYProperty(), 70,  Interpolator.LINEAR),
+                    new KeyValue(scanLine.opacityProperty(),    0.0, Interpolator.LINEAR)),
+                new KeyFrame(Duration.seconds(3.6),
+                    new KeyValue(scanLine.translateYProperty(), 70))
+            );
+            scan.setCycleCount(Timeline.INDEFINITE);
+            scan.play();
+            heroAnimations.add(scan);
+        }
+
+        // 7. Reactive head + pupils — pointer drives both. Head tilts ±7°,
+        //    pupils slide within the eye sockets, body parallax remains.
+        Group  headAssembly = (Group)  robot.getProperties().get("headAssembly");
         heroRobotPane.setOnMouseMoved(e -> {
             double w = heroRobotPane.getWidth();
             double h = heroRobotPane.getHeight();
             if (w <= 0 || h <= 0) return;
-            double dx = ((e.getX() / w) - 0.5) * 10.0;
-            double dy = ((e.getY() / h) - 0.5) * 6.0;
-            robot.setLayoutX((w / 2.0) + dx);
-            robot.setLayoutY(80 + dy);
+            double nx = (e.getX() / w) - 0.5;   // -0.5 .. 0.5
+            double ny = (e.getY() / h) - 0.5;
+
+            // Body parallax (subtle)
+            robot.setLayoutX((w / 2.0) + nx * 10.0);
+            robot.setLayoutY(80 + ny * 6.0);
+
+            // Head tilt
+            if (headAssembly != null) {
+                headAssembly.setRotate(nx * 7.0);
+            }
+            // Pupils track — clamp inside the eye
+            if (leftPupil != null) {
+                leftPupil.setTranslateX(nx * 6.0);
+                leftPupil.setTranslateY(ny * 4.0);
+            }
+            if (rightPupil != null) {
+                rightPupil.setTranslateX(nx * 6.0);
+                rightPupil.setTranslateY(ny * 4.0);
+            }
         });
         heroRobotPane.setOnMouseExited(e -> {
             robot.setLayoutX(heroRobotPane.getWidth() / 2.0);
             robot.setLayoutY(80);
+            if (headAssembly != null) headAssembly.setRotate(0);
+            if (leftPupil  != null) { leftPupil.setTranslateX(0);  leftPupil.setTranslateY(0); }
+            if (rightPupil != null) { rightPupil.setTranslateX(0); rightPupil.setTranslateY(0); }
+        });
+
+        // 8. Click anywhere on the robot — quick "happy spin" on the antenna tip
+        //    plus a chest pulse. Gives the user feedback they hit something.
+        heroRobotPane.setOnMouseClicked(e -> {
+            if (antennaTip != null) {
+                ScaleTransition burst = new ScaleTransition(Duration.millis(180), antennaTip);
+                burst.setFromX(antennaTip.getScaleX()); burst.setFromY(antennaTip.getScaleY());
+                burst.setToX(2.4); burst.setToY(2.4);
+                burst.setAutoReverse(true); burst.setCycleCount(2);
+                burst.play();
+            }
+            if (chestPanel != null) {
+                ScaleTransition pulse = new ScaleTransition(Duration.millis(200), chestPanel);
+                pulse.setFromX(1.0); pulse.setToX(1.5);
+                pulse.setFromY(1.0); pulse.setToY(1.5);
+                pulse.setAutoReverse(true); pulse.setCycleCount(2);
+                pulse.play();
+            }
         });
     }
 
     private Group buildRobotGroup() {
         Group g = new Group();
-        Color bodyColor   = Color.web("#0a1628");
         Color accentColor = Color.web("#00e5ff");
         Color accent2     = Color.web("#5eead4");
         Color accent3     = Color.web("#38bdf8");
         double stroke     = 1.8;
 
-        // Antenna
+        // Brushed gradient fills give every metal panel a soft top-down highlight
+        // so the robot stops looking like flat 2D rectangles in the dark hero.
+        LinearGradient bodyFill = new LinearGradient(
+            0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+            new Stop(0, Color.web("#1c2942")),
+            new Stop(0.5, Color.web("#0e1729")),
+            new Stop(1, Color.web("#070c18")));
+        LinearGradient limbFill = new LinearGradient(
+            0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+            new Stop(0, Color.web("#16223a")),
+            new Stop(1, Color.web("#070c18")));
+        RadialGradient visorFill = new RadialGradient(
+            0, 0, 0.5, 0.4, 0.7, true, CycleMethod.NO_CYCLE,
+            new Stop(0, Color.web("#0d1c33")),
+            new Stop(1, Color.web("#04090f")));
+
+        // Soft ambient drop-shadow tying the robot to the gradient mesh behind it.
+        DropShadow ambientShadow = new DropShadow(28, 0, 14, Color.color(0, 0, 0, 0.55));
+        DropShadow accentGlow    = new DropShadow(18, Color.color(0, 0.9, 1, 0.45));
+        accentGlow.setSpread(0.05);
+
+        // ── Antenna assembly (rotates as one unit) ─────────────────────────
         Line antennaLine = new Line(0, -45, 0, -5);
         antennaLine.setStroke(accentColor); antennaLine.setStrokeWidth(2.5);
         Circle antennaTip = new Circle(0, -52, 9);
         antennaTip.setFill(accentColor);
         antennaTip.setEffect(new Glow(1.0));
+        Group antennaAssembly = new Group(antennaLine, antennaTip);
+        // Translate origin so rotation pivots from base of antenna (y=-5)
+        antennaAssembly.setTranslateY(-5);
+        antennaLine.setStartY(antennaLine.getStartY() + 5);
+        antennaLine.setEndY(antennaLine.getEndY() + 5);
+        antennaTip.setCenterY(antennaTip.getCenterY() + 5);
 
-        // Head
-        Rectangle head = new Rectangle(-60, -5, 120, 82);
-        head.setArcWidth(22); head.setArcHeight(22);
-        head.setFill(bodyColor); head.setStroke(accentColor); head.setStrokeWidth(stroke);
+        // ── Head assembly: visor frame + visor glass + eyes + pupils + mouth + scan line
+        Rectangle headFrame = new Rectangle(-62, -7, 124, 86);
+        headFrame.setArcWidth(24); headFrame.setArcHeight(24);
+        headFrame.setFill(bodyFill);
+        headFrame.setStroke(accentColor); headFrame.setStrokeWidth(stroke);
+        headFrame.setEffect(accentGlow);
 
-        // Eyes
+        // Tinted visor glass — sits inside the frame, eyes float over it
+        Rectangle visor = new Rectangle(-50, 8, 100, 50);
+        visor.setArcWidth(18); visor.setArcHeight(18);
+        visor.setFill(visorFill);
+        visor.setStroke(Color.color(0, 0.9, 1, 0.35));
+        visor.setStrokeWidth(0.8);
+
+        // Cheek vents (small detail panels on each side of head)
+        Rectangle leftVent  = new Rectangle(-58, 30, 4, 18);
+        leftVent.setArcWidth(2); leftVent.setArcHeight(2);
+        leftVent.setFill(accent3); leftVent.setOpacity(0.55);
+        Rectangle rightVent = new Rectangle(54, 30, 4, 18);
+        rightVent.setArcWidth(2); rightVent.setArcHeight(2);
+        rightVent.setFill(accent3); rightVent.setOpacity(0.55);
+
+        // Eyes (slightly larger, over the visor)
         Circle leftEye = new Circle(-22, 34, 14);
         leftEye.setFill(accentColor);
         Circle rightEye = new Circle(22, 34, 14);
         rightEye.setFill(accentColor);
 
-        // Pupils (inner dark dot)
+        // Pupils — black dot inside, will track the cursor
         Circle leftPupil = new Circle(-22, 34, 6);
         leftPupil.setFill(Color.web("#001a26"));
         Circle rightPupil = new Circle(22, 34, 6);
         rightPupil.setFill(Color.web("#001a26"));
 
-        // Mouth bar
-        Rectangle mouth = new Rectangle(-33, 58, 66, 9);
-        mouth.setArcWidth(9); mouth.setArcHeight(9);
-        mouth.setFill(accentColor); mouth.setOpacity(0.65);
+        // Eye highlight (small white spec for life)
+        Circle leftEyeShine  = new Circle(-25, 31, 2.4);
+        leftEyeShine.setFill(Color.color(1, 1, 1, 0.85));
+        leftEyeShine.setMouseTransparent(true);
+        Circle rightEyeShine = new Circle(19, 31, 2.4);
+        rightEyeShine.setFill(Color.color(1, 1, 1, 0.85));
+        rightEyeShine.setMouseTransparent(true);
 
-        // Neck
-        Rectangle neck = new Rectangle(-16, 77, 32, 22);
-        neck.setFill(bodyColor); neck.setStroke(accentColor); neck.setStrokeWidth(1.2);
+        // Scan line — thin cyan bar that sweeps down the visor
+        Rectangle scanLine = new Rectangle(-50, 8, 100, 1.5);
+        scanLine.setFill(Color.color(0, 0.9, 1, 0.85));
+        scanLine.setEffect(new Glow(0.85));
+        scanLine.setMouseTransparent(true);
+        scanLine.setOpacity(0.0);
 
-        // Body
-        Rectangle body = new Rectangle(-80, 99, 160, 155);
-        body.setArcWidth(18); body.setArcHeight(18);
-        body.setFill(bodyColor); body.setStroke(accentColor); body.setStrokeWidth(stroke);
+        // Mouth bar — segmented LED strip
+        Rectangle mouth = new Rectangle(-33, 60, 66, 8);
+        mouth.setArcWidth(8); mouth.setArcHeight(8);
+        mouth.setFill(accentColor); mouth.setOpacity(0.55);
 
-        // Body indicator circles
+        Group headAssembly = new Group(
+            headFrame, visor, scanLine,
+            leftVent, rightVent,
+            leftEye, rightEye, leftPupil, rightPupil,
+            leftEyeShine, rightEyeShine,
+            mouth
+        );
+
+        // ── Neck ───────────────────────────────────────────────────────────
+        Rectangle neck = new Rectangle(-16, 79, 32, 22);
+        neck.setFill(limbFill); neck.setStroke(accentColor); neck.setStrokeWidth(1.2);
+
+        // ── Body / chest ───────────────────────────────────────────────────
+        Rectangle body = new Rectangle(-82, 101, 164, 158);
+        body.setArcWidth(20); body.setArcHeight(20);
+        body.setFill(bodyFill); body.setStroke(accentColor); body.setStrokeWidth(stroke);
+        body.setEffect(ambientShadow);
+
+        // Chest plate seam line (vertical)
+        Line chestSeam = new Line(0, 110, 0, 250);
+        chestSeam.setStroke(Color.color(0, 0.9, 1, 0.18));
+        chestSeam.setStrokeWidth(0.8);
+
+        // Chest indicator cluster
         Circle btn1 = new Circle(-30, 155, 9);
         btn1.setFill(accentColor); btn1.setEffect(new Glow(0.6));
         Circle btn2 = new Circle(0, 155, 9);
@@ -288,59 +504,82 @@ public class ProductNewHomePageController implements Initializable {
         Circle btn3 = new Circle(30, 155, 9);
         btn3.setFill(accent3); btn3.setOpacity(0.55);
 
-        // Panel bar
+        // Panel bars
         Rectangle panel1 = new Rectangle(-52, 180, 104, 5);
         panel1.setArcWidth(5); panel1.setArcHeight(5);
         panel1.setFill(accentColor); panel1.setOpacity(0.4);
         Rectangle panel2 = new Rectangle(-52, 196, 68, 5);
         panel2.setArcWidth(5); panel2.setArcHeight(5);
         panel2.setFill(accentColor); panel2.setOpacity(0.22);
+        Rectangle panel3 = new Rectangle(-52, 212, 90, 3);
+        panel3.setArcWidth(3); panel3.setArcHeight(3);
+        panel3.setFill(accent3); panel3.setOpacity(0.18);
 
-        // Arms (pivot from their top-center for swing)
+        // ── Arms — wrap each in a Group so the wave timeline can rotate the
+        //          whole arm + hand from the shoulder.
         Rectangle leftArm = new Rectangle(-116, 110, 34, 105);
         leftArm.setArcWidth(14); leftArm.setArcHeight(14);
-        leftArm.setFill(bodyColor); leftArm.setStroke(accentColor); leftArm.setStrokeWidth(stroke);
+        leftArm.setFill(limbFill); leftArm.setStroke(accentColor); leftArm.setStrokeWidth(stroke);
         Circle leftHand = new Circle(-99, 228, 16);
-        leftHand.setFill(bodyColor); leftHand.setStroke(accent2); leftHand.setStrokeWidth(stroke);
+        leftHand.setFill(limbFill); leftHand.setStroke(accent2); leftHand.setStrokeWidth(stroke);
+        Group leftArmAssembly = new Group(leftArm, leftHand);
 
         Rectangle rightArm = new Rectangle(82, 110, 34, 105);
         rightArm.setArcWidth(14); rightArm.setArcHeight(14);
-        rightArm.setFill(bodyColor); rightArm.setStroke(accentColor); rightArm.setStrokeWidth(stroke);
+        rightArm.setFill(limbFill); rightArm.setStroke(accentColor); rightArm.setStrokeWidth(stroke);
         Circle rightHand = new Circle(99, 228, 16);
-        rightHand.setFill(bodyColor); rightHand.setStroke(accent2); rightHand.setStrokeWidth(stroke);
+        rightHand.setFill(limbFill); rightHand.setStroke(accent2); rightHand.setStrokeWidth(stroke);
+        Group rightArmAssembly = new Group(rightArm, rightHand);
 
-        // Legs
+        // ── Legs / feet ────────────────────────────────────────────────────
         Rectangle leftLeg = new Rectangle(-70, 254, 44, 98);
         leftLeg.setArcWidth(14); leftLeg.setArcHeight(14);
-        leftLeg.setFill(bodyColor); leftLeg.setStroke(accentColor); leftLeg.setStrokeWidth(stroke);
+        leftLeg.setFill(limbFill); leftLeg.setStroke(accentColor); leftLeg.setStrokeWidth(stroke);
         Rectangle rightLeg = new Rectangle(26, 254, 44, 98);
         rightLeg.setArcWidth(14); rightLeg.setArcHeight(14);
-        rightLeg.setFill(bodyColor); rightLeg.setStroke(accentColor); rightLeg.setStrokeWidth(stroke);
+        rightLeg.setFill(limbFill); rightLeg.setStroke(accentColor); rightLeg.setStrokeWidth(stroke);
 
-        // Feet
         Rectangle leftFoot = new Rectangle(-80, 343, 62, 23);
         leftFoot.setArcWidth(12); leftFoot.setArcHeight(12);
-        leftFoot.setFill(bodyColor); leftFoot.setStroke(accentColor); leftFoot.setStrokeWidth(1.2);
+        leftFoot.setFill(limbFill); leftFoot.setStroke(accentColor); leftFoot.setStrokeWidth(1.2);
         Rectangle rightFoot = new Rectangle(18, 343, 62, 23);
         rightFoot.setArcWidth(12); rightFoot.setArcHeight(12);
-        rightFoot.setFill(bodyColor); rightFoot.setStroke(accentColor); rightFoot.setStrokeWidth(1.2);
+        rightFoot.setFill(limbFill); rightFoot.setStroke(accentColor); rightFoot.setStrokeWidth(1.2);
+
+        // Subtle ground halo — radial glow under the feet
+        Circle groundGlow = new Circle(0, 380, 90);
+        groundGlow.setFill(new RadialGradient(
+            0, 0, 0.5, 0.5, 0.5, true, CycleMethod.NO_CYCLE,
+            new Stop(0, Color.color(0, 0.9, 1, 0.30)),
+            new Stop(1, Color.TRANSPARENT)));
+        groundGlow.setMouseTransparent(true);
 
         g.getChildren().addAll(
-            leftArm, rightArm, leftHand, rightHand,
+            groundGlow,
+            leftArmAssembly, rightArmAssembly,
             leftLeg, rightLeg, leftFoot, rightFoot,
-            neck, body,
-            btn1, btn2, btn3, panel1, panel2,
-            head, leftEye, rightEye, leftPupil, rightPupil, mouth,
-            antennaLine, antennaTip
+            neck, body, chestSeam,
+            btn1, btn2, btn3, panel1, panel2, panel3,
+            antennaAssembly,
+            headAssembly
         );
 
-        // Store references for animations
-        g.getProperties().put("leftEye",    leftEye);
-        g.getProperties().put("rightEye",   rightEye);
-        g.getProperties().put("antennaTip", antennaTip);
-        g.getProperties().put("leftArm",    leftArm);
-        g.getProperties().put("rightArm",   rightArm);
-        g.getProperties().put("chestPanel", btn1);
+        // Property bag for animation lookup
+        g.getProperties().put("leftEye",         leftEye);
+        g.getProperties().put("rightEye",        rightEye);
+        g.getProperties().put("leftPupil",       leftPupil);
+        g.getProperties().put("rightPupil",      rightPupil);
+        g.getProperties().put("antennaTip",      antennaTip);
+        g.getProperties().put("antennaAssembly", antennaAssembly);
+        g.getProperties().put("leftArm",         leftArm);
+        g.getProperties().put("rightArm",        rightArm);
+        g.getProperties().put("leftHand",        leftHand);
+        g.getProperties().put("rightHand",       rightHand);
+        g.getProperties().put("rightArmAssembly", rightArmAssembly);
+        g.getProperties().put("leftArmAssembly",  leftArmAssembly);
+        g.getProperties().put("chestPanel",      btn1);
+        g.getProperties().put("scanLine",        scanLine);
+        g.getProperties().put("headAssembly",    headAssembly);
         return g;
     }
 
@@ -864,16 +1103,19 @@ public class ProductNewHomePageController implements Initializable {
             for (Product p : products) cardRow.getChildren().add(buildMiniCard(p));
         }
 
-        // Wrap in a ScrollPane with scrollbars hidden via CSS
+        // Wrap in a ScrollPane with scrollbars hidden via CSS.
+        // Height = card body (160 image + 110 info) + drop shadow margin.
+        // setFitToHeight(false) so cards keep their natural size; the strip
+        // grows to match the card rather than cropping the price + badge.
         ScrollPane scroll = new ScrollPane(cardRow);
-        scroll.setFitToHeight(true);
+        scroll.setFitToHeight(false);
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setPannable(false);
         scroll.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;" +
                         "-fx-background: transparent;");
-        scroll.setPrefHeight(240);
-        scroll.setMinHeight(240);
+        scroll.setPrefHeight(312);
+        scroll.setMinHeight(312);
 
         // Overlay arrows (circular, half-transparent)
         Button leftBtn  = buildNavArrow("‹");
@@ -941,6 +1183,11 @@ public class ProductNewHomePageController implements Initializable {
         card.setPrefWidth(220);
         card.setMaxWidth(220);
         card.setMinWidth(220);
+        // Lock card height so the strip's no-internal-scroll viewport always
+        // shows the full image + price without cropping the bottom row.
+        card.setPrefHeight(280);
+        card.setMinHeight(280);
+        card.setMaxHeight(280);
         card.setStyle(
             "-fx-background-color: rgba(13,17,30,0.75);" +
             "-fx-background-radius: 20;" +

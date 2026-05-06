@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -15,20 +16,24 @@
             fx:controller="com.raez.controllers.ProductDetailController"
             style="-fx-background-color: #f9fafb;">
 
-    <ScrollPane fx:id="mainScrollPane"
-                fitToWidth="true"
-                hbarPolicy="NEVER"
-                vbarPolicy="AS_NEEDED"
-                AnchorPane.bottomAnchor="0.0"
+    <BorderPane AnchorPane.bottomAnchor="0.0"
                 AnchorPane.leftAnchor="0.0"
                 AnchorPane.rightAnchor="0.0"
-                AnchorPane.topAnchor="0.0"
-                style="-fx-background-color: transparent; -fx-background: transparent;
-                       -fx-border-color: transparent;">
+                AnchorPane.topAnchor="0.0">
+
+        <top>
+            <fx:include source="ProductHeader.fxml" />
+        </top>
+
+        <center>
+        <ScrollPane fx:id="mainScrollPane"
+                    fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: transparent; -fx-background: transparent;
+                           -fx-border-color: transparent;">
         <content>
             <VBox spacing="0" maxWidth="Infinity" style="-fx-background-color: #f9fafb;">
-
-                <fx:include source="ProductHeader.fxml" />
 
                 <!-- Back navigation bar -->
                 <HBox alignment="CENTER_LEFT" spacing="8" maxWidth="Infinity"
@@ -135,18 +140,16 @@
 
             </VBox>
         </content>
-    </ScrollPane>
+        </ScrollPane>
+        </center>
+    </BorderPane>
 
     <Button fx:id="scrollToTopBtn"
             text="↑ Top"
             mnemonicParsing="false"
             visible="false"
             managed="false"
+            styleClass="scroll-top-pill"
             AnchorPane.bottomAnchor="30.0"
-            AnchorPane.rightAnchor="30.0"
-            style="-fx-background-color: #1E2939; -fx-text-fill: white;
-                   -fx-font-size: 13; -fx-font-weight: bold;
-                   -fx-padding: 10 18; -fx-background-radius: 24;
-                   -fx-cursor: hand;
-                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0.2, 0, 2);" />
+            AnchorPane.rightAnchor="30.0" />
 </AnchorPane>

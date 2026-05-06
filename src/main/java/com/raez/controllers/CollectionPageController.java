@@ -175,7 +175,10 @@ public class CollectionPageController implements Initializable {
                 "-fx-padding: 8 14; -fx-background-radius: 8; -fx-cursor: hand;"
             );
         });
-        buyBtn.setOnAction(e -> NavigationRouter.getInstance().navigateToProductRoute(productID));
+        buyBtn.setOnAction(e -> {
+            cartManager.addItem(productID, productName, productPrice);
+            NavigationRouter.getInstance().navigateTo("/fxml/Cart.fxml");
+        });
 
         VBox info = new VBox(8, tag, name, price, snippet, actions);
         info.setPadding(new Insets(12, 14, 14, 14));
@@ -218,7 +221,14 @@ public class CollectionPageController implements Initializable {
 
     @FXML
     private void handleMainRobotViewDetails() {
+        // "Buy" CTA — drop into cart and route to checkout immediately
+        // (kept method name for FXML compatibility).
         if (mainRobotRow == null) return;
-        NavigationRouter.getInstance().navigateToProductRoute(mainRobotRow.product().productID);
+        cartManager.addItem(
+            mainRobotRow.product().productID,
+            mainRobotRow.product().name,
+            mainRobotRow.product().price
+        );
+        NavigationRouter.getInstance().navigateTo("/fxml/Cart.fxml");
     }
 }

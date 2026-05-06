@@ -31,6 +31,9 @@ public class MainApp extends Application {
         stage.setY(vb.getMinY());
         stage.setWidth(vb.getWidth());
         stage.setHeight(vb.getHeight());
+        // Honour the OS "maximize" affordance — fills the screen *minus* the
+        // taskbar, and shows the un-maximize chrome in the title bar.
+        stage.setMaximized(true);
         // Main stage is built but not shown until the launcher finishes.
 
         new LauncherStage().show(() -> Platform.runLater(() -> showMainScene(stage)));
@@ -48,6 +51,9 @@ public class MainApp extends Application {
 
             var adminCss = getClass().getResource("/css/admin-theme.css");
             if (adminCss != null) scene.getStylesheets().add(adminCss.toExternalForm());
+
+            var storefrontCss = getClass().getResource("/css/storefront.css");
+            if (storefrontCss != null) scene.getStylesheets().add(storefrontCss.toExternalForm());
 
             stage.setScene(scene);
             stage.show();

@@ -6,6 +6,9 @@ import com.raez.service.AuthService;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
+import javafx.application.Platform;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -26,7 +29,18 @@ public class AdminLoginModalController implements Initializable {
     public void setup(Runnable onClose) { this.onClose = onClose; }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) { clearError(); }
+    public void initialize(URL location, ResourceBundle resources) {
+        clearError();
+        // Wire ESC to close once the scene is attached (transparent stages don't
+        // get the platform-default ESC handling, so we add it ourselves).
+        Platform.runLater(() -> {
+            if (emailField != null && emailField.getScene() != null) {
+                emailField.getScene().setOnKeyPressed(e -> {
+                    if (e.getCode() == KeyCode.ESCAPE) handleClose();
+                });
+            }
+        });
+    }
 
     @FXML
     private void handleLogin() {
@@ -66,7 +80,19 @@ public class AdminLoginModalController implements Initializable {
         }
     }
 
-    @FXML private void handleClose() { if (onClose != null) onClose.run(); }
+    @FXML
+    private void handleClose() {
+        if (onClose != null) {
+            onClose.run();
+            return;
+        }
+        // Fallback: close the underlying stage directly. Belt-and-braces — if
+        // the launcher ever forgets to call setup(), the cross still works.
+        if (emailField != null && emailField.getScene() != null
+            && emailField.getScene().getWindow() instanceof Stage stage) {
+            stage.close();
+        }
+    }
 
     @FXML
     private void handleForgotPassword() {

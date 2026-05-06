@@ -7,56 +7,144 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.raez.reviews.controller.CustomerDashboardController"
-            fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-            style="-fx-background: white; -fx-background-color: white; -fx-border-color: transparent;">
-    <content>
-        <BorderPane style="-fx-background-color: white;" prefWidth="1180">
-            <top>
-                <VBox spacing="14" style="-fx-background-color: #f9fafb; -fx-padding: 32 48 24 48;
-                                          -fx-border-color: transparent transparent #e5e7eb transparent;
-                                          -fx-border-width: 0 0 1 0;">
-                    <HBox alignment="CENTER_LEFT" spacing="12">
-                        <VBox spacing="4">
-                            <Label text="My Reviews"
-                                   style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #111827;" />
-                            <Label fx:id="welcomeLabel"
-                                   style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
-                        </VBox>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Button text="← Back to Shop" onAction="#handleBackToShop"
-                                style="-fx-background-color: white; -fx-text-fill: #111827;
-                                       -fx-border-color: #e5e7eb; -fx-border-radius: 6;
-                                       -fx-background-radius: 6; -fx-font-size: 13;
-                                       -fx-padding: 8 14; -fx-cursor: hand;" />
-                        <Button text="Logout" onAction="#handleLogout"
-                                style="-fx-background-color: #111827; -fx-text-fill: white;
-                                       -fx-font-size: 13; -fx-font-weight: bold;
-                                       -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;" />
-                    </HBox>
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.raez.reviews.controller.CustomerDashboardController">
 
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Show:" style="-fx-font-size: 13; -fx-text-fill: #6b7280;" />
-                        <ComboBox fx:id="timeFilterComboBox" prefWidth="180"
-                                  style="-fx-font-size: 13;" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="reviewCountLabel"
-                               style="-fx-font-size: 13; -fx-text-fill: #374151; -fx-font-weight: bold;" />
-                    </HBox>
-                </VBox>
-            </top>
+    <!-- Gradient mesh background — same family as login + hero -->
+    <Pane style="-fx-background-color: linear-gradient(to bottom right, #0a0f1f 0%, #0d2538 35%, #1a3347 60%, #2a1a4a 100%);"
+          maxWidth="Infinity" maxHeight="Infinity" />
+    <Pane style="-fx-background-color: radial-gradient(center 15% 20%, radius 45%, rgba(20,184,166,0.20) 0%, transparent 70%);"
+          maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+    <Pane style="-fx-background-color: radial-gradient(center 80% 75%, radius 50%, rgba(139,92,246,0.20) 0%, transparent 70%);"
+          maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
 
-            <center>
-                <VBox fx:id="reviewsList" spacing="14" style="-fx-padding: 28 48 48 48; -fx-background-color: white;">
-                    <padding>
-                        <Insets top="0" />
-                    </padding>
-                </VBox>
-            </center>
-        </BorderPane>
-    </content>
-</ScrollPane>
+    <BorderPane>
+
+        <!-- ── Top bar ───────────────────────────────────────────────────── -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="14"
+                  style="-fx-background-color: rgba(10,15,31,0.82);
+                         -fx-border-color: rgba(255,255,255,0.10);
+                         -fx-border-width: 0 0 0.5 0;">
+                <padding><Insets top="14" right="32" bottom="14" left="32"/></padding>
+
+                <Label text="RAEZ"
+                       style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
+                              -fx-font-size: 22; -fx-font-weight: 900; -fx-text-fill: white;
+                              -fx-letter-spacing: 2;
+                              -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.35), 10, 0.25, 0, 0);" />
+                <Label text="·  My Reviews"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 13; -fx-text-fill: rgba(255,255,255,0.55);
+                              -fx-letter-spacing: 1;" />
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="←  Back to storefront" onAction="#handleBackToShop"
+                        style="-fx-background-color: rgba(94,234,212,0.16);
+                               -fx-text-fill: #5eead4;
+                               -fx-font-family: 'Inter','Segoe UI',sans-serif;
+                               -fx-font-size: 12; -fx-font-weight: bold;
+                               -fx-padding: 9 18 9 18;
+                               -fx-background-radius: 22;
+                               -fx-border-color: rgba(94,234,212,0.35);
+                               -fx-border-radius: 22; -fx-border-width: 0.5;
+                               -fx-cursor: hand;" />
+
+                <Button text="Logout" onAction="#handleLogout"
+                        style="-fx-background-color: rgba(255,255,255,0.06);
+                               -fx-text-fill: white;
+                               -fx-font-family: 'Inter','Segoe UI',sans-serif;
+                               -fx-font-size: 12; -fx-font-weight: bold;
+                               -fx-padding: 9 18 9 18;
+                               -fx-background-radius: 22;
+                               -fx-border-color: rgba(255,255,255,0.25);
+                               -fx-border-radius: 22; -fx-border-width: 0.5;
+                               -fx-cursor: hand;" />
+            </HBox>
+        </top>
+
+        <!-- ── Main content ──────────────────────────────────────────────── -->
+        <center>
+            <ScrollPane fitToWidth="true"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                <content>
+                    <VBox spacing="22" style="-fx-background-color: transparent;">
+                        <padding><Insets top="32" right="44" bottom="44" left="44"/></padding>
+
+                        <!-- Hero / identity card -->
+                        <StackPane>
+                            <Pane style="-fx-background-color: rgba(13,21,32,0.78);
+                                         -fx-background-radius: 22;
+                                         -fx-border-color: rgba(255,255,255,0.10);
+                                         -fx-border-radius: 22; -fx-border-width: 0.5;
+                                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 22, 0.25, 0, 8);" />
+                            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 26 30 26 30;">
+                                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="MY REVIEWS"
+                                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                                  -fx-font-size: 10; -fx-font-weight: bold;
+                                                  -fx-text-fill: #5eead4; -fx-letter-spacing: 3;" />
+                                    <Label text="Your verified write-ups"
+                                           style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
+                                                  -fx-font-size: 26; -fx-font-weight: 900; -fx-text-fill: white;" />
+                                    <Label fx:id="welcomeLabel"
+                                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.55);" />
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="6">
+                                    <Label text="TOTAL"
+                                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                                  -fx-font-size: 10; -fx-font-weight: bold;
+                                                  -fx-text-fill: rgba(255,255,255,0.55);
+                                                  -fx-letter-spacing: 2;"/>
+                                    <Label fx:id="reviewCountLabel"
+                                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                                  -fx-font-size: 12; -fx-font-weight: bold;
+                                                  -fx-text-fill: #5eead4;
+                                                  -fx-padding: 6 16; -fx-background-radius: 20;
+                                                  -fx-background-color: rgba(94,234,212,0.18);
+                                                  -fx-border-color: rgba(94,234,212,0.45);
+                                                  -fx-border-radius: 20; -fx-border-width: 0.5;"/>
+                                </VBox>
+                            </HBox>
+                        </StackPane>
+
+                        <!-- Filter card -->
+                        <StackPane>
+                            <Pane style="-fx-background-color: rgba(13,21,32,0.78);
+                                         -fx-background-radius: 18;
+                                         -fx-border-color: rgba(255,255,255,0.10);
+                                         -fx-border-radius: 18; -fx-border-width: 0.5;" />
+                            <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-padding: 16 22 16 22;">
+                                <Label text="Show:"
+                                       style="-fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.65);
+                                              -fx-letter-spacing: 1;"/>
+                                <ComboBox fx:id="timeFilterComboBox" prefWidth="200"
+                                          style="-fx-font-size: 13;
+                                                 -fx-background-color: rgba(255,255,255,0.06);
+                                                 -fx-background-radius: 12;
+                                                 -fx-border-color: rgba(255,255,255,0.18);
+                                                 -fx-border-radius: 12; -fx-border-width: 0.5;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                        </StackPane>
+
+                        <!-- Reviews list -->
+                        <VBox fx:id="reviewsList" spacing="14"
+                              style="-fx-background-color: transparent;"/>
+
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+
+</StackPane>

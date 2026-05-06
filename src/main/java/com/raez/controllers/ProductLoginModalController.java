@@ -103,7 +103,18 @@ public class ProductLoginModalController implements Initializable {
                 dialog.initOwner(emailField.getScene().getWindow());
             }
             dialog.setTitle("Create Account");
-            dialog.setScene(new Scene(root));
+            // Cap the dialog at ~88% of the screen so the form's internal
+            // ScrollPane handles the overflow instead of the dialog growing
+            // taller than the desktop and hiding its bottom buttons.
+            javafx.geometry.Rectangle2D vb =
+                javafx.stage.Screen.getPrimary().getVisualBounds();
+            double w = Math.min(640, vb.getWidth()  * 0.92);
+            double h = Math.min(820, vb.getHeight() * 0.88);
+            Scene scene = new Scene(root, w, h);
+            dialog.setScene(scene);
+            dialog.setMinWidth(420);
+            dialog.setMinHeight(520);
+            dialog.setResizable(true);
             dialog.showAndWait();
         } catch (Exception e) {
             showError("Could not open registration: " + e.getMessage());
