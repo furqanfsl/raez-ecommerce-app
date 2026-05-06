@@ -1,5 +1,6 @@
 package com.raez.controllers;
 
+import com.raez.customer.dao.CustomerDAO;
 import com.raez.model.CartManager;
 import com.raez.model.FavouritesManager;
 import com.raez.model.NavigationRouter;
@@ -9,6 +10,8 @@ import com.raez.reviews.app.AppContext;
 import com.raez.reviews.app.ReviewsApplication;
 import com.raez.reviews.model.Customer;
 import com.raez.reviews.model.UserSession;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,6 +22,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Popup;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -84,6 +88,59 @@ public class ProductHeaderController implements Initializable {
         }
 
         NavigationRouter.getInstance().setHeaderLoginListener(this::updateUserState);
+
+        // Hover-to-open: opening Collections / user menu just by moving the
+        // pointer onto the trigger feels much faster than the JavaFX default
+        // (click to open). show() is idempotent if the popup is already up.
+        wireHoverOpen(collectionsMenu);
+        wireHoverOpen(userMenuBtn);
+    }
+
+    private void wireHoverOpen(MenuButton mb) {
+        if (mb == null) return;
+        // javafx.scene.robot.Robot.getMousePosition() returns JavaFX screen
+        // coordinates — same space as Window.getX() and localToScreen() — so
+        // no DPI-scaling conversion is needed (unlike java.awt.MouseInfo).
+        // Grace counter: skip the first 2 ticks (≈240 ms) after the popup opens
+        // so the PopupWindow has time to settle into Window.getWindows() with
+        // its correct bounds before we start the "cursor left?" check.
+        javafx.scene.robot.Robot robot = new javafx.scene.robot.Robot();
+        Timeline[] poll = {null};
+        int[] grace = {0};
+
+        mb.setOnMouseEntered(e -> { if (!mb.isShowing()) mb.show(); });
+
+        mb.showingProperty().addListener((obs, wasShowing, nowShowing) -> {
+            if (!nowShowing) {
+                if (poll[0] != null) { poll[0].stop(); poll[0] = null; }
+                grace[0] = 0;
+                return;
+            }
+            if (poll[0] != null) poll[0].stop();
+            grace[0] = 0;
+            poll[0] = new Timeline(new KeyFrame(Duration.millis(120), ev -> {
+                if (!mb.isShowing()) { poll[0].stop(); poll[0] = null; grace[0] = 0; return; }
+                if (grace[0]++ < 2) return; // skip first ~240 ms — popup settling
+
+                javafx.geometry.Point2D mouse = robot.getMousePosition();
+                double mx = mouse.getX(), my = mouse.getY();
+
+                // Is cursor over the MenuButton?
+                javafx.geometry.Bounds btn = mb.localToScreen(mb.getBoundsInLocal());
+                if (btn != null && btn.contains(mx, my)) return;
+
+                // Is cursor over any showing PopupWindow (the dropdown)?
+                boolean overPopup = javafx.stage.Window.getWindows().stream()
+                    .filter(w -> w instanceof javafx.stage.PopupWindow && w.isShowing())
+                    .anyMatch(w ->
+                        mx >= w.getX() && mx <= w.getX() + w.getWidth() &&
+                        my >= w.getY() && my <= w.getY() + w.getHeight());
+
+                if (!overPopup) { poll[0].stop(); poll[0] = null; grace[0] = 0; mb.hide(); }
+            }));
+            poll[0].setCycleCount(javafx.animation.Animation.INDEFINITE);
+            poll[0].play();
+        });
     }
 
     private void updateCartBadge(java.util.Map<Integer, CartManager.CartItem> items) {
@@ -278,6 +335,15 @@ public class ProductHeaderController implements Initializable {
     private void handleMyReviews() {
         if (currentUser == null) { handleOpenLogin(); return; }
         try {
+            // Resolve the reviews-module customer ID (customers table PK),
+            // not the auth-module user ID — these are different integers.
+            int customerId;
+            try {
+                customerId = new CustomerDAO().getCustomerIdByUserId(currentUser.userID);
+            } catch (Exception ex) {
+                customerId = currentUser.userID; // fallback — best-effort
+            }
+
             FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/reviews-customer-dashboard.fxml"));
             Parent view = loader.load();
@@ -285,7 +351,7 @@ public class ProductHeaderController implements Initializable {
             String displayName = ((currentUser.firstName != null ? currentUser.firstName : "") + " " +
                                   (currentUser.lastName  != null ? currentUser.lastName  : "")).trim();
             if (displayName.isEmpty()) displayName = currentUser.email;
-            Customer cu = new Customer(currentUser.userID, displayName, currentUser.email, true);
+            Customer cu = new Customer(customerId, displayName, currentUser.email, true);
             UserSession session = UserSession.customer(cu);
             ReviewsApplication reviewsApp = new ReviewsApplication(logoBtn.getScene().getWindow());
             ctrl.init(reviewsApp, AppContext.getInstance(), session);
