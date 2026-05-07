@@ -14,8 +14,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceLoginController {
+    private static final Logger log = LoggerFactory.getLogger(FinanceLoginController.class);
+
 
     @FXML
     private TextField emailField;
@@ -70,11 +74,11 @@ public class FinanceLoginController {
             } catch (Exception navEx) {
                 String msg = navEx.getMessage() != null ? navEx.getMessage() : navEx.getClass().getSimpleName();
                 errorLabel.setText("FinanceLogin succeeded but could not open dashboard: " + msg);
-                System.err.println("=== Dashboard load error ===");
-                navEx.printStackTrace(System.err);
+                log.error("{}", "=== Dashboard load error ===");
+                log.error("Error", navEx);
                 if (navEx.getCause() != null) {
-                    System.err.println("Cause: " + navEx.getCause().getMessage());
-                    navEx.getCause().printStackTrace(System.err);
+                    log.error("{}", "Cause: " + navEx.getCause().getMessage());
+                    log.error("Error", navEx.getCause());
                 }
             }
         } catch (FirstLoginRequiredException e) {

@@ -191,6 +191,14 @@ public class ReviewDao {
                 "Unable to load reviews for the chosen product.");
     }
 
+    public List<Review> findByCustomer(int customerId) {
+        String sql = BASE_SELECT
+                + " WHERE r.customerID = ? AND r.status IN ('ACTIVE', 'FLAGGED')"
+                + " ORDER BY r.updatedAt DESC";
+        return loadReviewList(sql, statement -> statement.setInt(1, customerId),
+                "Unable to load reviews for the current customer.");
+    }
+
     public List<Review> findForAdmin(Integer productId, ReviewStatus status, String searchText) {
         AdminQuery adminQuery = buildAdminQuery(productId, status, searchText);
         return loadReviewList(adminQuery.sql(), statement -> bindParameters(statement, adminQuery.parameters()),

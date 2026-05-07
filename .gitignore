@@ -1,1 +1,46 @@
-/target/
+# Build output
+target/
+*.class
+*.jar
+*.war
+
+# IDE / editor
+.idea/
+.vscode/
+.vs/
+*.iml
+*.swp
+*.swo
+*.bak
+*~
+
+# OS metadata
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Microsoft Office lock files
+~$*
+
+# Logs
+*.log
+logs/
+
+# Local config & secrets — must never be committed
+.env
+config.properties
+*.local.properties
+
+# SQLite runtime artefacts (the seed bootstraps a fresh DB on first run)
+/raez.db
+/raez-local.db
+*.db-shm
+*.db-wal
+*.db-journal
+
+# DB Browser for SQLite project files
+*.sqbpro
+
+# jpackage staging
+/jpackage-input/

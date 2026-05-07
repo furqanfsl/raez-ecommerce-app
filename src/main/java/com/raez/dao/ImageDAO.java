@@ -6,11 +6,15 @@ import com.raez.model.ProductImage;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * All SQL operations for the {@code product_images} table.
  */
 public class ImageDAO {
+    private static final Logger log = LoggerFactory.getLogger(ImageDAO.class);
+
 
     private Connection conn() {
         return DBConnection.getInstance().getConnection();
@@ -25,7 +29,7 @@ public class ImageDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(map(rs));
         } catch (SQLException e) {
-            System.err.println("ImageDAO.getByProduct: " + e.getMessage());
+            log.error("{}", "ImageDAO.getByProduct: " + e.getMessage());
         }
         return list;
     }
@@ -43,7 +47,7 @@ public class ImageDAO {
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) return keys.getInt(1);
         } catch (SQLException e) {
-            System.err.println("ImageDAO.insert: " + e.getMessage());
+            log.error("{}", "ImageDAO.insert: " + e.getMessage());
         }
         return -1;
     }
@@ -55,7 +59,7 @@ public class ImageDAO {
             ps.setInt(1, productId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("ImageDAO.deleteAllForProduct: " + e.getMessage());
+            log.error("{}", "ImageDAO.deleteAllForProduct: " + e.getMessage());
         }
     }
 
@@ -70,7 +74,7 @@ public class ImageDAO {
             ps2.setInt(1, imageId);
             ps2.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("ImageDAO.setPrimary: " + e.getMessage());
+            log.error("{}", "ImageDAO.setPrimary: " + e.getMessage());
         }
     }
 

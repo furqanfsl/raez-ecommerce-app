@@ -24,8 +24,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomerSuperAdminEditController {
+    private static final Logger log = LoggerFactory.getLogger(CustomerSuperAdminEditController.class);
+
 
     @FXML private Label         customerNameLabel;
     @FXML private Label         customerIdLabel;
@@ -121,7 +125,7 @@ public class CustomerSuperAdminEditController {
                 currentIdCardPath = profile.getIdCardPath();
                 idCardLabel.setText(profile.getIdCardFileName());
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
 
         try {
             CustomerPreference pref = prefDAO.getByUserId(targetUser.getId());
@@ -132,12 +136,12 @@ public class CustomerSuperAdminEditController {
                     notificationsCombo.setValue(pref.getNotificationSettings());
                 deliveryInstructionsField.setText(nvl(pref.getDeliveryInstructions()));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
 
         try {
             ordersTable.setItems(FXCollections.observableArrayList(
                 orderDAO.getOrdersByUserId(targetUser.getId())));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML private void handleTabProfile() {
@@ -224,7 +228,7 @@ public class CustomerSuperAdminEditController {
             targetUser.setStatus(nowActive ? "ACTIVE" : "INACTIVE");
             customerStatusLabel.setText(nowActive ? "Active" : "Inactive");
             toggleStatusBtn.setText(nowActive ? "Deactivate" : "Activate");
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML
@@ -259,7 +263,7 @@ public class CustomerSuperAdminEditController {
             CustomerSuperAdminDashboardController ctrl = loader.getController();
             ctrl.setUser(adminUser);
             stage.setScene(scene);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML
@@ -268,7 +272,7 @@ public class CustomerSuperAdminEditController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerWelcome.fxml"));
             Stage stage = (Stage) customerNameLabel.getScene().getWindow();
             stage.setScene(new Scene(loader.load(), stage.getWidth(), stage.getHeight()));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     private void buildCategoryCheckboxes(Set<String> selected) {

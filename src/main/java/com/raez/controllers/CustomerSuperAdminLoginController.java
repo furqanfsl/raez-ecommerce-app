@@ -9,8 +9,12 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomerSuperAdminLoginController {
+    private static final Logger log = LoggerFactory.getLogger(CustomerSuperAdminLoginController.class);
+
 
     @FXML private TextField     emailField;
     @FXML private PasswordField passwordField;
@@ -64,7 +68,7 @@ public class CustomerSuperAdminLoginController {
             stage.setScene(scene);
         } catch (Exception e) {
             generalErrorLabel.setText("Login error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 
@@ -74,6 +78,6 @@ public class CustomerSuperAdminLoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerWelcome.fxml"));
             Stage stage = (Stage) emailField.getScene().getWindow();
             stage.setScene(new Scene(loader.load(), stage.getWidth(), stage.getHeight()));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 }

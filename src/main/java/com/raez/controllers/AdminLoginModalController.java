@@ -6,12 +6,19 @@ import com.raez.service.AuthService;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
+import javafx.application.Platform;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AdminLoginModalController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(AdminLoginModalController.class);
+
 
     @FXML private TextField     emailField;
     @FXML private PasswordField passwordField;
@@ -22,7 +29,18 @@ public class AdminLoginModalController implements Initializable {
     public void setup(Runnable onClose) { this.onClose = onClose; }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) { clearError(); }
+    public void initialize(URL location, ResourceBundle resources) {
+        clearError();
+        // Wire ESC to close once the scene is attached (transparent stages don't
+        // get the platform-default ESC handling, so we add it ourselves).
+        Platform.runLater(() -> {
+            if (emailField != null && emailField.getScene() != null) {
+                emailField.getScene().setOnKeyPressed(e -> {
+                    if (e.getCode() == KeyCode.ESCAPE) handleClose();
+                });
+            }
+        });
+    }
 
     @FXML
     private void handleLogin() {
@@ -58,11 +76,23 @@ public class AdminLoginModalController implements Initializable {
 
         } catch (Exception e) {
             showError("Login error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 
-    @FXML private void handleClose() { if (onClose != null) onClose.run(); }
+    @FXML
+    private void handleClose() {
+        if (onClose != null) {
+            onClose.run();
+            return;
+        }
+        // Fallback: close the underlying stage directly. Belt-and-braces — if
+        // the launcher ever forgets to call setup(), the cross still works.
+        if (emailField != null && emailField.getScene() != null
+            && emailField.getScene().getWindow() instanceof Stage stage) {
+            stage.close();
+        }
+    }
 
     @FXML
     private void handleForgotPassword() {
@@ -72,14 +102,14 @@ public class AdminLoginModalController implements Initializable {
 
     // ── Demo quick-fill ────────────────────────────────────────────────────
 
-    @FXML private void demoSuperAdmin()    { fill("admin@raez.org.uk",           "admin123"); }
-    @FXML private void demoProduct()       { fill("adminProduct@raez.org.uk",    "raez123"); }
-    @FXML private void demoCustomerAdmin() { fill("adminCustomer@raez.org.uk",   "raez123"); }
-    @FXML private void demoOrders()        { fill("orders@raez.org.uk",          "raez123"); }
-    @FXML private void demoWarehouse()     { fill("adminWarehouse@raez.org.uk",  "raez123"); }
-    @FXML private void demoDelivery()      { fill("adminDelivery@raez.org.uk",   "raez123"); }
-    @FXML private void demoFinance()       { fill("adminFinance@raez.org.uk",    "raez123"); }
-    @FXML private void demoReviews()       { fill("adminReviews@raez.org.uk",    "AReviews@12345"); }
+    @FXML private void demoSuperAdmin()    { fill("admin@raez.org.uk",            "admin123"); }
+    @FXML private void demoProduct()       { fill("adminProduct@raez.org.uk",   "raez123"); }
+    @FXML private void demoCustomerAdmin() { fill("adminCustomer@raez.org.uk",  "raez123"); }
+    @FXML private void demoOrders()        { fill("orders@raez.org.uk",         "raez123"); }
+    @FXML private void demoWarehouse()     { fill("adminWarehouse@raez.org.uk", "raez123"); }
+    @FXML private void demoDelivery()      { fill("adminDelivery@raez.org.uk",  "raez123"); }
+    @FXML private void demoFinance()       { fill("adminFinance@raez.org.uk",   "raez123"); }
+    @FXML private void demoReviews()       { fill("adminReviews@raez.org.uk",   "raez123"); }
 
     private void fill(String email, String password) {
         emailField.setText(email);

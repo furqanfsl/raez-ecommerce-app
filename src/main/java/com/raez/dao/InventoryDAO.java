@@ -3,12 +3,16 @@ package com.raez.dao;
 import com.raez.db.DBConnection;
 
 import java.sql.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles stock levels in warehouse_inventory.
  * Uses a single default warehouse for the product component.
  */
 public class InventoryDAO {
+    private static final Logger log = LoggerFactory.getLogger(InventoryDAO.class);
+
 
     private static final String DEFAULT_WAREHOUSE = "Main Warehouse";
 
@@ -25,7 +29,7 @@ public class InventoryDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt("warehouseID");
         } catch (SQLException e) {
-            System.err.println("InventoryDAO.findWarehouse: " + e.getMessage());
+            log.error("{}", "InventoryDAO.findWarehouse: " + e.getMessage());
         }
 
         // Create it
@@ -37,7 +41,7 @@ public class InventoryDAO {
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) return keys.getInt(1);
         } catch (SQLException e) {
-            System.err.println("InventoryDAO.createWarehouse: " + e.getMessage());
+            log.error("{}", "InventoryDAO.createWarehouse: " + e.getMessage());
         }
         return -1;
     }
@@ -51,7 +55,7 @@ public class InventoryDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
-            System.err.println("InventoryDAO.getStock: " + e.getMessage());
+            log.error("{}", "InventoryDAO.getStock: " + e.getMessage());
         }
         return 0;
     }
@@ -74,7 +78,7 @@ public class InventoryDAO {
             ps.setInt(3, Math.max(0, quantity));
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("InventoryDAO.setStock: " + e.getMessage());
+            log.error("{}", "InventoryDAO.setStock: " + e.getMessage());
         }
     }
 
@@ -85,7 +89,7 @@ public class InventoryDAO {
             ps.setInt(1, productId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("InventoryDAO.deleteForProduct: " + e.getMessage());
+            log.error("{}", "InventoryDAO.deleteForProduct: " + e.getMessage());
         }
     }
 }

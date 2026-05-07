@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Initializes finance_raez.db with the full schema (26+ tables) and seed data.
@@ -15,10 +17,12 @@ import java.sql.Statement;
  * mvn -DskipTests=true -q compile exec:java "-Dexec.mainClass=com.raez.finance.util.FinanceDatabaseBootstrap"
  */
 public class FinanceDatabaseBootstrap {
+    private static final Logger log = LoggerFactory.getLogger(FinanceDatabaseBootstrap.class);
+
 
     public static void main(String[] args) throws Exception {
         bootstrap();
-        System.out.println("FinanceDatabaseBootstrap: schema.sql and seed.sql applied to finance_raez.db");
+        log.info("{}", "FinanceDatabaseBootstrap: schema.sql and seed.sql applied to finance_raez.db");
     }
 
     /** Applies schema and seed to the DB used by FinanceDatabaseConnection. Called automatically when the DB has no FinanceUser table. */

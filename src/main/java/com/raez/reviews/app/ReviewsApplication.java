@@ -17,12 +17,16 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import com.raez.reviews.controller.ReviewFormController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Adapter used by Reviews controllers — replaces the standalone JavaFX Application.
  * Provides dialog helpers and routes logout back through the master NavigationRouter.
  */
 public class ReviewsApplication {
+    private static final Logger log = LoggerFactory.getLogger(ReviewsApplication.class);
+
 
     private final Window ownerWindow;
 
@@ -45,8 +49,8 @@ public class ReviewsApplication {
             ctrl.init(dialog, title, existingReview, adminMode, onSave);
             dialog.showAndWait();
         } catch (Exception e) {
-            System.err.println("[ReviewsApplication] openReviewDialog failed: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "[ReviewsApplication] openReviewDialog failed: " + e.getMessage());
+            log.error("Error", e);
         }
     }
 
@@ -65,8 +69,8 @@ public class ReviewsApplication {
             ctrl.init(this, AppContext.getInstance(), session);
             NavigationRouter.getInstance().getStage().getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("[ReviewsApplication] showAdminDashboard failed: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "[ReviewsApplication] showAdminDashboard failed: " + e.getMessage());
+            log.error("Error", e);
         }
     }
 
@@ -79,8 +83,8 @@ public class ReviewsApplication {
             ctrl.init(this, AppContext.getInstance(), session);
             NavigationRouter.getInstance().getStage().getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("[ReviewsApplication] showCustomerDashboard failed: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "[ReviewsApplication] showCustomerDashboard failed: " + e.getMessage());
+            log.error("Error", e);
         }
     }
 }

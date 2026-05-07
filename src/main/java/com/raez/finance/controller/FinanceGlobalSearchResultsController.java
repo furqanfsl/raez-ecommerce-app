@@ -26,8 +26,12 @@ import java.util.function.Consumer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceGlobalSearchResultsController implements FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceGlobalSearchResultsController.class);
+
 
     // ── FXML ─────────────────────────────────────────────────────────────
     @FXML private Label lblQuery;
@@ -238,7 +242,7 @@ public class FinanceGlobalSearchResultsController implements FinanceUiAutoRefres
             }
 
             @Override protected void failed() {
-                if (getException() != null) getException().printStackTrace();
+                if (getException() != null) log.error("Error", getException());
             }
         };
         executor.execute(task);

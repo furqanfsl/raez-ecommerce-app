@@ -1,25 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx/17"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.raez.controllers.ProductNewHomePageController"
-           fx:id="heroPane"
-           prefHeight="620"
-           maxWidth="Infinity"
-           style="-fx-background-color: #5a9070;">
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.raez.controllers.ProductNewHomePageController"
+      spacing="0"
+      maxWidth="Infinity">
 
-    <ImageView fx:id="heroImage"
-               fitWidth="1600" fitHeight="620"
-               preserveRatio="false"
-               smooth="true" />
+    <!-- ═══════════════ HERO: Gradient Mesh + HeroSection Video ═══════════════ -->
+    <StackPane fx:id="heroPane" prefHeight="560" maxWidth="Infinity" minWidth="0">
 
-    <Label text="RAEZ"
-           style="-fx-font-size: 100; -fx-font-weight: normal;
-                  -fx-text-fill: white;
-                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.1, 0, 2);" />
+        <!-- Base gradient mesh: deep blue → teal → violet -->
+        <Pane style="-fx-background-color: linear-gradient(to bottom right, #0a0f1f 0%, #0d2538 35%, #1a3347 60%, #2a1a4a 100%);"
+              maxWidth="Infinity" maxHeight="Infinity" />
 
-</StackPane>
+        <!-- Mesh blob #1: teal glow, top-left -->
+        <Pane style="-fx-background-color: radial-gradient(center 15% 20%, radius 45%, rgba(20,184,166,0.35) 0%, transparent 70%);"
+              maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+
+        <!-- Mesh blob #2: violet glow, bottom-right -->
+        <Pane style="-fx-background-color: radial-gradient(center 80% 75%, radius 50%, rgba(139,92,246,0.32) 0%, transparent 70%);"
+              maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+
+        <!-- Mesh blob #3: cyan accent, center-right -->
+        <Pane style="-fx-background-color: radial-gradient(center 65% 40%, radius 35%, rgba(56,189,248,0.22) 0%, transparent 70%);"
+              maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+
+        <!-- Subtle noise-like veil for premium feel (JavaFX has no noise filter; faint tint substitutes) -->
+        <Pane style="-fx-background-color: linear-gradient(to bottom, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.15) 100%);"
+              maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+
+        <!-- Hero content: text left, video right -->
+        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" minWidth="0"
+              style="-fx-padding: 48 56 48 56;">
+
+            <!-- Left: headline + CTAs -->
+            <VBox fx:id="heroTextBox" spacing="0" maxWidth="640" HBox.hgrow="NEVER">
+                <!-- Headline (largest) -->
+                <Label text="BUILT TO THINK.&#10;ENGINEERED TO MOVE."
+                       wrapText="true" maxWidth="620"
+                       style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
+                              -fx-font-size: 54; -fx-font-weight: 900;
+                              -fx-text-fill: linear-gradient(to bottom right, #ffffff 0%, #e0f2fe 55%, #bae6fd 100%);
+                              -fx-line-spacing: -4; -fx-letter-spacing: -2;
+                              -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.35), 22, 0.25, 0, 6);" />
+                <!-- Secondary line (medium) — 10px gap below headline -->
+                <Label text="NEXT-GENERATION AGENTIC ROBOTICS"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #5eead4;
+                              -fx-letter-spacing: 4;
+                              -fx-padding: 10 0 0 0;" />
+                <!-- Tagline (smaller) -->
+                <Label text="Building tomorrow's autonomous world, today"
+                       wrapText="true" maxWidth="560"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 15; -fx-text-fill: #cbd5e1; -fx-line-spacing: 4;
+                              -fx-padding: 18 0 0 0;" />
+                <HBox spacing="14" style="-fx-padding: 28 0 0 0;">
+                    <Button text="Explore Collection →" onAction="#handleExploreCollection"
+                            style="-fx-background-color: rgba(255,255,255,0.92); -fx-text-fill: #0a0f1f;
+                                   -fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                   -fx-font-size: 13; -fx-font-weight: bold;
+                                   -fx-padding: 12 28; -fx-background-radius: 32; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.45), 18, 0.25, 0, 4);" />
+                    <Button text="Shop Now" onAction="#handleShopNow"
+                            style="-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white;
+                                   -fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                   -fx-font-size: 13; -fx-font-weight: bold;
+                                   -fx-padding: 12 28; -fx-background-radius: 32; -fx-cursor: hand;
+                                   -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 32;
+                                   -fx-border-width: 1;" />
+                </HBox>
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- Right: Animated robot -->
+            <StackPane fx:id="heroVideoContainer" prefWidth="560" prefHeight="480" minWidth="0"
+                       HBox.hgrow="ALWAYS">
+
+                <!-- Teal glow behind the robot -->
+                <Pane style="-fx-background-color: radial-gradient(center 50% 50%, radius 55%, rgba(0,229,255,0.15) 0%, transparent 75%);"
+                      maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+
+                <!-- Robot is built programmatically in the controller -->
+                <Pane fx:id="heroRobotPane" maxWidth="Infinity" maxHeight="Infinity" />
+            </StackPane>
+
+        </HBox>
+    </StackPane>
+
+    <!-- ═══════════════ PRODUCT STRIPS SECTION ═══════════════ -->
+    <VBox fx:id="stripsContainer"
+          spacing="8" maxWidth="Infinity" minWidth="0"
+          style="-fx-background-color: #080d16; -fx-padding: 36 32 20 32;" />
+
+</VBox>

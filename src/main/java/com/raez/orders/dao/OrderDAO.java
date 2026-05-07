@@ -1,15 +1,21 @@
 package com.raez.orders.dao;
 
 import com.raez.db.DBConnection;
+import com.raez.finance.dao.FinanceInvoiceDao;
 import com.raez.model.CartManager;
 import com.raez.orders.model.Order;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderDAO {
+    private static final Logger log = LoggerFactory.getLogger(OrderDAO.class);
+
 
     public List<Order> getAllOrders() {
         String sql = """
@@ -48,7 +54,7 @@ public class OrderDAO {
             ps.setInt(2, orderId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("OrderDAO.updateOrderStatus: " + e.getMessage());
+            log.error("{}", "OrderDAO.updateOrderStatus: " + e.getMessage());
             return false;
         }
     }
@@ -62,7 +68,7 @@ public class OrderDAO {
             ResultSet rs = ps.executeQuery();
             return rs.next() ? rs.getInt("customerID") : -1;
         } catch (SQLException e) {
-            System.err.println("OrderDAO.getCustomerIdByUserId: " + e.getMessage());
+            log.error("{}", "OrderDAO.getCustomerIdByUserId: " + e.getMessage());
             return -1;
         }
     }
@@ -126,12 +132,29 @@ public class OrderDAO {
             }
 
             conn.commit();
+            autoCreateInvoice(orderId);
             return orderId;
         } catch (Exception ex) {
             try { conn.rollback(); } catch (SQLException ignore) {}
             throw ex;
         } finally {
             try { conn.setAutoCommit(true); } catch (SQLException ignore) {}
+        }
+    }
+
+    /**
+     * Creates a finance_invoices record for a freshly committed order.
+     * Runs after the transaction commits so a failure here never rolls back the order.
+     */
+    private void autoCreateInvoice(int orderId) {
+        try {
+            new FinanceInvoiceDao().insertInvoiceForOrder(
+                    orderId,
+                    LocalDate.now().plusDays(14),
+                    "Auto-generated on order placement");
+            log.info("{}", "Finance invoice created for order #" + orderId);
+        } catch (Exception e) {
+            log.error("{}", "autoCreateInvoice (non-fatal): " + e.getMessage());
         }
     }
 
@@ -162,7 +185,7 @@ public class OrderDAO {
             return true;
         } catch (SQLException e) {
             try { conn.rollback(); } catch (SQLException ignore) {}
-            System.err.println("OrderDAO.markDelivered: " + e.getMessage());
+            log.error("{}", "OrderDAO.markDelivered: " + e.getMessage());
             return false;
         } finally {
             try { conn.setAutoCommit(true); } catch (SQLException ignore) {}
@@ -190,7 +213,7 @@ public class OrderDAO {
                 ));
             }
         } catch (SQLException e) {
-            System.err.println("OrderDAO.query: " + e.getMessage());
+            log.error("{}", "OrderDAO.query: " + e.getMessage());
         }
         return list;
     }

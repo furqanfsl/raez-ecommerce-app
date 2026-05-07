@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Revenue Analysis & VAT Summary
@@ -35,6 +37,8 @@ import java.util.concurrent.TimeUnit;
  * Now uses buildExportData() + exportRowsToCSV / exportRowsToPDF.
  */
 public class FinanceRevenueVatSummaryController implements FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceRevenueVatSummaryController.class);
+
 
     // ── FXML injections ────────────────────────────────────────────────────
     @FXML private ScrollPane pageScrollPane;
@@ -267,7 +271,7 @@ public class FinanceRevenueVatSummaryController implements FinanceUiAutoRefresha
             }
 
             @Override protected void failed() {
-                if (getException() != null) getException().printStackTrace();
+                if (getException() != null) log.error("Error", getException());
             }
         };
         executor.execute(task);

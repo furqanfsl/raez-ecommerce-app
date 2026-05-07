@@ -6,12 +6,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Minimal, direct seeder that writes admin/finance users into the existing finance_raez.db
  * without going through FinanceDatabaseConnection/FinanceDatabaseBootstrap.
  */
 public class FinanceDirectUserSeeder {
+    private static final Logger log = LoggerFactory.getLogger(FinanceDirectUserSeeder.class);
+
 
     public static void main(String[] args) throws Exception {
         String dbPath = "finance_raez.db";
@@ -20,7 +24,7 @@ public class FinanceDirectUserSeeder {
             ensureFUserTable(conn);
             seedUsers(conn);
         }
-        System.out.println("FinanceDirectUserSeeder: seeded admin@raez.org.uk and finance@raez.org.uk into FinanceUser");
+        log.info("{}", "FinanceDirectUserSeeder: seeded admin@raez.org.uk and finance@raez.org.uk into FinanceUser");
     }
 
     private static void ensureFUserTable(Connection conn) throws Exception {

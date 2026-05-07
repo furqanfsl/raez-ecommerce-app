@@ -2,6 +2,7 @@ package com.raez.customer.dao;
 
 import com.raez.customer.model.CustomerUser;
 import com.raez.db.DBConnection;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -28,15 +29,20 @@ public class CustomerAdminDAO {
             "FROM users u " +
             "JOIN user_roles ur ON ur.userID = u.userID " +
             "JOIN roles r ON r.roleID = ur.roleID " +
-            "WHERE u.email = ? AND u.passwordHash = ? AND r.roleName = ? AND u.isActive = 1";
+            "WHERE u.email = ? AND r.roleName = ? AND u.isActive = 1";
         try (Connection conn = DBConnection.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email.trim());
-            ps.setString(2, DBConnection.hashPassword(password));
-            ps.setString(3, roleName);
+            ps.setString(2, roleName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapUser(rs);
+                String storedHash = rs.getString("passwordHash");
+                if (storedHash == null || storedHash.isBlank()) return null;
+                try {
+                    if (BCrypt.checkpw(password, storedHash)) return mapUser(rs);
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
             }
         }
         return null;
@@ -52,8 +58,8 @@ public class CustomerAdminDAO {
             "WHERE r.roleName = 'customer'";
         List<CustomerUser> list = new ArrayList<>();
         try (Connection conn = DBConnection.getInstance().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) list.add(mapUser(rs));
         }
         return list;
@@ -62,32 +68,25 @@ public class CustomerAdminDAO {
     // ── SEARCH CUSTOMERS ───────────────────────────────────────────────────
     public List<CustomerUser> searchCustomers(String keyword, String status) throws SQLException {
         boolean allStatuses = "All".equals(status);
-        String sql;
-        if (allStatuses) {
-            sql =
-                "SELECT u.userID, u.email, u.passwordHash, u.firstName, u.lastName, u.isActive, r.roleName " +
-                "FROM users u " +
-                "JOIN user_roles ur ON ur.userID = u.userID " +
-                "JOIN roles r ON r.roleID = ur.roleID " +
-                "WHERE r.roleName = 'customer' " +
-                "  AND (u.email LIKE ? OR u.username LIKE ? OR CAST(u.userID AS TEXT) LIKE ?)";
-        } else {
-            int isActive = "ACTIVE".equalsIgnoreCase(status) ? 1 : 0;
-            sql =
-                "SELECT u.userID, u.email, u.passwordHash, u.firstName, u.lastName, u.isActive, r.roleName " +
-                "FROM users u " +
-                "JOIN user_roles ur ON ur.userID = u.userID " +
-                "JOIN roles r ON r.roleID = ur.roleID " +
-                "WHERE r.roleName = 'customer' AND u.isActive = " + isActive +
-                "  AND (u.email LIKE ? OR u.username LIKE ? OR CAST(u.userID AS TEXT) LIKE ?)";
-        }
+        String baseSql =
+            "SELECT u.userID, u.email, u.passwordHash, u.firstName, u.lastName, u.isActive, r.roleName " +
+            "FROM users u " +
+            "JOIN user_roles ur ON ur.userID = u.userID " +
+            "JOIN roles r ON r.roleID = ur.roleID " +
+            "WHERE r.roleName = 'customer' " +
+            (allStatuses ? "" : "  AND u.isActive = ? ") +
+            "  AND (u.email LIKE ? OR u.username LIKE ? OR CAST(u.userID AS TEXT) LIKE ?)";
         String search = "%" + keyword + "%";
         List<CustomerUser> list = new ArrayList<>();
         try (Connection conn = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, search);
-            ps.setString(2, search);
-            ps.setString(3, search);
+             PreparedStatement ps = conn.prepareStatement(baseSql)) {
+            int idx = 1;
+            if (!allStatuses) {
+                ps.setInt(idx++, "ACTIVE".equalsIgnoreCase(status) ? 1 : 0);
+            }
+            ps.setString(idx++, search);
+            ps.setString(idx++, search);
+            ps.setString(idx,   search);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(mapUser(rs));
         }
@@ -98,8 +97,8 @@ public class CustomerAdminDAO {
     public double getTotalRevenue() throws SQLException {
         String sql = "SELECT COALESCE(SUM(totalAmount), 0) FROM orders";
         try (Connection conn = DBConnection.getInstance().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getDouble(1);
         }
         return 0.0;

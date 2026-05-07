@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.raez.controllers.ProductRoutePageController"
+            style="-fx-background-color: #070d18;">
+
+    <BorderPane AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0">
+
+        <top>
+            <fx:include source="ProductHeader.fxml"/>
+        </top>
+
+        <center>
+            <ScrollPane fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        style="-fx-background: #070d18; -fx-background-color: #070d18; -fx-border-color: transparent;">
+                <content>
+                    <VBox spacing="0" style="-fx-background-color: #070d18;">
+
+                        <HBox spacing="24" style="-fx-padding: 32 36 40 36;">
+                            <AnchorPane minHeight="640" prefWidth="560" HBox.hgrow="ALWAYS"
+                                        style="-fx-background-color: #101a2a; -fx-border-color: #1f3b5b; -fx-border-radius: 12; -fx-background-radius: 12;">
+                                <Label text="IMAGE PLACEHOLDER"
+                                       AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0"
+                                       AnchorPane.topAnchor="0.0"
+                                       AnchorPane.bottomAnchor="0.0"
+                                       style="-fx-alignment: center; -fx-text-fill: #3f5770; -fx-font-size: 13; -fx-font-weight: bold;"/>
+                            </AnchorPane>
+
+                            <VBox spacing="16" prefWidth="560" style="-fx-background-color: #0c1424; -fx-border-color: #13416a; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 24;">
+                                <Label fx:id="productTitleLabel"
+                                       text="Product"
+                                       wrapText="true"
+                                       style="-fx-text-fill: #e8f4ff; -fx-font-size: 36; -fx-font-weight: bold;"/>
+                                <Label fx:id="productPriceLabel"
+                                       text="$0.00"
+                                       style="-fx-text-fill: #00e5ff; -fx-font-size: 28; -fx-font-weight: bold;"/>
+                                <Label fx:id="productDescriptionLabel"
+                                       text=""
+                                       wrapText="true"
+                                       style="-fx-text-fill: #9fb3c8; -fx-font-size: 14;"/>
+
+                                <HBox spacing="10">
+                                    <Label text="Quantity"
+                                           style="-fx-text-fill: #c8dbef; -fx-font-size: 13; -fx-font-weight: bold;"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="-" onAction="#decreaseQty"
+                                            style="-fx-background-color: #13233a; -fx-text-fill: #9ed6ff; -fx-font-size: 16; -fx-font-weight: bold; -fx-min-width: 36; -fx-background-radius: 8;"/>
+                                    <Label fx:id="quantityLabel"
+                                           text="1"
+                                           style="-fx-text-fill: #e8f4ff; -fx-font-size: 15; -fx-font-weight: bold; -fx-padding: 7 12 7 12; -fx-background-color: #111b2f; -fx-background-radius: 8;"/>
+                                    <Button text="+" onAction="#increaseQty"
+                                            style="-fx-background-color: #13233a; -fx-text-fill: #9ed6ff; -fx-font-size: 16; -fx-font-weight: bold; -fx-min-width: 36; -fx-background-radius: 8;"/>
+                                </HBox>
+
+                                <Button fx:id="orderButton"
+                                        text="Initialize Order"
+                                        onAction="#initializeOrder"
+                                        maxWidth="Infinity"
+                                        style="-fx-background-color: #00f5a0; -fx-text-fill: #04121c; -fx-font-size: 16; -fx-font-weight: bold; -fx-padding: 14 12 14 12; -fx-background-radius: 10; -fx-cursor: hand;"/>
+
+                                <Accordion fx:id="detailsAccordion">
+                                    <panes>
+                                        <TitledPane fx:id="specsPane" text="Technical Specs" expanded="true"
+                                                    style="-fx-text-fill: #cce2f6; -fx-background-color: #0f1b2f;">
+                                            <content>
+                                                <VBox style="-fx-background-color: #0f1b2f; -fx-padding: 12;">
+                                                    <Label fx:id="specsLabel" wrapText="true"
+                                                           style="-fx-text-fill: #9fb3c8; -fx-font-size: 13;"/>
+                                                </VBox>
+                                            </content>
+                                        </TitledPane>
+                                        <TitledPane fx:id="shippingPane" text="Shipping Info"
+                                                    style="-fx-text-fill: #cce2f6; -fx-background-color: #0f1b2f;">
+                                            <content>
+                                                <VBox style="-fx-background-color: #0f1b2f; -fx-padding: 12;">
+                                                    <Label fx:id="shippingLabel" wrapText="true"
+                                                           style="-fx-text-fill: #9fb3c8; -fx-font-size: 13;"/>
+                                                </VBox>
+                                            </content>
+                                        </TitledPane>
+                                    </panes>
+                                </Accordion>
+                            </VBox>
+                        </HBox>
+
+                        <fx:include source="AppFooter.fxml"/>
+
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+</AnchorPane>

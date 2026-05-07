@@ -75,7 +75,7 @@
 
 /* Primary — Brunel Dark Navy */
 .primary-button {
-    -fx-background-color: #002951;
+    -fx-background-color: #1E2939;
     -fx-text-fill: white;
     -fx-padding: 10 14;
     -fx-background-radius: 6;
@@ -105,7 +105,7 @@
 
 /* Neutral — Brunel Mid Navy */
 .neutral-button {
-    -fx-background-color: #1a3a5c;
+    -fx-background-color: #2D3E52;
     -fx-text-fill: white;
     -fx-padding: 10 14;
     -fx-background-radius: 6;

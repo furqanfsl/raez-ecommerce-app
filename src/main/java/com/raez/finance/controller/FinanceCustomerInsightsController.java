@@ -37,8 +37,12 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceCustomerInsightsController implements FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceCustomerInsightsController.class);
+
 
     // ── FXML ─────────────────────────────────────────────────────────────
     @FXML private ComboBox<String> cmbChartDateRange;
@@ -345,7 +349,7 @@ public class FinanceCustomerInsightsController implements FinanceUiAutoRefreshab
 
             @Override
             protected void failed() {
-                if (getException() != null) getException().printStackTrace();
+                if (getException() != null) log.error("Error", getException());
             }
         };
         executor.execute(task);
@@ -377,7 +381,7 @@ public class FinanceCustomerInsightsController implements FinanceUiAutoRefreshab
 
             @Override
             protected void failed() {
-                if (getException() != null) getException().printStackTrace();
+                if (getException() != null) log.error("Error", getException());
                 populateAlertList(vboxRefundAlerts, lblNoRefunds, lblRefundCount,
                     List.of(), "#991B1B", "#FEF2F2");
                 populateAlertList(vboxProductIssues, lblNoIssues, lblIssueCount,
@@ -427,7 +431,7 @@ public class FinanceCustomerInsightsController implements FinanceUiAutoRefreshab
 
             @Override
             protected void failed() {
-                if (getException() != null) getException().printStackTrace();
+                if (getException() != null) log.error("Error", getException());
             }
         };
         executor.execute(task);

@@ -12,8 +12,12 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomerSuperAdminDashboardController {
+    private static final Logger log = LoggerFactory.getLogger(CustomerSuperAdminDashboardController.class);
+
 
     @FXML private Label                             totalCustomersLabel;
     @FXML private Label                             totalRevenueLabel;
@@ -74,7 +78,7 @@ public class CustomerSuperAdminDashboardController {
             totalRevenueLabel.setText("£" + String.format("%,.2f", rev));
             activeAccountsLabel.setText(String.valueOf(act));
             deactivatedAccountsLabel.setText(String.valueOf(inact));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     private void loadAllCustomers() {
@@ -82,7 +86,7 @@ public class CustomerSuperAdminDashboardController {
             List<CustomerUser> list = adminDAO.getAllCustomers();
             customersTable.setItems(FXCollections.observableArrayList(list));
             setNoResults(list.isEmpty());
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML
@@ -93,7 +97,7 @@ public class CustomerSuperAdminDashboardController {
             List<CustomerUser> list = adminDAO.searchCustomers(keyword, status);
             customersTable.setItems(FXCollections.observableArrayList(list));
             setNoResults(list.isEmpty());
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML
@@ -106,7 +110,7 @@ public class CustomerSuperAdminDashboardController {
             CustomerSuperAdminPanelController ctrl = loader.getController();
             ctrl.setAdminUser(currentUser);
             stage.setScene(scene);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     @FXML
@@ -115,7 +119,7 @@ public class CustomerSuperAdminDashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CustomerWelcome.fxml"));
             Stage stage = (Stage) customersTable.getScene().getWindow();
             stage.setScene(new Scene(loader.load(), stage.getWidth(), stage.getHeight()));
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     private void openEdit(CustomerUser customer) {
@@ -127,7 +131,7 @@ public class CustomerSuperAdminDashboardController {
             CustomerSuperAdminEditController ctrl = loader.getController();
             ctrl.setContext(currentUser, customer);
             stage.setScene(scene);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { log.error("Error", e); }
     }
 
     private void setNoResults(boolean show) {

@@ -28,46 +28,49 @@ INSERT INTO roles (roleID, roleName, description) VALUES
 
 -- ================================================================
 --  USERS
---  Passwords are bcrypt hashes.  Plaintext shown in comments only.
---  Plain: admin123, finance123, warehouse123, etc.
+--  All passwords are SHA-256 hashes (used by AuthService/DBConnection.hashPassword).
+--  admin@raez.org.uk  → admin123
+--  All other staff    → raez123
 -- ================================================================
+-- SHA-256("admin123") = 240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
+-- SHA-256("raez123")  = 88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee
 INSERT INTO users (userID, email, username, passwordHash, firstName, lastName, phone, isActive) VALUES
- -- Super admin
- (1,  'admin@raez.org.uk',      'superadmin',
-      '$2a$12$qpkRycmCVk7K0wMXSfaj1egizS0VpS046AF/RV3ugEBZuzKsOIGZm',
+ -- Super admin  (password: admin123)
+ (1,  'admin@raez.org.uk',           'superadmin',
+      '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9',
       'System', 'Admin', NULL, 1),
- -- Finance users
- (2,  'finance@raez.org.uk',    'finance_admin',
-      '$2a$12$gAO0qTJBrpp/7V5/LNMJRu322WPM1uyvrOI67/mOBxkTkySRd54Tu',
+ -- Finance users  (password: raez123)
+ (2,  'finance@raez.org.uk',         'finance_admin',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Finance', 'Admin', NULL, 1),
- (3,  'j.carter@raez.org.uk',   'JCarter',
-      '$2a$12$Txq6ywD4sZmIyEk6o6AoI.oiP4c9bn8VW.0bRVCWTHi9jDv3vwwtC',
+ (3,  'j.carter@raez.org.uk',        'JCarter',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'John', 'Carter', '+44 99 12345678', 1),
- -- Warehouse users
- (4,  'admin@raez.org.uk.wh',   'wh_admin',
-      '$2a$12$ABC000placeholder000000000000000000000000000000000000000',
+ -- Warehouse users  (password: raez123)
+ (4,  'warehouse@raez.org.uk',       'wh_admin',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Warehouse', 'Admin', '+44 70 00000001', 1),
- (5,  'manager@raez.org.uk',    'wh_manager',
-      '$2a$12$ABC001placeholder000000000000000000000000000000000000000',
+ (5,  'manager@raez.org.uk',         'wh_manager',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Warehouse', 'Manager', '+44 70 00000002', 1),
- (6,  'staff@raez.org.uk',      'wh_staff',
-      '$2a$12$ABC002placeholder000000000000000000000000000000000000000',
+ (6,  'staff@raez.org.uk',           'wh_staff',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Warehouse', 'Staff', '+44 70 00000003', 1),
- -- Product admin
- (7,  'products@raez.org.uk',   'product_admin',
-      '$2a$12$ABC003placeholder000000000000000000000000000000000000000',
+ -- Product admin  (password: raez123)
+ (7,  'products@raez.org.uk',        'product_admin',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Product', 'Admin', NULL, 1),
- -- Delivery users
- (8,  'delivery@raez.org.uk',   'delivery_admin',
-      '$2a$12$ABC004placeholder000000000000000000000000000000000000000',
+ -- Delivery users  (password: raez123)
+ (8,  'delivery@raez.org.uk',        'delivery_admin',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Delivery', 'Admin', NULL, 1),
- -- Orders users
- (9,  'orders@raez.org.uk',     'orders_admin',
-      '$2a$12$ABC005placeholder000000000000000000000000000000000000000',
+ -- Orders users  (password: raez123)
+ (9,  'orders@raez.org.uk',          'orders_admin',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Orders', 'Admin', NULL, 1),
- -- Reviews admin
- (10, 'reviews@raez.org.uk',    'reviews_admin_user',
-      '$2a$12$ABC006placeholder000000000000000000000000000000000000000',
+ -- Reviews admin  (password: raez123)
+ (10, 'reviews@raez.org.uk',         'reviews_admin_user',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Reviews', 'Admin', NULL, 1),
  -- Customer accounts (matching customers below)
  (11, 'alice@raez.com',         'alice_w',

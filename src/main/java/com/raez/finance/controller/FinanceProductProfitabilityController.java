@@ -38,8 +38,12 @@ import java.util.stream.Collectors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceProductProfitabilityController implements FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceProductProfitabilityController.class);
+
 
     // ── Margin threshold ──────────────────────────────────────────────────
     private static final double LOW_MARGIN_THRESHOLD = 35.0;
@@ -367,7 +371,7 @@ public class FinanceProductProfitabilityController implements FinanceUiAutoRefre
             }
 
             @Override protected void failed() {
-                if (getException() != null) getException().printStackTrace();
+                if (getException() != null) log.error("Error", getException());
             }
         };
         executor.execute(task);

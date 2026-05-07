@@ -1,37 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17"
+<AnchorPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.raez.controllers.ProductHomepageController"
-            style="-fx-background-color: white;">
+            style="-fx-background-color: #080d16;">
 
-    <top>
-        <fx:include source="ProductHeader.fxml" />
-    </top>
+    <!-- BorderPane: header pinned at top, body scrolls below it. -->
+    <BorderPane AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0">
 
-    <center>
-        <ScrollPane fitToWidth="true"
-                    style="-fx-background-color: white; -fx-border-color: transparent;">
-            <content>
-                <VBox spacing="0">
+        <top>
+            <fx:include source="ProductHeader.fxml" />
+        </top>
 
-                    <fx:include source="ProductNewHomePage.fxml" />
+        <center>
+            <ScrollPane fx:id="mainScrollPane"
+                        fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: #080d16; -fx-border-color: transparent;">
+                <content>
+                    <VBox spacing="0" maxWidth="Infinity">
+                        <fx:include source="ProductNewHomePage.fxml" />
+                        <fx:include source="AppFooter.fxml" />
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </center>
 
-                    <HBox spacing="0" style="-fx-background-color: white;">
-                        <fx:include fx:id="sidebar" source="ProductSidebar.fxml" />
-                        <fx:include fx:id="productList" source="ProductList.fxml" />
-                    </HBox>
+    </BorderPane>
 
-                    <fx:include source="AppFooter.fxml" />
-
-                </VBox>
-            </content>
-        </ScrollPane>
-    </center>
-
-</BorderPane>
+    <Button fx:id="scrollToTopBtn"
+            text="↑ Top"
+            mnemonicParsing="false"
+            visible="false"
+            managed="false"
+            styleClass="scroll-top-pill"
+            AnchorPane.bottomAnchor="30.0"
+            AnchorPane.rightAnchor="30.0" />
+</AnchorPane>

@@ -39,6 +39,46 @@ public class CustomerOrderDAO {
         return list;
     }
 
+    // ── ELIGIBLE FOR REVIEW ───────────────────────────────────────────────
+    /**
+     * Returns delivered order-items from the last 30 days that the customer
+     * has not yet reviewed. Each row is a CustomerOrder with productName and orderId set.
+     */
+    public List<CustomerOrder> getEligibleForReview(int userId) throws SQLException {
+        String sql =
+            "SELECT DISTINCT oi.productID, p.name AS productName, o.orderID, o.orderDate " +
+            "FROM orders o " +
+            "JOIN customers c  ON c.customerID = o.customerID " +
+            "JOIN order_items oi ON oi.orderID  = o.orderID " +
+            "JOIN products p    ON p.productID  = oi.productID " +
+            "WHERE c.userID = ? " +
+            "  AND o.status = 'Delivered' " +
+            "  AND o.orderDate >= date('now', '-30 days') " +
+            "  AND NOT EXISTS ( " +
+            "      SELECT 1 FROM reviews_reviews rr " +
+            "      WHERE rr.customerID = c.customerID AND rr.productID = oi.productID " +
+            "  ) " +
+            "ORDER BY o.orderDate DESC";
+        List<CustomerOrder> list = new ArrayList<>();
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                CustomerOrder co = new CustomerOrder(
+                    rs.getInt("orderID"),
+                    rs.getString("orderDate"),
+                    "Delivered",
+                    0.0,
+                    rs.getString("productName")
+                );
+                co.setProductId(rs.getInt("productID"));
+                list.add(co);
+            }
+        }
+        return list;
+    }
+
     // ── TOTAL SPENT BY USER ID ─────────────────────────────────────────────
     public double getTotalSpentByUserId(int userId) throws SQLException {
         String sql =

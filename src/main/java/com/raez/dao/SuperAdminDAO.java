@@ -2,6 +2,7 @@ package com.raez.dao;
 
 import com.raez.db.DBConnection;
 import com.raez.model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +11,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SuperAdminDAO {
+    private static final Logger log = LoggerFactory.getLogger(SuperAdminDAO.class);
+
 
     public int countActiveUsers() {
         return countScalar(
@@ -34,7 +39,7 @@ public class SuperAdminDAO {
     }
 
     public int countProducts() {
-        return countScalar("SELECT COUNT(*) FROM products WHERE isActive = 1");
+        return countScalar("SELECT COUNT(*) FROM products WHERE status = 'active'");
     }
 
     public int countOrders() {
@@ -52,8 +57,8 @@ public class SuperAdminDAO {
             "FROM users u ORDER BY u.userID";
         List<User> out = new ArrayList<>();
         try (Connection c = DBConnection.getInstance().getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 User u = new User();
                 u.userID    = rs.getInt   ("userID");
@@ -67,7 +72,7 @@ public class SuperAdminDAO {
                 out.add(u);
             }
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.listAllUsers failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.listAllUsers failed: " + e.getMessage());
         }
         return out;
     }
@@ -75,11 +80,11 @@ public class SuperAdminDAO {
     public List<String> listRoleNames() {
         List<String> out = new ArrayList<>();
         try (Connection c = DBConnection.getInstance().getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery("SELECT roleName FROM roles ORDER BY roleID")) {
+             PreparedStatement ps = c.prepareStatement("SELECT roleName FROM roles ORDER BY roleID");
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) out.add(rs.getString("roleName"));
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.listRoleNames failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.listRoleNames failed: " + e.getMessage());
         }
         return out;
     }
@@ -101,7 +106,7 @@ public class SuperAdminDAO {
                     insertUser, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, email);
                 ps.setString(2, username);
-                ps.setString(3, DBConnection.hashPassword(plainPassword));
+                ps.setString(3, BCrypt.hashpw(plainPassword, BCrypt.gensalt(12)));
                 ps.setString(4, firstName);
                 ps.setString(5, lastName);
                 ps.executeUpdate();
@@ -119,7 +124,7 @@ public class SuperAdminDAO {
             c.setAutoCommit(true);
             return userId;
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.createUser failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.createUser failed: " + e.getMessage());
             return -1;
         }
     }
@@ -132,7 +137,35 @@ public class SuperAdminDAO {
             ps.setInt(2, userID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.setUserActive failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.setUserActive failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean updateUser(int userID, String email, String firstName, String lastName, String roleName) {
+        String updateUser = "UPDATE users SET email=?, firstName=?, lastName=?, updatedAt=CURRENT_TIMESTAMP WHERE userID=?";
+        String deleteRole = "DELETE FROM user_roles WHERE userID=?";
+        String insertRole = "INSERT INTO user_roles (userID, roleID) SELECT ?, roleID FROM roles WHERE roleName=?";
+        try (Connection c = DBConnection.getInstance().getConnection()) {
+            c.setAutoCommit(false);
+            try (PreparedStatement ps = c.prepareStatement(updateUser)) {
+                ps.setString(1, email);
+                ps.setString(2, firstName);
+                ps.setString(3, lastName);
+                ps.setInt(4, userID);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = c.prepareStatement(deleteRole)) {
+                ps.setInt(1, userID); ps.executeUpdate();
+            }
+            try (PreparedStatement ps = c.prepareStatement(insertRole)) {
+                ps.setInt(1, userID); ps.setString(2, roleName); ps.executeUpdate();
+            }
+            c.commit();
+            c.setAutoCommit(true);
+            return true;
+        } catch (SQLException e) {
+            log.error("{}", "SuperAdminDAO.updateUser failed: " + e.getMessage());
             return false;
         }
     }
@@ -143,15 +176,15 @@ public class SuperAdminDAO {
             ps.setInt(1, userID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("SuperAdminDAO.deleteUser failed: " + e.getMessage());
+            log.error("{}", "SuperAdminDAO.deleteUser failed: " + e.getMessage());
             return false;
         }
     }
 
     private int countScalar(String sql) {
         try (Connection c = DBConnection.getInstance().getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) {
             return 0;

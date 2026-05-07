@@ -7,17 +7,24 @@ import com.raez.dao.ProductDAO;
 import com.raez.model.Category;
 import com.raez.model.Product;
 import com.raez.model.ProductImage;
+import com.raez.storage.ImageStorage;
+import com.raez.storage.ImageStorageFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductService {
+    private static final Logger log = LoggerFactory.getLogger(ProductService.class);
+
 
     private final ProductDAO   productDAO   = new ProductDAO();
     private final CategoryDAO  categoryDAO  = new CategoryDAO();
     private final ImageDAO     imageDAO     = new ImageDAO();
     private final InventoryDAO inventoryDAO = new InventoryDAO();
+    private static final ImageStorage IMAGE_STORAGE = ImageStorageFactory.create();
 
     // ── Read ─────────────────────────────────────────────
 
@@ -48,6 +55,7 @@ public class ProductService {
     public Product add(Product p, List<String> categoryNames,
                        List<String> imageUrls) throws Exception {
         validate(p);
+        p.imagePath = firstImagePath(imageUrls);
 
         if (p.sku == null || p.sku.isEmpty())
             p.sku = "SKU-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -59,6 +67,7 @@ public class ProductService {
         saveCategories(id, categoryNames);
         saveImages(id, imageUrls);
         inventoryDAO.setStock(id, p.stock);
+        autoCheckStatus(id, p.stock, p.name);
 
         return getById(id);
     }
@@ -66,15 +75,41 @@ public class ProductService {
     public Product update(Product p, List<String> categoryNames,
                           List<String> imageUrls) throws Exception {
         validate(p);
+        Product existing = productDAO.getById(p.productID);
+        String oldPublicIdToDelete = null;
+        if (imageUrls != null && imageUrls.stream().anyMatch(s -> s != null && !s.trim().isEmpty())) {
+            p.imagePath = firstImagePath(imageUrls);
+            // Cloud-asset replacement: stage old publicId for deletion only after the new is committed.
+            if (existing != null
+                && existing.imagePublicId != null && !existing.imagePublicId.isBlank()
+                && p.imagePublicId != null && !p.imagePublicId.isBlank()
+                && !existing.imagePublicId.equals(p.imagePublicId)) {
+                oldPublicIdToDelete = existing.imagePublicId;
+            }
+        } else {
+            p.imagePath = existing != null ? existing.imagePath : null;
+        }
 
         if (!productDAO.update(p))
             throw new Exception("Failed to update product.");
 
+        if (oldPublicIdToDelete != null) {
+            try {
+                IMAGE_STORAGE.delete(oldPublicIdToDelete);
+            } catch (Exception ex) {
+                log.error("{}", "Old image delete failed (publicId=" + oldPublicIdToDelete
+                    + "): " + ex.getMessage());
+            }
+        }
+
         categoryDAO.unlinkAllForProduct(p.productID);
         saveCategories(p.productID, categoryNames);
 
-        imageDAO.deleteAllForProduct(p.productID);
-        saveImages(p.productID, imageUrls);
+        // Preserve existing image rows when no image payload is provided from the form.
+        if (imageUrls != null && imageUrls.stream().anyMatch(s -> s != null && !s.trim().isEmpty())) {
+            imageDAO.deleteAllForProduct(p.productID);
+            saveImages(p.productID, imageUrls);
+        }
         inventoryDAO.setStock(p.productID, p.stock);
 
         // Auto-deactivate if stock is 0, re-activate if stock restored
@@ -102,10 +137,10 @@ public class ProductService {
     private void autoCheckStatus(int productId, int stock, String name) {
         if (stock == 0) {
             productDAO.setStatus(productId, "INACTIVE");
-            System.out.println("Auto-INACTIVE: '" + name + "' (stock = 0)");
+            log.info("{}", "Auto-INACTIVE: '" + name + "' (stock = 0)");
         } else {
             productDAO.setStatus(productId, "ACTIVE");
-            System.out.println("Auto-ACTIVE: '" + name + "' (stock = " + stock + ")");
+            log.info("{}", "Auto-ACTIVE: '" + name + "' (stock = " + stock + ")");
         }
     }
 
@@ -162,19 +197,25 @@ public class ProductService {
                 p.stock = (int) s[4];
                 add(p, List.of((String) s[5]), List.of((String) s[6]));
             } catch (Exception e) {
-                System.err.println("Seed failed for " + s[1] + ": " + e.getMessage());
+                log.error("{}", "Seed failed for " + s[1] + ": " + e.getMessage());
             }
         }
-        System.out.println("Seed data loaded successfully.");
+        log.info("{}", "Seed data loaded successfully.");
     }
 
     // ── Private helpers ──────────────────────────────────
 
     private void attachDetails(List<Product> products) {
+        java.util.Map<Integer, double[]> ratingsMap = productDAO.getRatingsMap();
         for (Product p : products) {
             p.categories = categoryDAO.getByProduct(p.productID);
             p.images     = imageDAO.getByProduct(p.productID);
             p.stock      = inventoryDAO.getStock(p.productID);
+            double[] rating = ratingsMap.get(p.productID);
+            if (rating != null) {
+                p.avgRating   = rating[0];
+                p.reviewCount = (int) rating[1];
+            }
         }
     }
 
@@ -199,6 +240,14 @@ public class ProductService {
             if (url == null || url.trim().isEmpty()) continue;
             imageDAO.insert(new ProductImage(productId, url, i == 0 ? 1 : 0));
         }
+    }
+
+    private String firstImagePath(List<String> imageUrls) {
+        if (imageUrls == null) return null;
+        for (String image : imageUrls) {
+            if (image != null && !image.trim().isEmpty()) return image.trim();
+        }
+        return null;
     }
 
     private void ensureCategory(String name, String description) {

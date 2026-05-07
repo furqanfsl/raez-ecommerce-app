@@ -16,7 +16,7 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.raez.reviews.controller.AdminDashboardController"
-            fitToWidth="true" fitToHeight="false" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED"
+            fitToWidth="true" fitToHeight="false" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
             styleClass="app-shell,dashboard-scroll">
     <content>
         <BorderPane minHeight="780" minWidth="1080" prefWidth="1260" styleClass="dashboard-layout">

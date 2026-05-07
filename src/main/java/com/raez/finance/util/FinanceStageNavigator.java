@@ -7,6 +7,8 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * FinanceStageNavigator
@@ -47,6 +49,8 @@ import java.util.function.Consumer;
  *   FinanceStageNavigator.navigateToLogin(stage);
  */
 public final class FinanceStageNavigator {
+    private static final Logger log = LoggerFactory.getLogger(FinanceStageNavigator.class);
+
 
     private static final String CSS_PATH            = "/css/app.css";
     private static final String ROLE_SELECTION_FXML = "/com/raez/finance/view/FinanceRoleSelection.fxml";
@@ -108,8 +112,8 @@ public final class FinanceStageNavigator {
                     prevW, prevH, prevX, prevY);
 
         } catch (Exception ex) {
-            System.err.println("[FinanceStageNavigator] Navigation failed: " + fxmlPath);
-            ex.printStackTrace();
+            log.error("{}", "[FinanceStageNavigator] Navigation failed: " + fxmlPath);
+            log.error("Error", ex);
         }
     }
 

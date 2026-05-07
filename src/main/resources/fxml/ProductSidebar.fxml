@@ -39,19 +39,16 @@
                    style="-fx-font-size: 12; -fx-text-fill: #6b7280;" />
         </HBox>
         <VBox fx:id="categoryPanel" spacing="10" style="-fx-padding: 0 0 16 0;">
-            <CheckBox fx:id="catHomeAssistants" text="Home Assistants"
+            <CheckBox fx:id="catRobots" text="Robots"
                       onAction="#applyFilters"
                       style="-fx-font-size: 13; -fx-text-fill: #374151;" />
-            <CheckBox fx:id="catSecurityBots" text="Security Bots"
+            <CheckBox fx:id="catMiniRobots" text="Mini Robots"
                       onAction="#applyFilters"
                       style="-fx-font-size: 13; -fx-text-fill: #374151;" />
-            <CheckBox fx:id="catEducational" text="Educational"
+            <CheckBox fx:id="catAccessories" text="Accessories"
                       onAction="#applyFilters"
                       style="-fx-font-size: 13; -fx-text-fill: #374151;" />
-            <CheckBox fx:id="catCompanions" text="Companions"
-                      onAction="#applyFilters"
-                      style="-fx-font-size: 13; -fx-text-fill: #374151;" />
-            <CheckBox fx:id="catIndustrial" text="Industrial"
+            <CheckBox fx:id="catServices" text="Services"
                       onAction="#applyFilters"
                       style="-fx-font-size: 13; -fx-text-fill: #374151;" />
         </VBox>

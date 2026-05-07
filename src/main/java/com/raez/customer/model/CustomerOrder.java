@@ -3,6 +3,7 @@ package com.raez.customer.model;
 public class CustomerOrder {
 
     private int    orderId;
+    private int    productId;
     private String orderDate;
     private String status;
     private double totalAmount;
@@ -21,6 +22,9 @@ public class CustomerOrder {
 
     public int    getOrderId()                         { return orderId;          }
     public void   setOrderId(int id)                   { this.orderId = id;       }
+
+    public int    getProductId()                       { return productId;        }
+    public void   setProductId(int id)                 { this.productId = id;     }
 
     public String getOrderDate()                       { return orderDate;        }
     public void   setOrderDate(String d)               { this.orderDate = d;      }

@@ -140,6 +140,7 @@ CREATE TABLE IF NOT EXISTS products (
     status      TEXT    NOT NULL DEFAULT 'active',
     -- Values: active | inactive | discontinued
     categoryID  INTEGER,
+    imagePath   TEXT,
     createdAt   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (categoryID) REFERENCES categories(categoryID) ON DELETE SET NULL

@@ -70,40 +70,41 @@ INSERT INTO users (userID, email, username, passwordHash, firstName, lastName, p
  (10, 'reviews@raez.org.uk',        'reviews_admin_user',
       '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Reviews', 'Admin', NULL, 1),
- -- Customer accounts (matching customers below)
+ -- Customer accounts  (password: raez123)
  (11, 'alice@raez.com',             'alice_w',
-      '4e40e8ffe0ee32fa53e139147ed559229a5930f89c2204706fc174beb36210b3',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Alice', 'Walker', NULL, 1),
  (12, 'omar@raez.com',              'omar_h',
-      '56318228b3a39a2af341c080cc2d8b1d7e088ed24bd28d6cc9b34a8711253434',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Omar', 'Hassan', NULL, 1),
  (13, 'sara@raez.com',              'sara_m',
-      '926b4b8a00cfab44b758450fa6bf188d4bf8541c2fd6b3d9b93d152d43a99f64',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Sara', 'Malik', NULL, 1),
  (14, 'maya@raez.com',              'maya_c',
-      '3688058a6965c4c8e143d7002afb557fe910657ad819714abb0356c7551c84b7',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Maya', 'Chen', NULL, 1),
  (15, 'zaid@raez.com',              'zaid_n',
-      '4eb84dcc7275bc750ea32fbfe061fc0477d7d332ed1071c1e06911ddec3a6556',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Zaid', 'Nasser', NULL, 1),
- -- Integration admin accounts
+ -- Integration admin accounts  (password: raez123)
+ -- SHA-256("raez123") = 88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee
  (16, 'adminProduct@raez.org.uk',   'adminproduct',
-      'b7eca4fe5d5f5c13536fa00d8e63e155dcf3db3c01be7d9d7cb9fa9100463c3a',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Product', 'Admin', NULL, 1),
  (17, 'adminCustomer@raez.org.uk',  'admincustomer',
-      '51830a2250dbb5b97236ecfa4bd5bf4d4530a1d32e647d43791526e543b11f88',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Customer', 'Admin', NULL, 1),
  (18, 'adminWarehouse@raez.org.uk', 'adminwarehouse',
-      '88695e1b7ceb24f40abe7961bfa32acfdfee5c2ee19a6dd19aa5101623d2f84f',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Warehouse', 'Admin', NULL, 1),
  (19, 'adminDelivery@raez.org.uk',  'admindelivery',
-      'af721e67f0b4eec58c574588b537ce1678dd0feab82d10e0ea0b853ba5c4a78d',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Delivery', 'Admin', NULL, 1),
- (20, 'adminFinance@raez.org.uk',  'adminfinance',
-      '7e6124db187ce1f4784454448ed1f60368d81f1fccfc8b00156715bf9f82a947',
+ (20, 'adminFinance@raez.org.uk',   'adminfinance',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Finance', 'Admin', NULL, 1),
- (21, 'adminReviews@raez.org.uk', 'adminreviews',
-      '8d8b864f264686448352127f90494e96e914fcee071f8803b840ef6a3b460692',
+ (21, 'adminReviews@raez.org.uk',   'adminreviews',
+      '88a8f794da996191c92594eb6bad82fc5077ecd9db0967da39ed2d92b5fe02ee',
       'Reviews', 'Admin', NULL, 1);
 
 -- ================================================================
@@ -174,7 +175,11 @@ INSERT INTO categories (categoryID, categoryName, description, isActive) VALUES
  (2, 'Security Bots',   'Robots for home and business security',       1),
  (3, 'Educational',     'Robots designed for learning',                1),
  (4, 'Companions',      'Social and companion robots',                 1),
- (5, 'Industrial',      'Industrial and professional robots',          1);
+ (5, 'Industrial',      'Industrial and professional robots',          1),
+ (6, 'Robots',          'Full-scale autonomous AI robots',              1),
+ (7, 'Mini Robots',     'Compact and portable robots',                  1),
+ (8, 'Accessories',     'Mounts, power packs, and add-ons',             1),
+ (9, 'Services',        'Installation, maintenance and AI training',    1);
 
 -- ================================================================
 --  PRODUCTS  (active products merged from product_db + finance)
@@ -470,6 +475,395 @@ INSERT INTO reviews_settings (settingKey, settingValue) VALUES
  ('review_edit_window_minutes', '5'),
  ('max_flagged_before_removal', '3'),
  ('allow_guest_reviews',        'false');
+
+-- ================================================================
+--  EXTENDED PRODUCT CATALOGUE  (Phase 4 — 12 realistic robots)
+-- ================================================================
+INSERT INTO products (productID, sku, name, description, price, unitCost, status, categoryID) VALUES
+ (200, 'NOVA-H1',   'Nova Home AI',
+      'Voice-activated home assistant robot with smart device integration, schedule management, reminders, and natural language understanding. Controls your lights, locks, and appliances seamlessly.',
+      349.99, 0.00, 'active', 1),
+ (201, 'KIRA-HK2',  'Kira Housekeeper Bot',
+      'Autonomous household cleaning and organising robot with AI vision to navigate furniture, detect mess, and sort clutter. Handles vacuuming, mopping, and light tidying on a programmed schedule.',
+      799.99, 0.00, 'active', 1),
+ (202, 'SENT-P1',   'Sentinel Patrol Bot',
+      'Autonomous indoor/outdoor security patrol robot with night-vision cameras, motion and heat detection, and real-time alert streaming to your phone. Can emit audible deterrents and lock doors.',
+      1299.99, 0.00, 'active', 2),
+ (203, 'EAGLE-S2',  'Eagle Eye Sentry',
+      'Fixed-mount AI security unit with 360° panoramic view, facial recognition, and licence plate logging. Integrates with your existing CCTV infrastructure and sends instant breach notifications.',
+      649.99, 0.00, 'active', 2),
+ (204, 'EDUB-V3',   'EduBot Classroom AI',
+      'Interactive educational robot designed for STEM learning at primary and secondary level. Supports coding, mathematics, and science curricula with guided challenges, quizzes, and project-based activities.',
+      479.99, 0.00, 'active', 3),
+ (205, 'STEM-R1',   'STEM Rover Jr.',
+      'Programmable rover for students aged 8–16. Learn block-based and Python coding, robotics fundamentals, and engineering principles through 200+ guided challenges and open sandbox mode.',
+      229.99, 0.00, 'active', 3),
+ (206, 'BUDDY-C1',  'Buddy Companion Robot',
+      'Cheerful AI companion with expressive LCD face display, multi-language conversation, emotion sensing, and long-term memory of your preferences. Ideal for adults seeking daily social engagement.',
+      599.99, 0.00, 'active', 4),
+ (207, 'ELDER-C2',  'ElderCare Companion AI',
+      'Dedicated companion robot for elderly users — monitors vitals, issues medication reminders, detects falls, and can summon emergency services. Provides daily conversation and cognitive exercise.',
+      899.99, 0.00, 'active', 4),
+ (208, 'MIRA-K3',   'Mira Kitchen Assistant',
+      'AI kitchen robot that tracks pantry inventory, suggests recipes, and assists with meal preparation via a precision robotic arm. Integrates with smart fridges and grocery delivery services.',
+      549.99, 0.00, 'active', 1),
+ (209, 'ATLAS-W4',  'Atlas Warehouse Bot',
+      'High-endurance warehouse automation robot for picking, sorting, and inventory management at scale. Operates 20 hours per day, integrates with standard WMS systems, and navigates dynamic floor plans.',
+      4200.00, 3500.00, 'active', 5),
+ (210, 'NEXUS-AI',  'Nexus AI Security Hub',
+      'Central AI coordination hub that orchestrates multiple security bots, cameras, and sensors into a unified threat-intelligence network. Includes anomaly detection and automated incident reporting.',
+      1899.99, 0.00, 'active', 2),
+ (211, 'KIDBOT-E1', 'KidBot Explorer',
+      'Fun and educational robot for children aged 5–10. Teaches letters, numbers, shapes, and creative play through interactive storytelling, dance, and drawing activities. Completely safe and durable.',
+      189.99, 0.00, 'active', 3);
+
+-- Extended product → category links
+INSERT INTO product_categories (productID, categoryID) VALUES
+ (200, 1), (201, 1), (202, 2), (203, 2),
+ (204, 3), (205, 3), (206, 4), (207, 4),
+ (208, 1), (209, 5), (210, 2), (211, 3);
+
+-- Extended product images
+INSERT INTO product_images (imageID, productID, imageURL, isPrimary) VALUES
+ (6,  200, 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600', 1),
+ (7,  201, 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600',    1),
+ (8,  202, 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600', 1),
+ (9,  203, 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=600', 1),
+ (10, 204, 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600', 1),
+ (11, 205, 'https://images.unsplash.com/photo-1589254065909-b7086229d08c?w=600', 1),
+ (12, 206, 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600', 1),
+ (13, 207, 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600', 1),
+ (14, 208, 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600',    1),
+ (15, 209, 'https://images.unsplash.com/photo-1565689157206-0fddef7589a2?w=600', 1),
+ (16, 210, 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600', 1),
+ (17, 211, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600', 1);
+
+-- Extended warehouse inventory (all in Central Warehouse)
+INSERT INTO warehouse_inventory (warehouseID, productID, quantityOnHand, minStockThreshold, reorderQuantity, lowStockFlag, unitCost, isActive) VALUES
+ (1, 200, 25, 5, 10, 0, 0.00, 1),
+ (1, 201, 12, 3,  8, 0, 0.00, 1),
+ (1, 202,  8, 3,  6, 0, 0.00, 1),
+ (1, 203, 18, 5, 10, 0, 0.00, 1),
+ (1, 204, 20, 5, 10, 0, 0.00, 1),
+ (1, 205, 35, 5, 15, 0, 0.00, 1),
+ (1, 206, 15, 4,  8, 0, 0.00, 1),
+ (1, 207, 10, 3,  6, 0, 0.00, 1),
+ (1, 208, 22, 5, 10, 0, 0.00, 1),
+ (1, 209,  6, 2,  4, 0, 3500.00, 1),
+ (1, 210,  7, 2,  4, 0, 0.00, 1),
+ (1, 211, 40, 8, 20, 0, 0.00, 1);
+
+-- ================================================================
+--  DELIVERED ORDERS FOR NEW PRODUCTS
+--  These give demo customers the ability to write reviews.
+-- ================================================================
+INSERT INTO orders (orderID, customerID, orderDate, totalAmount, status) VALUES
+ (11, 6,  '2026-03-22 10:00:00', 829.98,  'Delivered'),
+ (12, 7,  '2026-03-23 11:30:00', 1899.98, 'Delivered'),
+ (13, 8,  '2026-03-24 14:00:00', 1029.98, 'Delivered'),
+ (14, 9,  '2026-03-25 09:15:00', 1449.98, 'Delivered'),
+ (15, 10, '2026-03-26 16:00:00', 6099.99, 'Delivered');
+
+INSERT INTO order_items (orderItemID, orderID, productID, quantity, unitPrice) VALUES
+ (11, 11, 200, 1,  349.99),
+ (12, 11, 204, 1,  479.99),
+ (13, 12, 202, 1, 1299.99),
+ (14, 12, 206, 1,  599.99),
+ (15, 13, 205, 1,  229.99),
+ (16, 13, 201, 1,  799.99),
+ (17, 14, 207, 1,  899.99),
+ (18, 14, 208, 1,  549.99),
+ (19, 15, 209, 1, 4200.00),
+ (20, 15, 210, 1, 1899.99);
+
+INSERT INTO payments (paymentID, orderID, amountPaid, currency, paymentMethod, paymentStatus, transactionRef, paymentDate) VALUES
+ (11, 11,  829.98, 'GBP', 'CARD',  'COMPLETED', 'TXN-2026-0011', '2026-03-22 00:00:00'),
+ (12, 12, 1899.98, 'GBP', 'CARD',  'COMPLETED', 'TXN-2026-0012', '2026-03-23 00:00:00'),
+ (13, 13, 1029.98, 'GBP', 'PAYPAL','COMPLETED', 'TXN-2026-0013', '2026-03-24 00:00:00'),
+ (14, 14, 1449.98, 'GBP', 'CARD',  'COMPLETED', 'TXN-2026-0014', '2026-03-25 00:00:00'),
+ (15, 15, 6099.99, 'GBP', 'BANK_TRANSFER', 'COMPLETED', 'TXN-2026-0015', '2026-03-26 00:00:00');
+
+-- Delivery entries for new orders
+INSERT INTO delivery_deliveries (deliveryID, orderID, customerAddress, orderStatus, orderDate, numOfItems, driverID, warehouseID) VALUES
+ (9,  11, '14 Maple Ave, London',     'Delivered', '2026-03-22', 2, 1, 1),
+ (10, 12, '88 Regent St, Manchester', 'Delivered', '2026-03-23', 2, 2, 1),
+ (11, 13, '33 Elm Close, Birmingham', 'Delivered', '2026-03-24', 2, 3, 1),
+ (12, 14, '7 Willow Rd, Bristol',     'Delivered', '2026-03-25', 2, 1, 1),
+ (13, 15, '101 Castle St, Leeds',     'Delivered', '2026-03-26', 2, 2, 1);
+
+-- Reviews for new products from customers who received them
+INSERT INTO reviews_reviews (reviewID, productID, customerID, rating, comment, createdAt, updatedAt, status, helpfulCount, unhelpfulCount) VALUES
+ (6,  200, 6, 5, 'Nova Home AI changed my mornings completely — it manages my lights, heating, and reminders without a single hiccup. Setup took under 10 minutes.',
+      '2026-03-28 09:12:00', '2026-03-28 09:12:00', 'ACTIVE', 3, 0),
+ (7,  202, 7, 5, 'The Sentinel Patrol Bot is outstanding. Night vision is crystal clear and the motion alerts arrive on my phone instantly. Worth every penny for peace of mind.',
+      '2026-03-29 11:45:00', '2026-03-29 11:45:00', 'ACTIVE', 2, 0),
+ (8,  205, 8, 4, 'My son is obsessed with the STEM Rover Jr. He has already finished 40 challenges in the first week. The Python mode is genuinely well-designed for beginners.',
+      '2026-03-30 14:20:00', '2026-03-30 14:20:00', 'ACTIVE', 4, 0),
+ (9,  207, 9, 5, 'We bought ElderCare for my grandmother and the medication reminders alone have been life-changing for our family. The fall detection gave us immediate peace of mind.',
+      '2026-03-31 10:05:00', '2026-03-31 10:05:00', 'ACTIVE', 5, 0),
+ (10, 209, 10, 4, 'Atlas Warehouse Bot integrated with our WMS in under a day. Picking accuracy improved immediately. Only minor issue is it is slow on tight corners — firmware update should address it.',
+      '2026-04-01 08:30:00', '2026-04-01 08:30:00', 'ACTIVE', 2, 1);
+
+-- ================================================================
+--  PHASE-4 COLLECTIONS — 44 products across 4 flagship collections
+--  Collections: Apex Automata, Sentinel Force, NovaMind, TerraCore
+--  Categories : Robots (6), Mini Robots (7), Accessories (8), Services (9)
+-- ================================================================
+
+-- ── Apex Automata — Kinetic Series (IDs 300-310) ─────────────────
+INSERT INTO products (productID, sku, name, description, price, unitCost, status, categoryID, collection) VALUES
+ (300, 'APX-K01', 'Apex Kinetic One',
+      'Flagship humanoid AI companion with dual-actuator limbs, facial expression display, and real-time environment mapping. The signature Kinetic Series model — built for homes, studios, and showcase spaces.',
+      5999.99, 3800.00, 'active', 6, 'Apex Automata'),
+ (301, 'APX-K02', 'Apex Kinetic Lite',
+      'Compact variant of the flagship Apex Kinetic One. Desk-friendly footprint, full voice interaction, and lightweight articulated arms for light home tasks and presentations.',
+      2499.99, 1500.00, 'active', 7, 'Apex Automata'),
+ (302, 'APX-K03', 'Apex Arm Pro',
+      'Stand-alone precision robotic arm from the Kinetic Series. 7 degrees of freedom, sub-millimetre repeatability, and natural-language task control for makers and designers.',
+      3299.99, 2100.00, 'active', 6, 'Apex Automata'),
+ (303, 'APX-K04', 'Apex Runner',
+      'Four-legged outdoor running robot with terrain-adaptive gait and 45 minute runtime. Ideal for fitness companionship, delivery pilots, and outdoor demonstrations.',
+      4799.99, 3000.00, 'active', 6, 'Apex Automata'),
+ (304, 'APX-K05', 'Apex Explorer',
+      'Rugged wheeled outdoor robot with LIDAR navigation, dust-proof chassis, and twin HD cameras. Built for large estates, farms, and private surveying.',
+      3899.99, 2400.00, 'active', 6, 'Apex Automata'),
+ (305, 'APX-K06', 'Apex Pocket',
+      'Pocket-sized assistant with voice AI, reminders, and gesture control. Magnetic mount, seven-hour battery, and full smart-home integration in a device that fits in your palm.',
+      299.99, 150.00, 'active', 7, 'Apex Automata'),
+ (306, 'APX-K07', 'Kinetic Power Dock',
+      'Premium inductive charging dock for the Apex Kinetic range. Auto-align magnetic contacts, status LED ring, and 120W fast-charge support.',
+      179.99, 70.00, 'active', 8, 'Apex Automata'),
+ (307, 'APX-K08', 'Kinetic Armor Shell',
+      'Impact-resistant exoshell for Apex Kinetic robots. Aerospace-grade aluminium alloy, tool-less swap, and three colourways (Graphite, Ivory, Midnight Navy).',
+      249.99, 110.00, 'active', 8, 'Apex Automata'),
+ (308, 'APX-K09', 'Kinetic Install Service',
+      'Certified engineer visit: unboxing, calibration, home network integration, safety walkthrough, and a two-hour owner training session. Includes 14-day phone support.',
+      199.00, 80.00, 'active', 9, 'Apex Automata'),
+ (309, 'APX-K10', 'Kinetic AI Training Pack',
+      '12-month personalised AI training service — fine-tune your Apex robot to your preferences, home layout, daily routines, and voice. Remote onboarding plus quarterly tuning calls.',
+      349.00, 120.00, 'active', 9, 'Apex Automata'),
+ (310, 'APX-K11', 'Apex Kinetic Max',
+      'Top-tier Kinetic variant with dual-core AI accelerator, premium soft-touch fabric exterior, and extended 9-hour runtime. The executive-class flagship.',
+      7499.99, 4800.00, 'active', 6, 'Apex Automata');
+
+-- ── Sentinel Force — Guardian Series (IDs 311-321) ───────────────
+INSERT INTO products (productID, sku, name, description, price, unitCost, status, categoryID, collection) VALUES
+ (311, 'SFG-01', 'Sentinel Guardian Alpha',
+      'Flagship autonomous security patrol robot with thermal imaging, night vision, and facial recognition. Silent electric drive and rugged all-weather chassis.',
+      3499.99, 2200.00, 'active', 6, 'Sentinel Force'),
+ (312, 'SFG-02', 'Sentinel Mini Patrol',
+      'Compact indoor patrol bot for offices, retail, and warehouses. 360° camera, two-way audio, and automatic docking for 24/7 operation.',
+      1299.99, 800.00, 'active', 7, 'Sentinel Force'),
+ (313, 'SFG-03', 'Sentinel Sky Drone',
+      'Tethered aerial security drone with 20x zoom, heat signature tracking, and up to 4 hours continuous patrol at altitude.',
+      4299.99, 2800.00, 'active', 6, 'Sentinel Force'),
+ (314, 'SFG-04', 'Sentinel Perimeter Sentinel',
+      'Stationary perimeter defence unit with AI threat classification, loudspeaker deterrent, and automatic escalation to monitoring services.',
+      2199.99, 1400.00, 'active', 6, 'Sentinel Force'),
+ (315, 'SFG-05', 'Sentinel K9 Patrol',
+      'Quadruped patrol robot modelled for rough terrain. Stair-climbing, all-weather operation, and handler-pairing mode for guided sweeps.',
+      5999.99, 3800.00, 'active', 6, 'Sentinel Force'),
+ (316, 'SFG-06', 'Sentinel Pocket Sentry',
+      'Portable personal security companion. Clip-on form factor, panic alert, GPS beacon, and silent capture of environment audio/video.',
+      229.99, 110.00, 'active', 7, 'Sentinel Force'),
+ (317, 'SFG-07', 'Guardian Mount Kit',
+      'Industrial wall and ceiling mounting kit for Sentinel stationary units. Vibration-damped, concealed cabling, and vandal-proof fasteners.',
+      149.99, 55.00, 'active', 8, 'Sentinel Force'),
+ (318, 'SFG-08', 'Guardian Battery Extender',
+      'Hot-swappable high-density battery pack. Doubles operational runtime for Sentinel patrol robots. Fits all Guardian Series chassis.',
+      329.99, 140.00, 'active', 8, 'Sentinel Force'),
+ (319, 'SFG-09', 'Guardian 24/7 Monitoring',
+      'Around-the-clock human-supervised monitoring service. Alerts are triaged by Sentinel staff; verified incidents trigger your chosen response protocol.',
+      89.00, 30.00, 'active', 9, 'Sentinel Force'),
+ (320, 'SFG-10', 'Guardian Annual Maintenance',
+      'Yearly on-site inspection, firmware update, full diagnostic, battery health check, and cleaning. Includes priority parts replacement queue.',
+      249.00, 90.00, 'active', 9, 'Sentinel Force'),
+ (321, 'SFG-11', 'Sentinel Vanguard Pro',
+      'Executive-grade mobile security unit for high-value estates and events. AI threat prediction, integrated drone dispatch, and armoured chassis.',
+      8499.99, 5400.00, 'active', 6, 'Sentinel Force');
+
+-- ── NovaMind — Intelligence Series (IDs 322-332) ─────────────────
+INSERT INTO products (productID, sku, name, description, price, unitCost, status, categoryID, collection) VALUES
+ (322, 'NOV-01', 'NovaMind Scholar',
+      'Flagship educational and research robot with multimodal reasoning, curriculum-linked lessons, and a reference library of 10,000 interactive experiments.',
+      2299.99, 1400.00, 'active', 6, 'NovaMind'),
+ (323, 'NOV-02', 'NovaMind Tutor',
+      'One-on-one AI tutor that adapts to your pace and learning style. Supports maths, sciences, humanities, and programming from primary through to undergraduate level.',
+      1499.99, 900.00, 'active', 6, 'NovaMind'),
+ (324, 'NOV-03', 'NovaMind Mini Brain',
+      'Pocket AI thinker — brainstorming partner, language translator, and reading companion in a compact screen-free form factor.',
+      249.99, 110.00, 'active', 7, 'NovaMind'),
+ (325, 'NOV-04', 'NovaMind Kids',
+      'Child-safe educational companion for ages 4-10. Storytelling, phonics, maths games, and gentle bed-time routines — all moderated by parent-set guardrails.',
+      199.99, 85.00, 'active', 7, 'NovaMind'),
+ (326, 'NOV-05', 'NovaMind Labs Pro',
+      'Professional-grade AI research assistant. Designed for universities and R&D labs — supports citation tracing, dataset exploration, and hypothesis generation.',
+      3499.99, 2100.00, 'active', 6, 'NovaMind'),
+ (327, 'NOV-06', 'NovaMind Workshop',
+      'Maker-focused smart robot with hands-on project guides, soldering assistance, 3D-printing queue management, and CAD co-piloting.',
+      1799.99, 1100.00, 'active', 6, 'NovaMind'),
+ (328, 'NOV-07', 'NovaMind Pocket Classroom',
+      'Tiny portable learning device that turns any room into a classroom. Projects interactive lessons onto walls and desks with mid-air gesture input.',
+      429.99, 190.00, 'active', 7, 'NovaMind'),
+ (329, 'NOV-08', 'NovaMind Sensor Pack',
+      'Modular sensor bundle — temperature, humidity, gas, gyroscope, depth camera. Plug-and-play for all NovaMind robots via the NovaLink connector.',
+      139.99, 50.00, 'active', 8, 'NovaMind'),
+ (330, 'NOV-09', 'NovaMind Voice Module Pro',
+      'Upgrade voice module with studio-quality six-mic array, noise cancellation, and lifelike neural speech synthesis in twelve languages.',
+      199.99, 80.00, 'active', 8, 'NovaMind'),
+ (331, 'NOV-10', 'NovaMind Curriculum Subscription',
+      '12-month curriculum subscription with weekly new modules across STEM, humanities, and creative arts. Includes parent/teacher dashboards.',
+      79.00, 25.00, 'active', 9, 'NovaMind'),
+ (332, 'NOV-11', 'NovaMind Custom AI Tuning',
+      'Personalised fine-tuning service. Our data scientists adapt NovaMind to your business, classroom, or research domain. Includes ongoing support.',
+      899.00, 350.00, 'active', 9, 'NovaMind');
+
+-- ── TerraCore — Industrial Series (IDs 333-343) ──────────────────
+INSERT INTO products (productID, sku, name, description, price, unitCost, status, categoryID, collection) VALUES
+ (333, 'TC-01', 'TerraCore Foundry',
+      'Heavy-industrial foundry automation robot with thermal-rated manipulators for steel and casting lines. Built for 24/7 shift operation in harsh environments.',
+      14999.99, 9500.00, 'active', 6, 'TerraCore'),
+ (334, 'TC-02', 'TerraCore Welder Arm',
+      'Six-axis industrial welding arm. MIG, TIG, and laser welding modes, with integrated seam-tracking and live weld-quality monitoring.',
+      8999.99, 5800.00, 'active', 6, 'TerraCore'),
+ (335, 'TC-03', 'TerraCore Loader',
+      'Autonomous warehouse loader rated for pallets up to 1,500 kg. Dynamic routing, obstacle avoidance, and eight-hour continuous operation.',
+      10999.99, 7000.00, 'active', 6, 'TerraCore'),
+ (336, 'TC-04', 'TerraCore Surveyor Mini',
+      'Portable site-surveying rover with LIDAR, GPS-RTK, and automated volumetric reporting. Packs into a single flight case.',
+      4299.99, 2600.00, 'active', 7, 'TerraCore'),
+ (337, 'TC-05', 'TerraCore Dockworker',
+      'Logistics dock robot that moves containers, scans barcodes, and syncs with leading WMS platforms out of the box.',
+      7499.99, 4700.00, 'active', 6, 'TerraCore'),
+ (338, 'TC-06', 'TerraCore Heavy Lifter',
+      'Forklift-class autonomous lifter with 3,000 kg capacity, computer-vision pallet detection, and safety-rated pedestrian awareness.',
+      17999.99, 11500.00, 'active', 6, 'TerraCore'),
+ (339, 'TC-07', 'TerraCore Industrial Tread Kit',
+      'Swap-in industrial rubber/metal tread system for TerraCore rovers. Rated for slurry, gravel, and frozen surfaces.',
+      449.99, 190.00, 'active', 8, 'TerraCore'),
+ (340, 'TC-08', 'TerraCore Heat Shield',
+      'High-temperature heat shield assembly for foundry and welding use. Rated to 650°C surface exposure.',
+      699.99, 280.00, 'active', 8, 'TerraCore'),
+ (341, 'TC-09', 'TerraCore Diagnostic Tool',
+      'Field diagnostic tablet for industrial engineers. Full system telemetry, fault-replay, and over-the-air firmware flashing.',
+      549.99, 210.00, 'active', 8, 'TerraCore'),
+ (342, 'TC-10', 'TerraCore Site Install',
+      'Full industrial site commissioning — safety audit, floor marking, fleet pairing, operator certification, and handover. Typical engagement: one week.',
+      2499.00, 900.00, 'active', 9, 'TerraCore'),
+ (343, 'TC-11', 'TerraCore Industrial Training',
+      'Certified three-day on-site training programme for maintenance engineers and operators. Up to 10 trainees per cohort.',
+      1299.00, 450.00, 'active', 9, 'TerraCore');
+
+-- ── Collection → category links (many-to-many) ───────────────────
+INSERT INTO product_categories (productID, categoryID) VALUES
+ -- Apex Automata
+ (300,6),(301,7),(302,6),(303,6),(304,6),(305,7),(306,8),(307,8),(308,9),(309,9),(310,6),
+ -- Sentinel Force
+ (311,6),(312,7),(313,6),(314,6),(315,6),(316,7),(317,8),(318,8),(319,9),(320,9),(321,6),
+ -- NovaMind
+ (322,6),(323,6),(324,7),(325,7),(326,6),(327,6),(328,7),(329,8),(330,8),(331,9),(332,9),
+ -- TerraCore
+ (333,6),(334,6),(335,6),(336,7),(337,6),(338,6),(339,8),(340,8),(341,8),(342,9),(343,9);
+
+-- ── Collection product images (Unsplash robotics imagery) ────────
+INSERT INTO product_images (imageID, productID, imageURL, isPrimary) VALUES
+ (18, 300, 'https://images.unsplash.com/photo-1546776310-eef45dd6d63c?w=600', 1),
+ (19, 301, 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600', 1),
+ (20, 302, 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600', 1),
+ (21, 303, 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=600', 1),
+ (22, 304, 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600', 1),
+ (23, 305, 'https://images.unsplash.com/photo-1563770660941-20978e870e26?w=600', 1),
+ (24, 306, 'https://images.unsplash.com/photo-1580894908361-967195033215?w=600', 1),
+ (25, 307, 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600', 1),
+ (26, 308, 'https://images.unsplash.com/photo-1517365830460-955ce3ccd263?w=600', 1),
+ (27, 309, 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600', 1),
+ (28, 310, 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600', 1),
+
+ (29, 311, 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600', 1),
+ (30, 312, 'https://images.unsplash.com/photo-1526570207772-784d36084510?w=600', 1),
+ (31, 313, 'https://images.unsplash.com/photo-1521405924368-64c5b84bec60?w=600', 1),
+ (32, 314, 'https://images.unsplash.com/photo-1558002038-1055907df827?w=600', 1),
+ (33, 315, 'https://images.unsplash.com/photo-1589254065909-b7086229d08c?w=600', 1),
+ (34, 316, 'https://images.unsplash.com/photo-1580894908361-967195033215?w=600', 1),
+ (35, 317, 'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?w=600', 1),
+ (36, 318, 'https://images.unsplash.com/photo-1609592069181-cb4f2d6c1e9b?w=600', 1),
+ (37, 319, 'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=600', 1),
+ (38, 320, 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=600', 1),
+ (39, 321, 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600', 1),
+
+ (40, 322, 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600', 1),
+ (41, 323, 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600', 1),
+ (42, 324, 'https://images.unsplash.com/photo-1580894908361-967195033215?w=600', 1),
+ (43, 325, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600', 1),
+ (44, 326, 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600', 1),
+ (45, 327, 'https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=600', 1),
+ (46, 328, 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?w=600', 1),
+ (47, 329, 'https://images.unsplash.com/photo-1555617766-761fda5c83a7?w=600', 1),
+ (48, 330, 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600', 1),
+ (49, 331, 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600', 1),
+ (50, 332, 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=600', 1),
+
+ (51, 333, 'https://images.unsplash.com/photo-1565689157206-0fddef7589a2?w=600', 1),
+ (52, 334, 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600', 1),
+ (53, 335, 'https://images.unsplash.com/photo-1565610222536-ef125c59da2e?w=600', 1),
+ (54, 336, 'https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=600', 1),
+ (55, 337, 'https://images.unsplash.com/photo-1565608438257-fac3c27beb36?w=600', 1),
+ (56, 338, 'https://images.unsplash.com/photo-1571855167162-30e827f39ba2?w=600', 1),
+ (57, 339, 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=600', 1),
+ (58, 340, 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=600', 1),
+ (59, 341, 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?w=600', 1),
+ (60, 342, 'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600', 1),
+ (61, 343, 'https://images.unsplash.com/photo-1580894908361-967195033215?w=600', 1);
+
+-- ── Collection warehouse inventory (all at Central Warehouse = 1) ─
+INSERT INTO warehouse_inventory (warehouseID, productID, quantityOnHand, minStockThreshold, reorderQuantity, lowStockFlag, unitCost, isActive) VALUES
+ (1, 300,  6, 2,  4, 0, 3800.00, 1),
+ (1, 301, 14, 3,  8, 0, 1500.00, 1),
+ (1, 302,  9, 2,  5, 0, 2100.00, 1),
+ (1, 303,  5, 2,  4, 0, 3000.00, 1),
+ (1, 304,  8, 2,  5, 0, 2400.00, 1),
+ (1, 305, 45, 8, 20, 0,  150.00, 1),
+ (1, 306, 30, 5, 12, 0,   70.00, 1),
+ (1, 307, 22, 5, 10, 0,  110.00, 1),
+ (1, 308, 50, 0,  0, 0,   80.00, 1),
+ (1, 309, 50, 0,  0, 0,  120.00, 1),
+ (1, 310,  4, 2,  3, 0, 4800.00, 1),
+
+ (1, 311,  7, 2,  4, 0, 2200.00, 1),
+ (1, 312, 16, 4,  8, 0,  800.00, 1),
+ (1, 313,  5, 2,  3, 0, 2800.00, 1),
+ (1, 314, 10, 3,  5, 0, 1400.00, 1),
+ (1, 315,  4, 2,  3, 0, 3800.00, 1),
+ (1, 316, 42, 8, 20, 0,  110.00, 1),
+ (1, 317, 28, 5, 12, 0,   55.00, 1),
+ (1, 318, 24, 5, 10, 0,  140.00, 1),
+ (1, 319, 99, 0,  0, 0,   30.00, 1),
+ (1, 320, 99, 0,  0, 0,   90.00, 1),
+ (1, 321,  3, 2,  2, 0, 5400.00, 1),
+
+ (1, 322, 11, 3,  6, 0, 1400.00, 1),
+ (1, 323, 17, 4,  8, 0,  900.00, 1),
+ (1, 324, 38, 6, 15, 0,  110.00, 1),
+ (1, 325, 45, 8, 20, 0,   85.00, 1),
+ (1, 326,  8, 2,  4, 0, 2100.00, 1),
+ (1, 327, 12, 3,  6, 0, 1100.00, 1),
+ (1, 328, 26, 5, 10, 0,  190.00, 1),
+ (1, 329, 35, 6, 14, 0,   50.00, 1),
+ (1, 330, 29, 5, 12, 0,   80.00, 1),
+ (1, 331, 99, 0,  0, 0,   25.00, 1),
+ (1, 332, 99, 0,  0, 0,  350.00, 1),
+
+ (1, 333,  3, 1,  2, 0, 9500.00, 1),
+ (1, 334,  5, 2,  3, 0, 5800.00, 1),
+ (1, 335,  6, 2,  3, 0, 7000.00, 1),
+ (1, 336, 12, 3,  6, 0, 2600.00, 1),
+ (1, 337,  7, 2,  4, 0, 4700.00, 1),
+ (1, 338,  2, 1,  2, 0,11500.00, 1),
+ (1, 339, 20, 5, 10, 0,  190.00, 1),
+ (1, 340, 15, 4,  8, 0,  280.00, 1),
+ (1, 341, 18, 4,  8, 0,  210.00, 1),
+ (1, 342, 99, 0,  0, 0,  900.00, 1),
+ (1, 343, 99, 0,  0, 0,  450.00, 1);
 
 -- ================================================================
 --  SMTP SETTINGS (single row, Super Admin editable)

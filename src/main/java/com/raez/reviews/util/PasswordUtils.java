@@ -25,24 +25,19 @@ public final class PasswordUtils {
     }
 
     public static boolean matches(String plainText, String storedHash) {
-        return matches(plainText, storedHash, null);
-    }
-
-    public static boolean matches(String plainText, String storedHash, String fallbackPassword) {
         if (plainText == null || storedHash == null || storedHash.isBlank()) {
             return false;
         }
-        if (storedHash.contains("placeholder")) {
-            return fallbackPassword != null && fallbackPassword.equals(plainText);
-        }
         if (looksLikeBcrypt(storedHash)) {
             try {
-                return BCrypt.checkpw(plainText, storedHash)
-                        || (fallbackPassword != null && fallbackPassword.equals(plainText));
+                return BCrypt.checkpw(plainText, storedHash);
             } catch (IllegalArgumentException exception) {
-                return fallbackPassword != null && fallbackPassword.equals(plainText);
+                return false;
             }
         }
+        // Legacy SHA-256 hex hash — kept for accounts that haven't been
+        // migrated by util.MigratePasswords yet. New writes always go through
+        // BCrypt.hashpw (see PasswordResetService, CustomerDAO.register, etc.).
         return hash(plainText).equalsIgnoreCase(storedHash);
     }
 

@@ -6,23 +6,97 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.raez.reviews.controller.ReviewFormController"
-      spacing="14" styleClass="panel-card">
-    <padding>
-        <Insets top="22" right="22" bottom="22" left="22" />
-    </padding>
-    <Label fx:id="titleLabel" styleClass="section-title" />
-    <Label fx:id="helperLabel" styleClass="muted-text" wrapText="true" />
-    <Label text="Rating (1-5)" />
-    <Spinner fx:id="ratingSpinner" editable="false" />
-    <Label text="Review text" />
-    <TextArea fx:id="commentArea" prefRowCount="8" promptText="Write your review here..." />
-    <Label fx:id="errorLabel" styleClass="error-text" wrapText="true" />
-    <HBox spacing="10">
-        <Button text="Save" onAction="#handleSave" styleClass="primary-button" />
-        <Button text="Cancel" onAction="#handleCancel" styleClass="secondary-button" />
-    </HBox>
-</VBox>
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.raez.reviews.controller.ReviewFormController"
+           prefWidth="520" prefHeight="540">
+
+    <!-- Gradient mesh background -->
+    <Pane style="-fx-background-color: linear-gradient(to bottom right, #0a0f1f 0%, #0d2538 35%, #1a3347 60%, #2a1a4a 100%);"
+          maxWidth="Infinity" maxHeight="Infinity" />
+    <Pane style="-fx-background-color: radial-gradient(center 20% 20%, radius 55%, rgba(20,184,166,0.18) 0%, transparent 70%);"
+          maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+    <Pane style="-fx-background-color: radial-gradient(center 80% 80%, radius 55%, rgba(139,92,246,0.18) 0%, transparent 70%);"
+          maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+
+    <!-- Glass card -->
+    <StackPane>
+        <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
+
+        <Pane style="-fx-background-color: rgba(13,21,32,0.85);
+                     -fx-background-radius: 22;
+                     -fx-border-color: rgba(255,255,255,0.10);
+                     -fx-border-radius: 22; -fx-border-width: 0.5;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 24, 0.25, 0, 8);" />
+
+        <VBox spacing="14">
+            <padding><Insets top="26" right="28" bottom="26" left="28"/></padding>
+
+            <Label text="REVIEW"
+                   style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                          -fx-font-size: 10; -fx-font-weight: bold;
+                          -fx-text-fill: #5eead4; -fx-letter-spacing: 3;" />
+            <Label fx:id="titleLabel"
+                   style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
+                          -fx-font-size: 22; -fx-font-weight: 900; -fx-text-fill: white;" />
+            <Label fx:id="helperLabel" wrapText="true"
+                   style="-fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.60);" />
+
+            <Region prefHeight="4"/>
+
+            <Label text="RATING (1–5)"
+                   style="-fx-font-size: 11; -fx-font-weight: bold;
+                          -fx-text-fill: rgba(255,255,255,0.65); -fx-letter-spacing: 2;" />
+            <Spinner fx:id="ratingSpinner" editable="false" prefWidth="120"
+                     style="-fx-font-size: 13;
+                            -fx-background-color: rgba(255,255,255,0.06);
+                            -fx-background-radius: 12;
+                            -fx-border-color: rgba(255,255,255,0.18);
+                            -fx-border-radius: 12; -fx-border-width: 0.5;" />
+
+            <Label text="REVIEW TEXT"
+                   style="-fx-font-size: 11; -fx-font-weight: bold;
+                          -fx-text-fill: rgba(255,255,255,0.65); -fx-letter-spacing: 2;" />
+            <TextArea fx:id="commentArea" prefRowCount="7" wrapText="true"
+                      promptText="Share what you liked, what you didn't, and how it performed..."
+                      style="-fx-font-size: 13; -fx-padding: 4;
+                             -fx-control-inner-background: rgba(255,255,255,0.06);
+                             -fx-text-fill: white;
+                             -fx-prompt-text-fill: rgba(255,255,255,0.35);
+                             -fx-background-color: rgba(255,255,255,0.06);
+                             -fx-background-radius: 12;
+                             -fx-border-color: rgba(255,255,255,0.18);
+                             -fx-border-radius: 12; -fx-border-width: 0.5;" />
+
+            <Label fx:id="errorLabel" wrapText="true"
+                   style="-fx-text-fill: #fca5a5; -fx-font-size: 12;" />
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Cancel" onAction="#handleCancel"
+                        style="-fx-background-color: rgba(255,255,255,0.06);
+                               -fx-text-fill: rgba(255,255,255,0.85);
+                               -fx-font-size: 13; -fx-font-weight: bold;
+                               -fx-padding: 11 22; -fx-background-radius: 22;
+                               -fx-border-color: rgba(255,255,255,0.20);
+                               -fx-border-radius: 22; -fx-border-width: 0.5;
+                               -fx-cursor: hand;" />
+                <Button text="Save review" onAction="#handleSave"
+                        style="-fx-background-color: rgba(255,255,255,0.95);
+                               -fx-text-fill: #0a0f1f;
+                               -fx-font-size: 13; -fx-font-weight: bold;
+                               -fx-padding: 11 24; -fx-background-radius: 22;
+                               -fx-border-color: rgba(255,255,255,0.6);
+                               -fx-border-radius: 22; -fx-border-width: 0.5;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.40), 12, 0.2, 0, 3);" />
+            </HBox>
+        </VBox>
+    </StackPane>
+
+</StackPane>

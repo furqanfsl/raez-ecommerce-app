@@ -1,54 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.raez.controllers.AppFooterController"
-      style="-fx-background-color: #000080; -fx-padding: 32 48 28 48;">
+      maxWidth="Infinity" minWidth="0">
 
-    <HBox spacing="48" style="-fx-padding: 0 0 20 0;">
-        <VBox spacing="8">
-            <Label text="RAEZ"
-                   style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;" />
-            <Label text="Next-generation robotics &amp; AI commerce."
-                   style="-fx-font-size: 12; -fx-text-fill: #cbd5e1;" wrapText="true" />
-            <Label text="© 2026 RAEZ Holdings Ltd."
-                   style="-fx-font-size: 11; -fx-text-fill: #94a3b8;" />
+    <!-- Glass separator line at top -->
+    <Pane prefHeight="0.5" maxWidth="Infinity"
+          style="-fx-background-color: rgba(255,255,255,0.08);" />
+
+    <!-- Dark gradient mesh background layers -->
+    <StackPane maxWidth="Infinity" VBox.vgrow="ALWAYS">
+
+        <!-- Base: deep navy gradient -->
+        <Pane maxWidth="Infinity" maxHeight="Infinity"
+              style="-fx-background-color: linear-gradient(to bottom, #080d16 0%, #050a13 100%);" />
+
+        <!-- Teal glow, left -->
+        <Pane maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true"
+              style="-fx-background-color: radial-gradient(center 10% 30%, radius 40%, rgba(20,184,166,0.08) 0%, transparent 70%);" />
+
+        <!-- Violet glow, right -->
+        <Pane maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true"
+              style="-fx-background-color: radial-gradient(center 90% 60%, radius 35%, rgba(139,92,246,0.07) 0%, transparent 70%);" />
+
+        <!-- 4-column main row -->
+        <VBox maxWidth="Infinity">
+
+            <HBox spacing="0" maxWidth="Infinity" minWidth="0"
+                  style="-fx-padding: 44 40 36 40;">
+
+                <!-- Column 1: Brand -->
+                <VBox spacing="12" HBox.hgrow="ALWAYS">
+                    <Label text="RAEZ"
+                           style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
+                                  -fx-font-size: 26; -fx-font-weight: 900; -fx-text-fill: white;
+                                  -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.4), 14, 0.3, 0, 3);" />
+                    <Label text="Next-generation robotics &amp; AI commerce."
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.55);"
+                           wrapText="true" />
+                    <Label text="Trusted by 10,000+ customers worldwide."
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.30);"
+                           wrapText="true" />
+                    <Region prefHeight="6" />
+                    <Label text="© 2026 RAEZ Holdings Ltd. All rights reserved."
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.25);"
+                           wrapText="true" />
+                </VBox>
+
+                <!-- Column 2: Support -->
+                <VBox spacing="10" HBox.hgrow="ALWAYS" style="-fx-padding: 0 0 0 20;">
+                    <Label text="SUPPORT"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 10; -fx-font-weight: bold; -fx-text-fill: #5eead4;
+                                  -fx-letter-spacing: 2; -fx-padding: 0 0 4 0;" />
+                    <Label text="Contact Us"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.50);" />
+                    <Label text="Shipping Policy"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.50);" />
+                    <Label text="Returns &amp; Refunds"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.50);" />
+                    <Label text="FAQ"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.50);" />
+                    <Label text="Privacy Policy"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.50);" />
+                </VBox>
+
+                <!-- Column 3: Staff Portal / Admin Login -->
+                <VBox spacing="12" HBox.hgrow="ALWAYS" style="-fx-padding: 0 0 0 20;">
+                    <Label text="STAFF PORTAL"
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 10; -fx-font-weight: bold; -fx-text-fill: #5eead4;
+                                  -fx-letter-spacing: 2; -fx-padding: 0 0 4 0;" />
+                    <Label text="Access admin dashboards to manage products, orders, customers and more."
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.40);"
+                           wrapText="true" />
+                    <Button text="Admin Login" onAction="#handleAdminLogin"
+                            style="-fx-background-color: rgba(255,255,255,0.06);
+                                   -fx-text-fill: white;
+                                   -fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                   -fx-font-size: 12; -fx-font-weight: bold;
+                                   -fx-background-radius: 20;
+                                   -fx-border-color: rgba(255,255,255,0.25);
+                                   -fx-border-radius: 20; -fx-border-width: 0.5;
+                                   -fx-padding: 9 22 9 22;
+                                   -fx-cursor: hand;" />
+                    <Label text="Restricted to authorised staff only."
+                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                  -fx-font-size: 10; -fx-text-fill: rgba(255,255,255,0.22);" />
+                </VBox>
+
+            </HBox>
+
+            <!-- Bottom bar -->
+            <HBox alignment="CENTER_LEFT" spacing="20" maxWidth="Infinity" minWidth="0"
+                  style="-fx-border-color: rgba(255,255,255,0.07); -fx-border-width: 1 0 0 0;
+                         -fx-padding: 14 40 14 40;
+                         -fx-background-color: rgba(0,0,0,0.18);">
+                <Label text="Secure checkout"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.28);" />
+                <Label text="·" style="-fx-text-fill: rgba(255,255,255,0.15);" />
+                <Label text="256-bit SSL encryption"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.28);" />
+                <Label text="·" style="-fx-text-fill: rgba(255,255,255,0.15);" />
+                <Label text="GDPR compliant"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.28);" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="Made in the UK"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 11; -fx-text-fill: rgba(255,255,255,0.28);" />
+            </HBox>
+
         </VBox>
 
-        <VBox spacing="6">
-            <Label text="Shop" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white;" />
-            <Label text="All Products" style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
-            <Label text="New Arrivals" style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
-            <Label text="Sale"         style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
-        </VBox>
+    </StackPane>
 
-        <VBox spacing="6">
-            <Label text="Support" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white;" />
-            <Label text="Contact Us"    style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
-            <Label text="Shipping"      style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
-            <Label text="Returns"       style="-fx-font-size: 11; -fx-text-fill: #cbd5e1;" />
-        </VBox>
-
-        <Region HBox.hgrow="ALWAYS" />
-
-        <VBox spacing="6" alignment="TOP_RIGHT">
-            <Label text="Staff" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white;" />
-            <Hyperlink text="Admin Portal" onAction="#handleAdminLogin"
-                       style="-fx-font-size: 11; -fx-text-fill: #a5b4fc; -fx-border-color: transparent;
-                              -fx-underline: false;" />
-            <Label text="Restricted to authorised staff only."
-                   style="-fx-font-size: 10; -fx-text-fill: #94a3b8;" />
-        </VBox>
-    </HBox>
-
-    <HBox alignment="CENTER" style="-fx-border-color: #1e3a8a; -fx-border-width: 1 0 0 0; -fx-padding: 16 0 0 0;">
-        <Label text="Secure checkout · Trusted by 10,000+ customers worldwide"
-               style="-fx-font-size: 11; -fx-text-fill: #94a3b8;" />
-    </HBox>
 </VBox>

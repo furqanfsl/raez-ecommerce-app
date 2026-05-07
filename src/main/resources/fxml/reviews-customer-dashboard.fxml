@@ -1,97 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.BarChart?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.raez.reviews.controller.CustomerDashboardController"
-            fitToWidth="true" fitToHeight="false" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED"
-            styleClass="app-shell,dashboard-scroll">
-    <content>
-        <BorderPane minHeight="760" minWidth="980" prefWidth="1180" styleClass="dashboard-layout">
-            <top>
-                <VBox spacing="12" styleClass="hero-panel">
-                    <padding>
-                        <Insets top="20" right="20" bottom="20" left="20" />
-                    </padding>
-                    <Label text="Customer Review Workspace" styleClass="page-title" />
-                    <Label fx:id="welcomeLabel" styleClass="page-subtitle" />
-                    <FlowPane hgap="12" vgap="12" prefWrapLength="960">
-                        <TextField fx:id="searchField" prefWidth="320" promptText="Search products by name or category" />
-                        <ComboBox fx:id="productComboBox" prefWidth="280" promptText="Select a product" />
-                        <ComboBox fx:id="sortComboBox" prefWidth="180" />
-                        <Button text="Refresh" onAction="#handleRefresh" styleClass="secondary-button" />
-                        <Button text="Logout" onAction="#handleLogout" styleClass="secondary-button" />
-                    </FlowPane>
-                    <FlowPane hgap="16" vgap="12" prefWrapLength="960">
-                        <Label fx:id="averageRatingLabel" styleClass="badge-text" />
-                        <Label fx:id="reviewCountLabel" styleClass="badge-text" />
-                        <Label fx:id="eligibilityLabel" styleClass="badge-text" wrapText="true" />
-                    </FlowPane>
-                </VBox>
-            </top>
-            <center>
-                <SplitPane orientation="VERTICAL" dividerPositions="0.66" prefHeight="560">
-                    <BorderPane.margin>
-                        <Insets top="16" right="0" bottom="16" left="0" />
-                    </BorderPane.margin>
-                    <items>
-                        <TableView fx:id="reviewTable" minHeight="300">
-                            <columns>
-                                <TableColumn fx:id="reviewerColumn" text="Reviewer" />
-                                <TableColumn fx:id="ratingColumn" text="Rating" />
-                                <TableColumn fx:id="commentColumn" text="Comment" />
-                                <TableColumn fx:id="helpfulColumn" text="Helpful" />
-                                <TableColumn fx:id="unhelpfulColumn" text="Unhelpful" />
-                                <TableColumn fx:id="statusColumn" text="Status" />
-                                <TableColumn fx:id="createdColumn" text="Created" />
-                            </columns>
-                        </TableView>
-                        <VBox spacing="10" styleClass="panel-card">
-                            <padding>
-                                <Insets top="12" right="12" bottom="12" left="12" />
-                            </padding>
-                            <Label text="Rating Distribution" styleClass="section-title" />
-                            <BarChart fx:id="ratingChart" legendVisible="false" categoryGap="10" minHeight="240" prefHeight="260">
-                                <xAxis>
-                                    <CategoryAxis label="Star bucket" />
-                                </xAxis>
-                                <yAxis>
-                                    <NumberAxis label="Reviews" />
-                                </yAxis>
-                            </BarChart>
-                        </VBox>
-                    </items>
-                </SplitPane>
-            </center>
-            <bottom>
-                <VBox spacing="12" styleClass="panel-card">
-                    <padding>
-                        <Insets top="16" right="20" bottom="16" left="20" />
-                    </padding>
-                    <Label fx:id="editWindowLabel" styleClass="muted-text" wrapText="true" />
-                    <FlowPane hgap="10" vgap="10" prefWrapLength="960">
-                        <Button fx:id="addReviewButton" text="Add Review" onAction="#handleAddReview" styleClass="primary-button" />
-                        <Button fx:id="editReviewButton" text="Edit Selected" onAction="#handleEditReview" styleClass="secondary-button" />
-                        <Button fx:id="deleteReviewButton" text="Delete Selected" onAction="#handleDeleteReview" styleClass="secondary-button" />
-                        <Button fx:id="helpfulButton" text="Helpful" onAction="#handleHelpfulVote" styleClass="secondary-button" />
-                        <Button fx:id="unhelpfulButton" text="Unhelpful" onAction="#handleUnhelpfulVote" styleClass="secondary-button" />
-                    </FlowPane>
-                </VBox>
-            </bottom>
-        </BorderPane>
-    </content>
-</ScrollPane>
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.raez.reviews.controller.CustomerDashboardController">
+
+    <!-- Gradient mesh background — same family as login + hero -->
+    <Pane style="-fx-background-color: linear-gradient(to bottom right, #0a0f1f 0%, #0d2538 35%, #1a3347 60%, #2a1a4a 100%);"
+          maxWidth="Infinity" maxHeight="Infinity" />
+    <Pane style="-fx-background-color: radial-gradient(center 15% 20%, radius 45%, rgba(20,184,166,0.20) 0%, transparent 70%);"
+          maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+    <Pane style="-fx-background-color: radial-gradient(center 80% 75%, radius 50%, rgba(139,92,246,0.20) 0%, transparent 70%);"
+          maxWidth="Infinity" maxHeight="Infinity" mouseTransparent="true" />
+
+    <BorderPane>
+
+        <!-- ── Top bar ───────────────────────────────────────────────────── -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="14"
+                  style="-fx-background-color: rgba(10,15,31,0.82);
+                         -fx-border-color: rgba(255,255,255,0.10);
+                         -fx-border-width: 0 0 0.5 0;">
+                <padding><Insets top="14" right="32" bottom="14" left="32"/></padding>
+
+                <Label text="RAEZ"
+                       style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
+                              -fx-font-size: 22; -fx-font-weight: 900; -fx-text-fill: white;
+                              -fx-letter-spacing: 2;
+                              -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.35), 10, 0.25, 0, 0);" />
+                <Label text="·  My Reviews"
+                       style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                              -fx-font-size: 13; -fx-text-fill: rgba(255,255,255,0.55);
+                              -fx-letter-spacing: 1;" />
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="←  Back to storefront" onAction="#handleBackToShop"
+                        style="-fx-background-color: rgba(94,234,212,0.16);
+                               -fx-text-fill: #5eead4;
+                               -fx-font-family: 'Inter','Segoe UI',sans-serif;
+                               -fx-font-size: 12; -fx-font-weight: bold;
+                               -fx-padding: 9 18 9 18;
+                               -fx-background-radius: 22;
+                               -fx-border-color: rgba(94,234,212,0.35);
+                               -fx-border-radius: 22; -fx-border-width: 0.5;
+                               -fx-cursor: hand;" />
+
+                <Button text="Logout" onAction="#handleLogout"
+                        style="-fx-background-color: rgba(255,255,255,0.06);
+                               -fx-text-fill: white;
+                               -fx-font-family: 'Inter','Segoe UI',sans-serif;
+                               -fx-font-size: 12; -fx-font-weight: bold;
+                               -fx-padding: 9 18 9 18;
+                               -fx-background-radius: 22;
+                               -fx-border-color: rgba(255,255,255,0.25);
+                               -fx-border-radius: 22; -fx-border-width: 0.5;
+                               -fx-cursor: hand;" />
+            </HBox>
+        </top>
+
+        <!-- ── Main content ──────────────────────────────────────────────── -->
+        <center>
+            <ScrollPane fitToWidth="true"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                <content>
+                    <VBox spacing="22" style="-fx-background-color: transparent;">
+                        <padding><Insets top="32" right="44" bottom="44" left="44"/></padding>
+
+                        <!-- Hero / identity card -->
+                        <StackPane>
+                            <Pane style="-fx-background-color: rgba(13,21,32,0.78);
+                                         -fx-background-radius: 22;
+                                         -fx-border-color: rgba(255,255,255,0.10);
+                                         -fx-border-radius: 22; -fx-border-width: 0.5;
+                                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 22, 0.25, 0, 8);" />
+                            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 26 30 26 30;">
+                                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                    <Label text="MY REVIEWS"
+                                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                                  -fx-font-size: 10; -fx-font-weight: bold;
+                                                  -fx-text-fill: #5eead4; -fx-letter-spacing: 3;" />
+                                    <Label text="Your verified write-ups"
+                                           style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
+                                                  -fx-font-size: 26; -fx-font-weight: 900; -fx-text-fill: white;" />
+                                    <Label fx:id="welcomeLabel"
+                                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                                  -fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.55);" />
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="6">
+                                    <Label text="TOTAL"
+                                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                                  -fx-font-size: 10; -fx-font-weight: bold;
+                                                  -fx-text-fill: rgba(255,255,255,0.55);
+                                                  -fx-letter-spacing: 2;"/>
+                                    <Label fx:id="reviewCountLabel"
+                                           style="-fx-font-family: 'Inter','Segoe UI',sans-serif;
+                                                  -fx-font-size: 12; -fx-font-weight: bold;
+                                                  -fx-text-fill: #5eead4;
+                                                  -fx-padding: 6 16; -fx-background-radius: 20;
+                                                  -fx-background-color: rgba(94,234,212,0.18);
+                                                  -fx-border-color: rgba(94,234,212,0.45);
+                                                  -fx-border-radius: 20; -fx-border-width: 0.5;"/>
+                                </VBox>
+                            </HBox>
+                        </StackPane>
+
+                        <!-- Filter card -->
+                        <StackPane>
+                            <Pane style="-fx-background-color: rgba(13,21,32,0.78);
+                                         -fx-background-radius: 18;
+                                         -fx-border-color: rgba(255,255,255,0.10);
+                                         -fx-border-radius: 18; -fx-border-width: 0.5;" />
+                            <HBox alignment="CENTER_LEFT" spacing="14" style="-fx-padding: 16 22 16 22;">
+                                <Label text="Show:"
+                                       style="-fx-font-size: 12; -fx-text-fill: rgba(255,255,255,0.65);
+                                              -fx-letter-spacing: 1;"/>
+                                <ComboBox fx:id="timeFilterComboBox" prefWidth="200"
+                                          style="-fx-font-size: 13;
+                                                 -fx-background-color: rgba(255,255,255,0.06);
+                                                 -fx-background-radius: 12;
+                                                 -fx-border-color: rgba(255,255,255,0.18);
+                                                 -fx-border-radius: 12; -fx-border-width: 0.5;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                        </StackPane>
+
+                        <!-- Reviews list -->
+                        <VBox fx:id="reviewsList" spacing="14"
+                              style="-fx-background-color: transparent;"/>
+
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+
+</StackPane>

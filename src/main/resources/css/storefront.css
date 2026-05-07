@@ -1,0 +1,266 @@
+/* =========================================================================
+   storefront.css — Customer-facing chrome (header + footer)
+   Loaded globally by MainApp alongside admin-theme.css.
+   Makes MenuButton labels visibly white and themes their dropdowns to match
+   the finance dashboard polish (glass card, hover, shadow).
+   ========================================================================= */
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   1. Header MenuButton bases — white labels regardless of state
+   ─────────────────────────────────────────────────────────────────────── */
+
+.header-user-menu,
+.nav-link-white {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 22;
+    -fx-border-color: transparent;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.header-user-menu .label,
+.header-user-menu > .label,
+.nav-link-white .label,
+.nav-link-white > .label {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* The MenuButton arrow — keep visible against dark header */
+.header-user-menu > .arrow-button > .arrow,
+.nav-link-white > .arrow-button > .arrow {
+    -fx-background-color: rgba(255,255,255,0.85);
+    -fx-padding: 3 4 3 4;
+}
+.header-user-menu > .arrow-button,
+.nav-link-white > .arrow-button {
+    -fx-padding: 0 6 0 4;
+}
+
+/* Hover: subtle teal-tinted glass pill (matches finance dashboard hover feel) */
+.header-user-menu:hover,
+.nav-link-white:hover {
+    -fx-background-color: rgba(94,234,212,0.10);
+    -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.28), 14, 0.2, 0, 2);
+}
+.header-user-menu:hover .label,
+.nav-link-white:hover .label {
+    -fx-text-fill: #5eead4;
+}
+.header-user-menu:hover > .arrow-button > .arrow,
+.nav-link-white:hover > .arrow-button > .arrow {
+    -fx-background-color: #5eead4;
+}
+
+/* Pressed / popup-showing — slightly stronger fill */
+.header-user-menu:armed, .header-user-menu:showing,
+.nav-link-white:armed, .nav-link-white:showing {
+    -fx-background-color: rgba(94,234,212,0.18);
+}
+.header-user-menu:showing .label,
+.nav-link-white:showing .label {
+    -fx-text-fill: #ccfbf1;
+}
+
+/* Disabled fade-out (keeps text legible) */
+.header-user-menu:disabled,
+.nav-link-white:disabled {
+    -fx-opacity: 0.55;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   2. Dropdown popup — premium dark glass card, finance-dashboard quality
+   ─────────────────────────────────────────────────────────────────────── */
+
+.header-user-menu .context-menu,
+.nav-link-white  .context-menu {
+    -fx-background-color: linear-gradient(to bottom, #0f1525 0%, #0a0f1f 100%);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(94,234,212,0.22);
+    -fx-border-radius: 12;
+    -fx-border-width: 0.75;
+    -fx-padding: 6 0 6 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 24, 0.35, 0, 10);
+}
+
+.header-user-menu .context-menu .menu-item,
+.nav-link-white  .context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 9 22 9 22;
+    -fx-background-radius: 0;
+    -fx-cursor: hand;
+}
+
+.header-user-menu .context-menu .menu-item .label,
+.nav-link-white  .context-menu .menu-item .label {
+    -fx-text-fill: rgba(255,255,255,0.82);
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+/* Hover on a row: teal accent bar effect via translucent fill */
+.header-user-menu .context-menu .menu-item:focused,
+.header-user-menu .context-menu .menu-item:hover,
+.nav-link-white  .context-menu .menu-item:focused,
+.nav-link-white  .context-menu .menu-item:hover {
+    -fx-background-color: linear-gradient(to right, rgba(94,234,212,0.18) 0%, rgba(56,189,248,0.10) 100%);
+}
+
+.header-user-menu .context-menu .menu-item:focused .label,
+.header-user-menu .context-menu .menu-item:hover   .label,
+.nav-link-white  .context-menu .menu-item:focused .label,
+.nav-link-white  .context-menu .menu-item:hover   .label {
+    -fx-text-fill: #ffffff;
+}
+
+/* Separator lines inside the popup */
+.header-user-menu .context-menu .separator .line,
+.nav-link-white  .context-menu .separator .line {
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 0.5 0 0 0;
+    -fx-padding: 4 14 4 14;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   3. Floating hero CTA — used by the sticky-header "back to top" button
+   ─────────────────────────────────────────────────────────────────────── */
+
+.scroll-top-pill {
+    -fx-background-color: linear-gradient(to right, rgba(94,234,212,0.95), rgba(56,189,248,0.95));
+    -fx-text-fill: #06121f;
+    -fx-font-weight: bold;
+    -fx-padding: 10 18 10 18;
+    -fx-background-radius: 24;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.45), 16, 0.3, 0, 4);
+}
+.scroll-top-pill:hover {
+    -fx-effect: dropshadow(gaussian, rgba(94,234,212,0.75), 22, 0.35, 0, 6);
+    -fx-translate-y: -1;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   4. Dark TableView — used inside the My Account "Order history" glass card.
+   Removes the modena defaults and gives the rows a glassy translucent feel
+   that sits on top of the dark dashboard surface.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.orders-table-dark {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* Header strip */
+.orders-table-dark .column-header-background {
+    -fx-background-color: rgba(255,255,255,0.04);
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.10) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.orders-table-dark .column-header,
+.orders-table-dark .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-size: 42px;
+}
+.orders-table-dark .column-header .label {
+    -fx-text-fill: rgba(255,255,255,0.65);
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1.5;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 10 0 12;
+}
+.orders-table-dark .nested-column-header,
+.orders-table-dark .show-hide-columns-button {
+    -fx-background-color: transparent;
+}
+
+/* Body cells + rows */
+.orders-table-dark .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-cell-size: 44px;
+    -fx-padding: 0;
+}
+.orders-table-dark .table-row-cell:filled:even {
+    -fx-background-color: rgba(255,255,255,0.03);
+}
+.orders-table-dark .table-row-cell:filled:odd {
+    -fx-background-color: rgba(255,255,255,0.06);
+}
+.orders-table-dark .table-row-cell:hover {
+    -fx-background-color: rgba(94,234,212,0.10);
+    -fx-cursor: hand;
+}
+.orders-table-dark .table-row-cell:selected {
+    -fx-background-color: rgba(94,234,212,0.18);
+}
+.orders-table-dark .table-row-cell:empty {
+    -fx-background-color: transparent;
+}
+.orders-table-dark .table-cell {
+    -fx-padding: 0 10 0 12;
+    -fx-border-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.88);
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_LEFT;
+}
+.orders-table-dark .table-row-cell:selected .table-cell {
+    -fx-text-fill: white;
+}
+
+/* Focus ring + corner */
+.orders-table-dark:focused {
+    -fx-background-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-border-color: transparent;
+}
+.orders-table-dark .corner {
+    -fx-background-color: transparent;
+}
+
+/* Placeholder when no rows */
+.orders-table-dark .placeholder .label {
+    -fx-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 12px;
+}
+
+/* Slim translucent scrollbars (match the rest of the storefront chrome) */
+.orders-table-dark .scroll-bar:vertical,
+.orders-table-dark .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+    -fx-pref-height: 8;
+}
+.orders-table-dark .scroll-bar .thumb {
+    -fx-background-color: rgba(255,255,255,0.20);
+    -fx-background-radius: 999;
+}
+.orders-table-dark .scroll-bar .thumb:hover {
+    -fx-background-color: rgba(94,234,212,0.45);
+}
+.orders-table-dark .scroll-bar .increment-button,
+.orders-table-dark .scroll-bar .decrement-button,
+.orders-table-dark .scroll-bar .increment-arrow,
+.orders-table-dark .scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+}
+.orders-table-dark .scroll-bar .track {
+    -fx-background-color: transparent;
+}

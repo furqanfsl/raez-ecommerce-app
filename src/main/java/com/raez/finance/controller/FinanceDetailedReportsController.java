@@ -35,8 +35,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceDetailedReportsController implements Initializable, FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceDetailedReportsController.class);
+
 
     // ── DAOs ─────────────────────────────────────────────────────────────
     private final FinanceOrderDaoInterface    orderDao    = new FinanceOrderDao();
@@ -556,7 +560,7 @@ public class FinanceDetailedReportsController implements Initializable, FinanceU
             @Override protected T call() throws Exception { return supplier.get(); }
         };
         task.setOnSucceeded(e  -> onSuccess.accept(task.getValue()));
-        task.setOnFailed(e     -> { if (task.getException() != null) task.getException().printStackTrace(); });
+        task.setOnFailed(e     -> { if (task.getException() != null) log.error("Error", task.getException()); });
         executor.execute(task);
     }
 

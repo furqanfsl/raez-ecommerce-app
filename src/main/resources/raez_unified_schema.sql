@@ -140,6 +140,10 @@ CREATE TABLE IF NOT EXISTS products (
     status      TEXT    NOT NULL DEFAULT 'active',
     -- Values: active | inactive | discontinued
     categoryID  INTEGER,
+    imagePath   TEXT,
+    collection  TEXT,
+    -- Marketing collection name (e.g. 'Apex Automata', 'Sentinel Force',
+    -- 'NovaMind', 'TerraCore'). Nullable for ungrouped products.
     createdAt   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (categoryID) REFERENCES categories(categoryID) ON DELETE SET NULL
@@ -561,6 +565,20 @@ CREATE TABLE IF NOT EXISTS reviews_settings (
 );
 
 -- ================================================================
+--  SECTION 11 — CUSTOMER FAVOURITES
+-- ================================================================
+
+CREATE TABLE IF NOT EXISTS customer_favourites (
+    favouriteID INTEGER PRIMARY KEY AUTOINCREMENT,
+    customerID  INTEGER NOT NULL,
+    productID   INTEGER NOT NULL,
+    addedAt     TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (customerID, productID),
+    FOREIGN KEY (customerID) REFERENCES customers(customerID) ON DELETE CASCADE,
+    FOREIGN KEY (productID)  REFERENCES products(productID)  ON DELETE CASCADE
+);
+
+-- ================================================================
 --  INDEXES
 -- ================================================================
 
@@ -586,6 +604,7 @@ CREATE INDEX IF NOT EXISTS idx_reviews_customer          ON reviews_reviews(cust
 CREATE INDEX IF NOT EXISTS idx_reviews_status            ON reviews_reviews(status);
 CREATE INDEX IF NOT EXISTS idx_reviews_votes_review      ON reviews_votes(reviewID);
 CREATE INDEX IF NOT EXISTS idx_orders_history_order      ON orders_status_history(orderID);
+CREATE INDEX IF NOT EXISTS idx_customer_favourites       ON customer_favourites(customerID);
 
 -- ================================================================
 --  SECTION 9 — SMTP SETTINGS (Super Admin configurable)

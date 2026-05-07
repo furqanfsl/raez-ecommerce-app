@@ -9,6 +9,8 @@ import javafx.util.Duration;
 
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * FinanceSessionManager
@@ -27,6 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * The inactivity checker runs every second on the FX thread.
  */
 public final class FinanceSessionManager {
+    private static final Logger log = LoggerFactory.getLogger(FinanceSessionManager.class);
+
 
     /** Total inactivity allowed before forced logout. */
     public static final long SESSION_TIMEOUT_SECONDS = 120;
@@ -207,7 +211,7 @@ public final class FinanceSessionManager {
             return;
         }
         if (isExpired()) {
-            System.out.println("[FinanceSessionManager] Session expired due to inactivity.");
+            log.info("{}", "[FinanceSessionManager] Session expired due to inactivity.");
             Runnable cb = onTimeoutCallback;
             logout(); // clears state + stops checker
             if (cb != null) {

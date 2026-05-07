@@ -46,6 +46,10 @@ public class ReviewService {
         return reviewDao.findForProduct(productId, sortOption);
     }
 
+    public List<Review> getReviewsByCustomer(int customerId) {
+        return reviewDao.findByCustomer(customerId);
+    }
+
     public Optional<Review> getCustomerReviewForProduct(int customerId, int productId) {
         return reviewDao.findByCustomerAndProduct(customerId, productId);
     }

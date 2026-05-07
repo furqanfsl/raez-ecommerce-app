@@ -24,12 +24,10 @@ public class ProductSideBarController implements Initializable {
     @FXML private VBox featuresPanel;
     @FXML private VBox brandPanel;
 
-    @FXML private CheckBox catAllRobots;
-    @FXML private CheckBox catHomeAssistants;
-    @FXML private CheckBox catSecurityBots;
-    @FXML private CheckBox catEducational;
-    @FXML private CheckBox catCompanions;
-    @FXML private CheckBox catIndustrial;
+    @FXML private CheckBox catRobots;
+    @FXML private CheckBox catMiniRobots;
+    @FXML private CheckBox catAccessories;
+    @FXML private CheckBox catServices;
 
     @FXML private CheckBox priceUnder200;
     @FXML private CheckBox price200to400;
@@ -63,11 +61,10 @@ public class ProductSideBarController implements Initializable {
         if (productListController == null) return;
 
         Set<String> cats = new HashSet<>();
-        if (catHomeAssistants != null && catHomeAssistants.isSelected()) cats.add("Home Assistants");
-        if (catSecurityBots   != null && catSecurityBots.isSelected())   cats.add("Security Bots");
-        if (catEducational    != null && catEducational.isSelected())     cats.add("Educational");
-        if (catCompanions     != null && catCompanions.isSelected())      cats.add("Companions");
-        if (catIndustrial     != null && catIndustrial.isSelected())      cats.add("Industrial");
+        if (catRobots      != null && catRobots.isSelected())      cats.add("Robots");
+        if (catMiniRobots  != null && catMiniRobots.isSelected())  cats.add("Mini Robots");
+        if (catAccessories != null && catAccessories.isSelected()) cats.add("Accessories");
+        if (catServices    != null && catServices.isSelected())    cats.add("Services");
 
         double min = 0;
         double max = Double.MAX_VALUE;
@@ -82,12 +79,10 @@ public class ProductSideBarController implements Initializable {
     }
 
     @FXML public void clearFilters() {
-        if (catAllRobots     != null) catAllRobots.setSelected(false);
-        if (catHomeAssistants != null) catHomeAssistants.setSelected(false);
-        if (catSecurityBots   != null) catSecurityBots.setSelected(false);
-        if (catEducational    != null) catEducational.setSelected(false);
-        if (catCompanions     != null) catCompanions.setSelected(false);
-        if (catIndustrial     != null) catIndustrial.setSelected(false);
+        if (catRobots      != null) catRobots.setSelected(false);
+        if (catMiniRobots  != null) catMiniRobots.setSelected(false);
+        if (catAccessories != null) catAccessories.setSelected(false);
+        if (catServices    != null) catServices.setSelected(false);
         if (priceUnder200     != null) priceUnder200.setSelected(false);
         if (price200to400     != null) price200to400.setSelected(false);
         if (price400to600     != null) price400to600.setSelected(false);

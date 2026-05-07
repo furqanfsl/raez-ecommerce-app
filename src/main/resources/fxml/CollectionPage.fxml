@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.raez.controllers.CollectionPageController"
+            style="-fx-background-color: #070d18;">
+
+    <BorderPane AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0">
+
+        <top>
+            <fx:include source="ProductHeader.fxml"/>
+        </top>
+
+        <center>
+            <ScrollPane fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        style="-fx-background: #070d18; -fx-background-color: #070d18; -fx-border-color: transparent;">
+                <content>
+                    <VBox spacing="0" style="-fx-background-color: #070d18;">
+
+                        <VBox spacing="26" style="-fx-padding: 28 36 36 36;">
+                            <Label fx:id="collectionTitleLabel"
+                                   text="Collection"
+                                   style="-fx-text-fill: #00e5ff; -fx-font-size: 17; -fx-font-weight: bold;"/>
+
+                            <HBox spacing="22" style="-fx-background-color: #0c1424; -fx-border-color: #13416a; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 24;">
+                                <VBox spacing="10" HBox.hgrow="ALWAYS">
+                                    <Label text="MAIN ROBOT"
+                                           style="-fx-text-fill: #00f5a0; -fx-font-size: 11; -fx-font-weight: bold;"/>
+                                    <Label fx:id="mainRobotNameLabel"
+                                           text="Main Robot"
+                                           wrapText="true"
+                                           style="-fx-text-fill: #e8f4ff; -fx-font-size: 34; -fx-font-weight: bold;"/>
+                                    <Label fx:id="mainRobotDescriptionLabel"
+                                           text=""
+                                           wrapText="true"
+                                           style="-fx-text-fill: #9fb3c8; -fx-font-size: 14;"/>
+                                    <Label fx:id="mainRobotPriceLabel"
+                                           text=""
+                                           style="-fx-text-fill: #00e5ff; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                                    <HBox spacing="10" style="-fx-padding: 8 0 0 0;">
+                                        <Button fx:id="mainRobotCartBtn" text="Add to Cart"
+                                                onAction="#handleMainRobotAddToCart"
+                                                style="-fx-background-color: #00e5ff; -fx-text-fill: #050a16;
+                                                       -fx-font-size: 13; -fx-font-weight: bold;
+                                                       -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                                        <Button text="Buy"
+                                                onAction="#handleMainRobotViewDetails"
+                                                style="-fx-background-color: transparent; -fx-text-fill: #00e5ff;
+                                                       -fx-font-size: 13; -fx-font-weight: bold;
+                                                       -fx-padding: 10 20; -fx-background-radius: 8;
+                                                       -fx-border-color: #00e5ff; -fx-border-radius: 8; -fx-border-width: 1;
+                                                       -fx-cursor: hand;"/>
+                                    </HBox>
+                                </VBox>
+                                <Region minWidth="16"/>
+                                <StackPane fx:id="mainRobotImagePane"
+                                           minWidth="340" prefWidth="340" minHeight="300"
+                                           style="-fx-background-color: #101a2a; -fx-border-color: #1f3b5b; -fx-border-radius: 10; -fx-background-radius: 10;">
+                                    <Label fx:id="mainRobotImagePlaceholder" text="No Image"
+                                           style="-fx-text-fill: #38506a; -fx-font-size: 13; -fx-font-weight: bold;"/>
+                                    <ImageView fx:id="mainRobotImageView"
+                                               fitWidth="340" fitHeight="300"
+                                               preserveRatio="true" smooth="true"/>
+                                </StackPane>
+                            </HBox>
+
+                            <Label text="COLLECTION COMPONENTS"
+                                   style="-fx-text-fill: #8fb2d0; -fx-font-size: 14; -fx-font-weight: bold;"/>
+
+                            <FlowPane fx:id="itemsGrid"
+                                      hgap="14" vgap="14"
+                                      prefWrapLength="1120"/>
+
+                            <Label fx:id="collectionEmptyLabel"
+                                   text="No additional products in this collection."
+                                   visible="false" managed="false"
+                                   style="-fx-text-fill: #8aa1b9; -fx-font-size: 13;"/>
+                        </VBox>
+
+                        <fx:include source="AppFooter.fxml"/>
+
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+</AnchorPane>

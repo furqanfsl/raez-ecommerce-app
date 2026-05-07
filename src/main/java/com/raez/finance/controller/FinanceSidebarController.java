@@ -23,8 +23,12 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceSidebarController {
+    private static final Logger log = LoggerFactory.getLogger(FinanceSidebarController.class);
+
 
     private static final String VIEW_PATH    = "/com/raez/finance/view/";
     private static final String CHEVRON_DOWN = "M19 9l-7 7-7-7";
@@ -62,36 +66,8 @@ public class FinanceSidebarController {
     private boolean analyticsExpanded = false;
     private Button  activeButton      = null;
 
-    // ── Debug log helpers (preserved from original) ───────────────────────
-    private static final String DEBUG_LOG_PATH   = "C:\\Users\\Projects\\Desktop\\Final GP\\debug-cd3c43.log";
-    private static final String DEBUG_SESSION_ID = "cd3c43";
-    private static final String DEBUG_RUN_ID     = "sidebar_topbar_pre_fix";
-
-    private static String esc(String s) {
-        if (s == null) return "";
-        return s.replace("\\", "\\\\").replace("\"", "\\\"")
-                .replace("\n", " ").replace("\r", " ");
-    }
-
     private static void agentLog(String hypothesisId, String location, String message, String data) {
-        try {
-            long ts = System.currentTimeMillis();
-            String json = "{\"sessionId\":\"" + esc(DEBUG_SESSION_ID) +
-                    "\",\"runId\":\"" + esc(DEBUG_RUN_ID) +
-                    "\",\"hypothesisId\":\"" + esc(hypothesisId) +
-                    "\",\"location\":\"" + esc(location) +
-                    "\",\"message\":\"" + esc(message) +
-                    "\",\"data\":\"" + esc(data) +
-                    "\",\"timestamp\":" + ts + "}";
-            Files.writeString(
-                    Path.of(DEBUG_LOG_PATH),
-                    json + System.lineSeparator(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND
-            );
-        } catch (Exception e) {
-            System.err.println("[agentLog:FinanceSidebar] failed to write log: " + e.getMessage());
-        }
+        // No-op: was a one-off debug trace to a hardcoded path on a developer machine.
     }
 
     public void setMainLayoutController(FinanceMainLayoutController mlc) {
@@ -269,7 +245,7 @@ public class FinanceSidebarController {
                      "fxmlName=" + fxmlName + ";urlNull=" + (url == null));
 
             if (url == null) {
-                System.err.println("[FinanceSidebar] Resource not found: " + fxmlName);
+                log.error("{}", "[FinanceSidebar] Resource not found: " + fxmlName);
                 return;
             }
 
@@ -313,8 +289,8 @@ public class FinanceSidebarController {
             setActiveButton(activeBtn);
 
         } catch (Exception ex) {
-            System.err.println("[FinanceSidebar] Failed to load " + fxmlName + ": " + ex.getMessage());
-            ex.printStackTrace();
+            log.error("{}", "[FinanceSidebar] Failed to load " + fxmlName + ": " + ex.getMessage());
+            log.error("Error", ex);
         }
     }
 

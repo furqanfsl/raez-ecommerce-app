@@ -11,8 +11,12 @@ import javafx.collections.ObservableList;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WarehouseService {
+    private static final Logger log = LoggerFactory.getLogger(WarehouseService.class);
+
 
     // ====================================================
     // DATABASE LOAD
@@ -67,7 +71,7 @@ public class WarehouseService {
             }
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.loadWarehousesFromDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.loadWarehousesFromDb error: " + e.getMessage());
         }
 
         return result;
@@ -98,7 +102,7 @@ public class WarehouseService {
             }
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.loadUserProductsFromDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.loadUserProductsFromDb error: " + e.getMessage());
         }
 
         return result;
@@ -137,7 +141,7 @@ public class WarehouseService {
             }
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.saveWarehouseToDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.saveWarehouseToDb error: " + e.getMessage());
         }
         return -1;
     }
@@ -159,7 +163,7 @@ public class WarehouseService {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.updateWarehouseInDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.updateWarehouseInDb error: " + e.getMessage());
             return false;
         }
     }
@@ -175,7 +179,7 @@ public class WarehouseService {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.deleteWarehouseFromDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.deleteWarehouseFromDb error: " + e.getMessage());
             return false;
         }
     }
@@ -237,7 +241,7 @@ public class WarehouseService {
             return productId;
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.saveProductToDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.saveProductToDb error: " + e.getMessage());
             return -1;
         }
     }
@@ -291,7 +295,7 @@ public class WarehouseService {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.updateProductInDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.updateProductInDb error: " + e.getMessage());
             return false;
         }
     }
@@ -319,7 +323,7 @@ public class WarehouseService {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.deleteProductFromDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.deleteProductFromDb error: " + e.getMessage());
             return false;
         }
     }
@@ -391,7 +395,7 @@ public class WarehouseService {
             return true;
 
         } catch (SQLException e) {
-            System.err.println("WarehouseService.updateStockTransferInDb error: " + e.getMessage());
+            log.error("{}", "WarehouseService.updateStockTransferInDb error: " + e.getMessage());
             return false;
         }
     }

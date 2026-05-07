@@ -220,29 +220,35 @@ public class FinanceInvoiceDao implements FinanceInvoiceDaoInterface {
     @Override
     public int insertInvoiceForOrder(int orderId, LocalDate dueDate, String notes) throws Exception {
         double gross;
+        int customerId;
         try (Connection conn = FinanceDatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                 "SELECT totalAmount FROM \"orders\" WHERE orderID = ?")) {
+                 "SELECT totalAmount, customerID FROM \"orders\" WHERE orderID = ?")) {
             ps.setInt(1, orderId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) throw new IllegalArgumentException("orders not found: " + orderId);
                 gross = rs.getDouble("totalAmount");
+                customerId = rs.getInt("customerID");
             }
         }
         double vatPct = FinanceSettingsService.getInstance().getDefaultVatPercent() / 100.0;
         double vatAmount = gross * (vatPct / (1.0 + vatPct));
+        double subtotal = gross - vatAmount;
         String invoiceNumber = "INV-" + orderId + "-" + System.currentTimeMillis();
 
-        String sql = "INSERT INTO finance_invoices (orderID, paymentID, invoiceNumber, status, totalAmount, vatAmount, " +
-            "issuedAt, dueDate, notes) VALUES (?, NULL, ?, 'PENDING', ?, ?, datetime('now'), ?, ?)";
+        String sql = "INSERT INTO finance_invoices (orderID, customerID, paymentID, invoiceNumber, status, " +
+            "subtotal, totalAmount, vatAmount, issuedAt, dueDate, notes) " +
+            "VALUES (?, ?, NULL, ?, 'PENDING', ?, ?, ?, datetime('now'), ?, ?)";
         try (Connection conn = FinanceDatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, orderId);
-            ps.setString(2, invoiceNumber);
-            ps.setDouble(3, gross);
-            ps.setDouble(4, vatAmount);
-            ps.setString(5, dueDate != null ? dueDate.toString() : null);
-            ps.setString(6, notes != null && !notes.isBlank() ? notes : null);
+            ps.setInt(2, customerId);
+            ps.setString(3, invoiceNumber);
+            ps.setDouble(4, subtotal);
+            ps.setDouble(5, gross);
+            ps.setDouble(6, vatAmount);
+            ps.setString(7, dueDate != null ? dueDate.toString() : null);
+            ps.setString(8, notes != null && !notes.isBlank() ? notes : null);
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) return keys.getInt(1);

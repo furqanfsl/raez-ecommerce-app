@@ -1,6 +1,7 @@
 package com.raez.controllers;
 
 import com.raez.customer.dao.CustomerDAO;
+import com.raez.util.Validators;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -50,10 +51,15 @@ public class CustomerSignupController {
         if (!validate()) return;
 
         try {
+            String firstName = Validators.nonEmpty(firstNameField.getText(), 60, "First name");
+            String lastName  = Validators.nonEmpty(lastNameField.getText(),  60, "Last name");
+            String email     = Validators.email(emailField.getText());
+            Validators.nonEmpty(passwordField.getText(), 200, "Password");
+
             customerDAO.register(
-                firstNameField.getText().trim(),
-                lastNameField.getText().trim(),
-                emailField.getText().trim(),
+                firstName,
+                lastName,
+                email,
                 passwordField.getText(),
                 phoneField.getText().trim(),
                 addressField.getText().trim(),

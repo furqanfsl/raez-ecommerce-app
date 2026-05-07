@@ -1,5 +1,6 @@
 package com.raez.controllers;
 
+import com.raez.customer.dao.CustomerDAO;
 import com.raez.model.CartManager;
 import com.raez.model.FavouritesManager;
 import com.raez.model.NavigationRouter;
@@ -9,6 +10,8 @@ import com.raez.reviews.app.AppContext;
 import com.raez.reviews.app.ReviewsApplication;
 import com.raez.reviews.model.Customer;
 import com.raez.reviews.model.UserSession;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,23 +22,30 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Popup;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductHeaderController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductHeaderController.class);
+
 
     @FXML private Button     logoBtn;
     @FXML private TextField  searchField;
-    @FXML private MenuButton menuBtn;
+    @FXML private MenuButton collectionsMenu;
     @FXML private Button     adminBtn;
     @FXML private Label      cartBadge;
     @FXML private MenuButton userMenuBtn;
     @FXML private MenuItem   loginMenuItem;
+    @FXML private MenuItem   manageAccountMenuItem;
     @FXML private MenuItem   myReviewsMenuItem;
     @FXML private MenuItem   logoutMenuItem;
+    @FXML private SeparatorMenuItem logoutSeparator;
     @FXML private Button     heartBtn;
     @FXML private Label      heartBadge;
 
@@ -47,15 +57,90 @@ public class ProductHeaderController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (logoutMenuItem != null) logoutMenuItem.setVisible(false);
-        if (adminBtn != null) { adminBtn.setVisible(false); adminBtn.setManaged(false); }
+        if (logoutMenuItem    != null) logoutMenuItem.setVisible(false);
+        if (logoutSeparator   != null) logoutSeparator.setVisible(false);
+        if (adminBtn          != null) { adminBtn.setVisible(false); adminBtn.setManaged(false); }
+        if (userMenuBtn       != null) {
+            userMenuBtn.setText("Login");
+            userMenuBtn.setStyle(
+                "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                "-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;" +
+                "-fx-cursor: hand; -fx-padding: 0;"
+            );
+        }
+        if (collectionsMenu != null) {
+            collectionsMenu.setStyle(
+                "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                "-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: white;" +
+                "-fx-cursor: hand; -fx-padding: 0;"
+            );
+        }
 
         favManager.addListener(products -> Platform.runLater(() -> updateFavBadge(products)));
         updateFavBadge(favManager.getAll());
 
         cartManager.addListener(items -> Platform.runLater(() -> updateCartBadge(items)));
+        updateCartBadge(cartManager.getItems());
+
+        // Wire search to ProductListController pending search
+        if (searchField != null) {
+            searchField.setOnAction(e -> handleSearch());
+        }
 
         NavigationRouter.getInstance().setHeaderLoginListener(this::updateUserState);
+
+        // Hover-to-open: opening Collections / user menu just by moving the
+        // pointer onto the trigger feels much faster than the JavaFX default
+        // (click to open). show() is idempotent if the popup is already up.
+        wireHoverOpen(collectionsMenu);
+        wireHoverOpen(userMenuBtn);
+    }
+
+    private void wireHoverOpen(MenuButton mb) {
+        if (mb == null) return;
+        // javafx.scene.robot.Robot.getMousePosition() returns JavaFX screen
+        // coordinates — same space as Window.getX() and localToScreen() — so
+        // no DPI-scaling conversion is needed (unlike java.awt.MouseInfo).
+        // Grace counter: skip the first 2 ticks (≈240 ms) after the popup opens
+        // so the PopupWindow has time to settle into Window.getWindows() with
+        // its correct bounds before we start the "cursor left?" check.
+        javafx.scene.robot.Robot robot = new javafx.scene.robot.Robot();
+        Timeline[] poll = {null};
+        int[] grace = {0};
+
+        mb.setOnMouseEntered(e -> { if (!mb.isShowing()) mb.show(); });
+
+        mb.showingProperty().addListener((obs, wasShowing, nowShowing) -> {
+            if (!nowShowing) {
+                if (poll[0] != null) { poll[0].stop(); poll[0] = null; }
+                grace[0] = 0;
+                return;
+            }
+            if (poll[0] != null) poll[0].stop();
+            grace[0] = 0;
+            poll[0] = new Timeline(new KeyFrame(Duration.millis(120), ev -> {
+                if (!mb.isShowing()) { poll[0].stop(); poll[0] = null; grace[0] = 0; return; }
+                if (grace[0]++ < 2) return; // skip first ~240 ms — popup settling
+
+                javafx.geometry.Point2D mouse = robot.getMousePosition();
+                double mx = mouse.getX(), my = mouse.getY();
+
+                // Is cursor over the MenuButton?
+                javafx.geometry.Bounds btn = mb.localToScreen(mb.getBoundsInLocal());
+                if (btn != null && btn.contains(mx, my)) return;
+
+                // Is cursor over any showing PopupWindow (the dropdown)?
+                boolean overPopup = javafx.stage.Window.getWindows().stream()
+                    .filter(w -> w instanceof javafx.stage.PopupWindow && w.isShowing())
+                    .anyMatch(w ->
+                        mx >= w.getX() && mx <= w.getX() + w.getWidth() &&
+                        my >= w.getY() && my <= w.getY() + w.getHeight());
+
+                if (!overPopup) { poll[0].stop(); poll[0] = null; grace[0] = 0; mb.hide(); }
+            }));
+            poll[0].setCycleCount(javafx.animation.Animation.INDEFINITE);
+            poll[0].play();
+        });
     }
 
     private void updateCartBadge(java.util.Map<Integer, CartManager.CartItem> items) {
@@ -72,8 +157,7 @@ public class ProductHeaderController implements Initializable {
         heartBadge.setText(String.valueOf(count));
         heartBadge.setVisible(count > 0);
         heartBadge.setManaged(count > 0);
-        if (heartBtn != null)
-            heartBtn.setText(count > 0 ? "♥" : "♡");
+        if (heartBtn != null) heartBtn.setText(count > 0 ? "♥" : "♡");
     }
 
     @FXML
@@ -93,10 +177,8 @@ public class ProductHeaderController implements Initializable {
 
         VBox box = new VBox(0);
         box.setStyle(
-            "-fx-background-color: white;" +
-            "-fx-border-color: #e5e7eb;" +
-            "-fx-border-radius: 8;" +
-            "-fx-background-radius: 8;" +
+            "-fx-background-color: white; -fx-border-color: #e5e7eb;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4);"
         );
         box.setMinWidth(280);
@@ -105,8 +187,7 @@ public class ProductHeaderController implements Initializable {
         Label title = new Label("♥  My Favourites (" + favs.size() + ")");
         title.setStyle(
             "-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #111827;" +
-            "-fx-padding: 12 16 12 16; -fx-border-color: #e5e7eb;" +
-            "-fx-border-width: 0 0 1 0;"
+            "-fx-padding: 12 16 12 16; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;"
         );
         title.setMaxWidth(Double.MAX_VALUE);
         box.getChildren().add(title);
@@ -116,11 +197,14 @@ public class ProductHeaderController implements Initializable {
             row.setAlignment(Pos.CENTER_LEFT);
             row.setPadding(new Insets(10, 16, 10, 16));
             row.setStyle("-fx-border-color: #f3f4f6; -fx-border-width: 0 0 1 0;");
+            row.setOnMouseEntered(e -> row.setStyle(
+                "-fx-background-color: #f9fafb; -fx-border-color: #f3f4f6; -fx-border-width: 0 0 1 0;"));
+            row.setOnMouseExited(e -> row.setStyle(
+                "-fx-border-color: #f3f4f6; -fx-border-width: 0 0 1 0;"));
 
             Label nameLabel = new Label(p.name);
             nameLabel.setStyle("-fx-font-size: 12; -fx-text-fill: #111827;");
             nameLabel.setMaxWidth(180);
-            nameLabel.setWrapText(false);
             HBox.setHgrow(nameLabel, Priority.ALWAYS);
 
             Label priceLabel = new Label(String.format("£%.2f", p.price));
@@ -129,8 +213,7 @@ public class ProductHeaderController implements Initializable {
             Button removeBtn = new Button("✕");
             removeBtn.setStyle(
                 "-fx-background-color: transparent; -fx-border-color: transparent;" +
-                "-fx-text-fill: #9ca3af; -fx-cursor: hand; -fx-font-size: 11;" +
-                "-fx-padding: 2 4 2 4;"
+                "-fx-text-fill: #9ca3af; -fx-cursor: hand; -fx-font-size: 11; -fx-padding: 2 4 2 4;"
             );
             removeBtn.setOnAction(e -> {
                 favManager.remove(p.productID);
@@ -139,12 +222,6 @@ public class ProductHeaderController implements Initializable {
             });
 
             row.getChildren().addAll(nameLabel, priceLabel, removeBtn);
-
-            row.setOnMouseEntered(e -> row.setStyle(
-                "-fx-background-color: #f9fafb; -fx-border-color: #f3f4f6; -fx-border-width: 0 0 1 0;"));
-            row.setOnMouseExited(e -> row.setStyle(
-                "-fx-border-color: #f3f4f6; -fx-border-width: 0 0 1 0;"));
-
             box.getChildren().add(row);
         }
 
@@ -171,30 +248,66 @@ public class ProductHeaderController implements Initializable {
         }
     }
 
-    @FXML
-    private void handleCartClick() {
-        navigateTo("/fxml/Cart.fxml");
-    }
+    @FXML private void handleCartClick()  { navigateTo("/fxml/Cart.fxml"); }
+    @FXML private void handleOpenLogin()  { ProductLoginModalLauncher.show(null); }
+    @FXML private void handleLogout()     { NavigationRouter.getInstance().logout(); }
 
     @FXML
-    private void handleOpenLogin() {
-        ProductLoginModalLauncher.show(null);
+    private void handleManageAccount() {
+        NavigationRouter.getInstance().navigateToCustomerDashboard();
     }
 
-    @FXML
-    private void handleLogout() {
-        NavigationRouter.getInstance().logout();
-        // Scene root is replaced; this controller instance is discarded
+    // ── Collection filters ─────────────────────────────────────────────────
+
+    @FXML private void handleFilterAll()                    { navigateTo("/fxml/ProductHomepage.fxml"); }
+    @FXML private void handleCollectionApexAutomata()       { NavigationRouter.getInstance().navigateByPath("/collections/the-apex-series"); }
+    @FXML private void handleCollectionSentinelForce()      { NavigationRouter.getInstance().navigateByPath("/collections/the-ledger-series"); }
+    @FXML private void handleCollectionNovaMind()           { NavigationRouter.getInstance().navigateByPath("/collections/the-velocity-series"); }
+    @FXML private void handleCollectionTerraCore()          { NavigationRouter.getInstance().navigateByPath("/collections/the-sentinel-series"); }
+
+    // ── Top-level nav ──────────────────────────────────────────────────────
+
+    @FXML private void handleNavRobots()      { filterByCategory("Main Robot"); }
+    @FXML private void handleNavMiniRobots()  { filterByCategory("Mini Robot"); }
+    @FXML private void handleNavAccessories() { filterByCategory("Accessory"); }
+    @FXML private void handleNavServices()    { filterByCategory("Service"); }
+
+    private void filterByCategory(String category) {
+        ProductListController.setPendingCategory(category);
+        navigateTo("/fxml/ProductListPage.fxml");
     }
+
+    // ── Search ─────────────────────────────────────────────────────────────
+
+    @FXML
+    private void handleSearch() {
+        if (searchField == null) return;
+        String query = searchField.getText().trim();
+        ProductListController.setPendingSearch(query);
+        navigateTo("/fxml/ProductHomepage.fxml");
+    }
+
+    // ── User state ─────────────────────────────────────────────────────────
 
     private void updateUserState(User user) {
         this.currentUser = user;
         if (user == null) { clearUserState(); return; }
-        if (loginMenuItem     != null) loginMenuItem.setVisible(false);
-        if (logoutMenuItem    != null) logoutMenuItem.setVisible(true);
-        if (userMenuBtn       != null) userMenuBtn.setText(user.firstName);
+
+        if (loginMenuItem          != null) loginMenuItem.setVisible(false);
+        if (logoutMenuItem         != null) logoutMenuItem.setVisible(true);
+        if (logoutSeparator        != null) logoutSeparator.setVisible(true);
+        if (userMenuBtn != null) {
+            String name = user.firstName != null && !user.firstName.isBlank() ? user.firstName : "Account";
+            userMenuBtn.setText("👤  " + name);
+            userMenuBtn.setStyle(
+                "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                "-fx-font-size: 13; -fx-text-fill: white; -fx-cursor: hand; -fx-padding: 0;"
+            );
+        }
+
         boolean isCustomer = "customer".equals(user.roleName);
-        if (myReviewsMenuItem != null) myReviewsMenuItem.setVisible(isCustomer);
+        if (manageAccountMenuItem  != null) manageAccountMenuItem.setVisible(isCustomer);
+        if (myReviewsMenuItem      != null) myReviewsMenuItem.setVisible(isCustomer);
         if (user.isAdmin() && adminBtn != null) {
             adminBtn.setVisible(true);
             adminBtn.setManaged(true);
@@ -203,17 +316,34 @@ public class ProductHeaderController implements Initializable {
 
     private void clearUserState() {
         this.currentUser = null;
-        if (loginMenuItem     != null) loginMenuItem.setVisible(true);
-        if (logoutMenuItem    != null) logoutMenuItem.setVisible(false);
-        if (myReviewsMenuItem != null) myReviewsMenuItem.setVisible(false);
-        if (adminBtn          != null) { adminBtn.setVisible(false); adminBtn.setManaged(false); }
-        if (userMenuBtn       != null) userMenuBtn.setText("👤");
+        if (loginMenuItem         != null) loginMenuItem.setVisible(true);
+        if (logoutMenuItem        != null) logoutMenuItem.setVisible(false);
+        if (logoutSeparator       != null) logoutSeparator.setVisible(false);
+        if (manageAccountMenuItem != null) manageAccountMenuItem.setVisible(false);
+        if (myReviewsMenuItem     != null) myReviewsMenuItem.setVisible(false);
+        if (adminBtn              != null) { adminBtn.setVisible(false); adminBtn.setManaged(false); }
+        if (userMenuBtn != null) {
+            userMenuBtn.setText("Login");
+            userMenuBtn.setStyle(
+                "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                "-fx-font-size: 13; -fx-text-fill: white; -fx-cursor: hand; -fx-padding: 0;"
+            );
+        }
     }
 
     @FXML
     private void handleMyReviews() {
         if (currentUser == null) { handleOpenLogin(); return; }
         try {
+            // Resolve the reviews-module customer ID (customers table PK),
+            // not the auth-module user ID — these are different integers.
+            int customerId;
+            try {
+                customerId = new CustomerDAO().getCustomerIdByUserId(currentUser.userID);
+            } catch (Exception ex) {
+                customerId = currentUser.userID; // fallback — best-effort
+            }
+
             FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/reviews-customer-dashboard.fxml"));
             Parent view = loader.load();
@@ -221,15 +351,14 @@ public class ProductHeaderController implements Initializable {
             String displayName = ((currentUser.firstName != null ? currentUser.firstName : "") + " " +
                                   (currentUser.lastName  != null ? currentUser.lastName  : "")).trim();
             if (displayName.isEmpty()) displayName = currentUser.email;
-            Customer cu = new Customer(currentUser.userID, displayName, currentUser.email, true);
+            Customer cu = new Customer(customerId, displayName, currentUser.email, true);
             UserSession session = UserSession.customer(cu);
-            ReviewsApplication reviewsApp =
-                new ReviewsApplication(logoBtn.getScene().getWindow());
+            ReviewsApplication reviewsApp = new ReviewsApplication(logoBtn.getScene().getWindow());
             ctrl.init(reviewsApp, AppContext.getInstance(), session);
             logoBtn.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("ProductHeaderController: failed to load reviews-customer-dashboard");
-            e.printStackTrace();
+            log.error("{}", "ProductHeaderController: failed to load reviews-customer-dashboard");
+            log.error("Error", e);
         }
     }
 
@@ -243,13 +372,9 @@ public class ProductHeaderController implements Initializable {
         }
     }
 
-    @FXML
-    private void handleNavigateHome() { routeHome(); }
+    @FXML private void handleNavigateHome() { routeHome(); }
+    @FXML private void handleLogoClick()    { routeHome(); }
 
-    @FXML
-    private void handleLogoClick() { routeHome(); }
-
-    /** Super admins return to their command center; everyone else to the storefront. */
     private void routeHome() {
         User user = NavigationRouter.getInstance().getCurrentUser();
         if (user != null && "super_admin".equals(user.roleName)) {
@@ -264,8 +389,8 @@ public class ProductHeaderController implements Initializable {
             Parent view = FXMLLoader.load(getClass().getResource(fxmlPath));
             logoBtn.getScene().setRoot(view);
         } catch (Exception e) {
-            System.err.println("Navigation failed for " + fxmlPath + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "Navigation failed for " + fxmlPath + ": " + e.getMessage());
+            log.error("Error", e);
         }
     }
 }

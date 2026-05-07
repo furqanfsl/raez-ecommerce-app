@@ -6,8 +6,12 @@ import com.raez.delivery.model.DeliveryDriver;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DriverDAO {
+    private static final Logger log = LoggerFactory.getLogger(DriverDAO.class);
+
 
     public static List<DeliveryDriver> getAllDrivers() {
         List<DeliveryDriver> drivers = new ArrayList<>();
@@ -24,7 +28,7 @@ public class DriverDAO {
                         safe(rs.getString("email"))
                 ));
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) { log.error("Error", e); }
         return drivers;
     }
 
@@ -34,7 +38,7 @@ public class DriverDAO {
         try (PreparedStatement stmt = DBConnection.getInstance().getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) ids.add(String.valueOf(rs.getInt("driverID")));
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) { log.error("Error", e); }
         return ids;
     }
 
@@ -46,7 +50,7 @@ public class DriverDAO {
             stmt.setString(3, driver.getEmail());
             stmt.setString(4, driver.getName());
             return stmt.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); return false; }
+        } catch (SQLException e) { log.error("Error", e); return false; }
     }
 
     public static boolean deleteDriver(String driverId) {
@@ -54,7 +58,7 @@ public class DriverDAO {
         try (PreparedStatement stmt = DBConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setInt(1, Integer.parseInt(driverId));
             return stmt.executeUpdate() > 0;
-        } catch (SQLException e) { e.printStackTrace(); return false; }
+        } catch (SQLException e) { log.error("Error", e); return false; }
     }
 
     private static String safe(String v) { return v == null ? "" : v; }

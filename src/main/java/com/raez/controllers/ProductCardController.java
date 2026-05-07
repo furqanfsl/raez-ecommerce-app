@@ -1,5 +1,8 @@
 package com.raez.controllers;
 
+import com.raez.model.NavigationRouter;
+import com.raez.model.Product;
+import com.raez.util.ProductImageUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -22,13 +25,15 @@ public class ProductCardController implements Initializable {
     @FXML private Button    favouriteBtn;
 
     private boolean isFavourite = false;
+    private Product product;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Nothing needed on init — data set via setProduct()
     }
 
-    // Called by the parent controller to fill in product data
+    public void setProductRef(Product p) { this.product = p; }
+
     public void setProduct(String name, double price, double originalPrice,
                            String imageUrl, double rating, int reviews) {
 
@@ -52,8 +57,14 @@ public class ProductCardController implements Initializable {
 
         // Load image on background thread so UI stays smooth
         Thread imageThread = new Thread(() -> {
-            Image img = new Image(imageUrl, 240, 320, false, true, true);
-            javafx.application.Platform.runLater(() -> productImage.setImage(img));
+            Image img = ProductImageUtil.loadThumbnail(imageUrl, 300, 300);
+            javafx.application.Platform.runLater(() -> {
+                if (img != null && !img.isError()) {
+                    productImage.setImage(img);
+                } else {
+                    productImage.setImage(null);
+                }
+            });
         });
         imageThread.setDaemon(true);
         imageThread.start();
@@ -80,7 +91,8 @@ public class ProductCardController implements Initializable {
 
     @FXML
     private void handleCardClick() {
-        System.out.println("Clicked: " + productName.getText());
-        // TODO: open product detail page
+        if (product != null) {
+            NavigationRouter.getInstance().navigateToProductDetail(product);
+        }
     }
 }

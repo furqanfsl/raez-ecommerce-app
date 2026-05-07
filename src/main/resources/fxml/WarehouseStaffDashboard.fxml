@@ -16,6 +16,10 @@
             </padding>
             <Label text="Inventory &amp; Warehousing Dashboard" styleClass="h1"/>
             <Pane HBox.hgrow="ALWAYS"/>
+            <Button text="🏬  Storefront" onAction="#onGoToStorefront"
+                    style="-fx-background-color: #e0e7ff; -fx-text-fill: #000080;
+                           -fx-font-weight: bold; -fx-background-radius: 6;
+                           -fx-padding: 6 16 6 16; -fx-cursor: hand;" />
             <Button text="Log Out" onAction="#onLogout" styleClass="danger-button"/>
         </HBox>
     </top>
@@ -47,9 +51,6 @@
                             <TableColumn fx:id="lsQtyCol"       text="Current Stock"      prefWidth="130"/>
                             <TableColumn fx:id="lsWarehouseCol" text="Warehouse Location" prefWidth="240"/>
                         </columns>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
                     </TableView>
                 </VBox>
 
@@ -87,9 +88,6 @@
                             <TableColumn fx:id="poItemsCol"    text="Items"       prefWidth="70"/>
                             <TableColumn fx:id="poPackCol"     text="Action"      prefWidth="140"/>
                         </columns>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
                     </TableView>
                 </VBox>
 
@@ -113,9 +111,6 @@
                             <TableColumn fx:id="delDateCol"        text="Order Date"       prefWidth="100"/>
                             <TableColumn fx:id="delActionsCol"     text="Actions"          prefWidth="160"/>
                         </columns>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
                     </TableView>
                 </VBox>
 
@@ -132,9 +127,6 @@
                             <TableColumn fx:id="wLowCountCol" text="Low Stock Count" prefWidth="120"/>
                             <TableColumn fx:id="wActionsCol"  text="Actions"         prefWidth="220"/>
                         </columns>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
                     </TableView>
                 </VBox>
 
@@ -150,9 +142,6 @@
                             <TableColumn fx:id="pRestockCol" text="Last Restock Date" prefWidth="140"/>
                             <TableColumn fx:id="pReorderCol" text="Reorder Level"     prefWidth="120"/>
                         </columns>
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
                     </TableView>
                     <HBox spacing="8">
                         <Button text="Edit Selected Product"   onAction="#onEditProduct"   styleClass="neutral-button"/>

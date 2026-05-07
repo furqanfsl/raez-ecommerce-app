@@ -6,65 +6,66 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.raez.delivery.controller.DeliveryDashboardController"
-            style="-fx-background-color: #f8fafc;">
+            styleClass="admin-shell"
+            style="-fx-background-color: #F5F7FA;">
 
     <top>
-        <HBox spacing="10" style="-fx-background-color: white; -fx-border-color: #e5e7eb;">
-            <padding>
-                <Insets top="15" right="20" bottom="15" left="20"/>
-            </padding>
-            <Label text="Dashboard" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <HBox HBox.hgrow="ALWAYS"/>
-            <Button text="Drivers" onAction="#goToDrivers"/>
-            <Button text="Deliveries" onAction="#goToOrders"/>
-            <Button text="Logout" onAction="#logout"/>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="admin-topbar">
+            <Label text="RAEZ Deliveries" styleClass="admin-topbar-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Drivers"    onAction="#goToDrivers"   styleClass="admin-btn-ghost"/>
+            <Button text="Deliveries" onAction="#goToOrders"    styleClass="admin-btn-ghost"/>
+            <Button text="🚪  Logout"  onAction="#logout"         styleClass="admin-chip-white"/>
         </HBox>
     </top>
 
     <center>
         <VBox spacing="20">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+            <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
 
-            <Label text="Overview of your logistics database" style="-fx-text-fill: #6b7280;"/>
+            <VBox spacing="4">
+                <Label text="Dashboard" styleClass="admin-page-title"/>
+                <Label text="Overview of your logistics database" styleClass="admin-page-subtitle"/>
+            </VBox>
 
             <HBox spacing="16">
-                <VBox spacing="8" prefWidth="250" style="-fx-background-color: #3b82f6; -fx-background-radius: 10; -fx-padding: 18;">
-                    <Label text="Total Deliveries" style="-fx-text-fill: white;"/>
-                    <Label fx:id="totalOrdersLabel" style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="admin-metric">
+                    <Label text="Total Deliveries" styleClass="admin-metric-label"/>
+                    <Label fx:id="totalOrdersLabel" styleClass="admin-metric-value"/>
                 </VBox>
 
-                <VBox spacing="8" prefWidth="250" style="-fx-background-color: #f97316; -fx-background-radius: 10; -fx-padding: 18;">
-                    <Label text="In Transit" style="-fx-text-fill: white;"/>
-                    <Label fx:id="inTransitLabel" style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="admin-metric">
+                    <Label text="In Transit" styleClass="admin-metric-label"/>
+                    <Label fx:id="inTransitLabel"
+                           style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #F97316;"/>
                 </VBox>
 
-                <VBox spacing="8" prefWidth="250" style="-fx-background-color: #22c55e; -fx-background-radius: 10; -fx-padding: 18;">
-                    <Label text="Delivered" style="-fx-text-fill: white;"/>
-                    <Label fx:id="deliveredTodayLabel" style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="admin-metric">
+                    <Label text="Delivered" styleClass="admin-metric-label"/>
+                    <Label fx:id="deliveredTodayLabel"
+                           style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #10B981;"/>
                 </VBox>
 
-                <VBox spacing="8" prefWidth="250" style="-fx-background-color: #eab308; -fx-background-radius: 10; -fx-padding: 18;">
-                    <Label text="Pending" style="-fx-text-fill: white;"/>
-                    <Label fx:id="pendingLabel" style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="admin-metric">
+                    <Label text="Pending" styleClass="admin-metric-label"/>
+                    <Label fx:id="pendingLabel"
+                           style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #F59E0B;"/>
                 </VBox>
             </HBox>
 
             <HBox spacing="20" VBox.vgrow="ALWAYS">
-                <VBox spacing="10" prefWidth="700" VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 18; -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
-                    <Label text="Recent Deliveries" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <VBox spacing="10" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" styleClass="admin-section">
+                    <Label text="Recent Deliveries" styleClass="admin-section-title"/>
                     <ListView fx:id="recentOrdersList" VBox.vgrow="ALWAYS"/>
                 </VBox>
 
-                <VBox spacing="10" prefWidth="300" VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 18; -fx-border-color: #e5e7eb; -fx-border-radius: 10;">
-                    <Label text="Database Summary" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <VBox spacing="10" prefWidth="320" VBox.vgrow="ALWAYS" styleClass="admin-section">
+                    <Label text="Database Summary" styleClass="admin-section-title"/>
                     <ListView fx:id="alertsList" VBox.vgrow="ALWAYS"/>
                 </VBox>
             </HBox>

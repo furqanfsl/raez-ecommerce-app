@@ -7,16 +7,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SmtpSettingsDAO {
+    private static final Logger log = LoggerFactory.getLogger(SmtpSettingsDAO.class);
+
 
     public SmtpSettings load() {
         String sql = "SELECT host, port, username, password, fromAddress, fromName, useTls, isEnabled "
                    + "FROM smtp_settings WHERE settingID = 1";
         try (Connection c = DBConnection.getInstance().getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 SmtpSettings s = new SmtpSettings();
                 s.host        = rs.getString("host");
@@ -30,7 +33,7 @@ public class SmtpSettingsDAO {
                 return s;
             }
         } catch (SQLException e) {
-            System.err.println("SmtpSettingsDAO.load failed: " + e.getMessage());
+            log.error("{}", "SmtpSettingsDAO.load failed: " + e.getMessage());
         }
         return new SmtpSettings();
     }
@@ -57,7 +60,7 @@ public class SmtpSettingsDAO {
             ps.setInt   (8, s.isEnabled ? 1 : 0);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("SmtpSettingsDAO.save failed: " + e.getMessage());
+            log.error("{}", "SmtpSettingsDAO.save failed: " + e.getMessage());
             return false;
         }
     }

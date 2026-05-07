@@ -5,6 +5,8 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dev utility: converts placeholder password hashes in the SQLite DB into real BCrypt hashes.
@@ -23,6 +25,8 @@ import java.sql.ResultSet;
  * password-change flow if lastLogin is NULL.
  */
 public class FinanceFixPlaceholderPasswordHashes {
+    private static final Logger log = LoggerFactory.getLogger(FinanceFixPlaceholderPasswordHashes.class);
+
 
     private static final String PLACEHOLDER_MARKER = "PlaceholderBCryptHash";
 
@@ -42,7 +46,7 @@ public class FinanceFixPlaceholderPasswordHashes {
 
                         String derivedPlain = derivePlainPassword(storedHash);
                         if (derivedPlain == null) {
-                            System.err.println("[FinanceFixPlaceholderPasswordHashes] Skipping userId=" + userId +
+                            log.error("{}", "[FinanceFixPlaceholderPasswordHashes] Skipping userId=" + userId +
                                     " email=" + email + " (could not derive plain password)");
                             continue;
                         }
@@ -56,13 +60,13 @@ public class FinanceFixPlaceholderPasswordHashes {
                             if (count > 0) updated++;
                         }
 
-                        System.out.println("[FinanceFixPlaceholderPasswordHashes] Updated " + email +
+                        log.info("{}", "[FinanceFixPlaceholderPasswordHashes] Updated " + email +
                                 " -> derivedPlainPassword='" + derivedPlain + "'");
                     }
                 }
             }
 
-            System.out.println("[FinanceFixPlaceholderPasswordHashes] Done. Updated " + updated + " users.");
+            log.info("{}", "[FinanceFixPlaceholderPasswordHashes] Done. Updated " + updated + " users.");
         }
     }
 

@@ -12,12 +12,16 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Sends email using the SMTP config stored in smtp_settings.
  * Silently no-ops if SMTP is disabled (so the app keeps working without creds).
  */
 public class EmailService {
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+
 
     private static final SmtpSettingsDAO dao = new SmtpSettingsDAO();
 
@@ -25,9 +29,9 @@ public class EmailService {
     public static boolean send(String to, String subject, String body) {
         SmtpSettings s = dao.load();
         if (!s.isEnabled || s.host == null || s.host.isBlank()) {
-            System.out.println("[EmailService] SMTP disabled or unconfigured. Skipped email to " + to);
-            System.out.println("[EmailService] -- Subject: " + subject);
-            System.out.println("[EmailService] -- Body:\n" + body);
+            log.info("{}", "[EmailService] SMTP disabled or unconfigured. Skipped email to " + to);
+            log.info("{}", "[EmailService] -- Subject: " + subject);
+            log.info("{}", "[EmailService] -- Body:\n" + body);
             return false;
         }
 
@@ -35,6 +39,10 @@ public class EmailService {
         props.put("mail.smtp.host", s.host);
         props.put("mail.smtp.port", String.valueOf(s.port));
         props.put("mail.smtp.auth", s.username != null && !s.username.isBlank() ? "true" : "false");
+        // Fail fast — without these timeouts a wrong host hangs for 60+ seconds
+        props.put("mail.smtp.connectiontimeout", "6000");
+        props.put("mail.smtp.timeout",           "6000");
+        props.put("mail.smtp.writetimeout",      "6000");
         if (s.useTls) {
             props.put("mail.smtp.starttls.enable", "true");
             props.put("mail.smtp.starttls.required", "true");
@@ -54,10 +62,10 @@ public class EmailService {
             msg.setSubject(subject);
             msg.setText(body);
             Transport.send(msg);
-            System.out.println("[EmailService] Sent to " + to + " via " + s.host);
+            log.info("{}", "[EmailService] Sent to " + to + " via " + s.host);
             return true;
         } catch (MessagingException | java.io.UnsupportedEncodingException e) {
-            System.err.println("[EmailService] Send failed: " + e.getMessage());
+            log.error("{}", "[EmailService] Send failed: " + e.getMessage());
             return false;
         }
     }

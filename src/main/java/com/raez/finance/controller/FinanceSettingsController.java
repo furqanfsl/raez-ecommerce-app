@@ -34,6 +34,8 @@ import javafx.scene.shape.SVGPath;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -42,6 +44,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class FinanceSettingsController implements FinanceUiAutoRefreshable {
+
+    private static final Logger log = LoggerFactory.getLogger(FinanceSettingsController.class);
 
     // ── Services ─────────────────────────────────────────────────────────
     private final FinanceUserDao             fUserDao       = new FinanceUserDao();
@@ -378,7 +382,12 @@ public class FinanceSettingsController implements FinanceUiAutoRefreshable {
             if (task.getValue() != null)
                 tblUsers.setItems(FXCollections.observableList(task.getValue()));
         });
-        task.setOnFailed(e -> toast("error", "Failed to load users."));
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            if (ex != null) log.error("refreshUsers failed", ex);
+            toast("error", "Failed to load users: "
+                + (ex != null && ex.getMessage() != null ? ex.getMessage() : "unknown error"));
+        });
         executor.execute(task);
     }
 

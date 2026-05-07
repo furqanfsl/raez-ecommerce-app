@@ -9,8 +9,12 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductFormDialogLauncher {
+    private static final Logger log = LoggerFactory.getLogger(ProductFormDialogLauncher.class);
+
 
     public static void show(Product product, Consumer<Product> onSubmit) {
         try {
@@ -34,8 +38,8 @@ public class ProductFormDialogLauncher {
             modal.showAndWait();
 
         } catch (Exception e) {
-            System.err.println("ProductFormDialogLauncher error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("{}", "ProductFormDialogLauncher error: " + e.getMessage());
+            log.error("Error", e);
         }
     }
 }

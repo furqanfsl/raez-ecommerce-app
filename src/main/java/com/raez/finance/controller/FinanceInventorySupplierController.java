@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Inventory Valuation & finance_suppliers Performance
@@ -39,6 +41,8 @@ import java.util.concurrent.TimeUnit;
  *  - Runs DB/mock load on a background thread; all UI updates on FX thread
  */
 public class FinanceInventorySupplierController implements FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceInventorySupplierController.class);
+
 
     // ── FXML injections ────────────────────────────────────────────────────
     @FXML private ScrollPane pageScrollPane;
@@ -370,7 +374,7 @@ public class FinanceInventorySupplierController implements FinanceUiAutoRefresha
             }
 
             @Override protected void failed() {
-                if (getException() != null) getException().printStackTrace();
+                if (getException() != null) log.error("Error", getException());
             }
         };
         executor.execute(task);

@@ -22,8 +22,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FinanceAuditLogController implements FinanceUiAutoRefreshable {
+    private static final Logger log = LoggerFactory.getLogger(FinanceAuditLogController.class);
+
 
     private final FinanceAuditLogDao auditLogDao = new FinanceAuditLogDao();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -133,7 +137,7 @@ public class FinanceAuditLogController implements FinanceUiAutoRefreshable {
             items.setAll(list != null ? list : List.of());
         });
         task.setOnFailed(ev -> {
-            if (task.getException() != null) task.getException().printStackTrace();
+            if (task.getException() != null) log.error("Error", task.getException());
             Platform.runLater(() -> items.clear());
         });
         executor.execute(task);

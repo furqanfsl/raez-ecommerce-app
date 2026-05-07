@@ -16,8 +16,12 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductLoginModalController implements Initializable {
+    private static final Logger log = LoggerFactory.getLogger(ProductLoginModalController.class);
+
 
     @FXML private TextField     emailField;
     @FXML private PasswordField passwordField;
@@ -67,14 +71,14 @@ public class ProductLoginModalController implements Initializable {
 
         } catch (Exception e) {
             showError("Login error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 
     @FXML
     private void handleFillDemo() {
         if (emailField != null)    emailField.setText("alice@raez.com");
-        if (passwordField != null) passwordField.setText("alice123");
+        if (passwordField != null) passwordField.setText("raez123");
         clearError();
     }
 
@@ -99,11 +103,22 @@ public class ProductLoginModalController implements Initializable {
                 dialog.initOwner(emailField.getScene().getWindow());
             }
             dialog.setTitle("Create Account");
-            dialog.setScene(new Scene(root));
+            // Cap the dialog at ~88% of the screen so the form's internal
+            // ScrollPane handles the overflow instead of the dialog growing
+            // taller than the desktop and hiding its bottom buttons.
+            javafx.geometry.Rectangle2D vb =
+                javafx.stage.Screen.getPrimary().getVisualBounds();
+            double w = Math.min(640, vb.getWidth()  * 0.92);
+            double h = Math.min(820, vb.getHeight() * 0.88);
+            Scene scene = new Scene(root, w, h);
+            dialog.setScene(scene);
+            dialog.setMinWidth(420);
+            dialog.setMinHeight(520);
+            dialog.setResizable(true);
             dialog.showAndWait();
         } catch (Exception e) {
             showError("Could not open registration: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 

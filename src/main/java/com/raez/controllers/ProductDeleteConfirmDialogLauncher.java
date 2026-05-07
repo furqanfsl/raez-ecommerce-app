@@ -8,8 +8,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductDeleteConfirmDialogLauncher {
+    private static final Logger log = LoggerFactory.getLogger(ProductDeleteConfirmDialogLauncher.class);
+
 
     public static void show(String productName, Runnable onConfirm) {
         try {
@@ -39,7 +43,7 @@ public class ProductDeleteConfirmDialogLauncher {
             modal.show();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error", e);
         }
     }
 }

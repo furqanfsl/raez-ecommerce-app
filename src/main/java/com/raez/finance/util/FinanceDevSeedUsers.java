@@ -5,12 +5,16 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dev-only helper to seed known-good users into finance_raez.db.
  * Run via: mvn -DskipTests exec:java -Dexec.mainClass=com.raez.finance.util.FinanceDevSeedUsers
  */
 public class FinanceDevSeedUsers {
+    private static final Logger log = LoggerFactory.getLogger(FinanceDevSeedUsers.class);
+
 
     public static void main(String[] args) throws Exception {
         String adminEmail = "admin@raez.org.uk";
@@ -31,17 +35,17 @@ public class FinanceDevSeedUsers {
             insertUser(conn, finEmail, finUsername, finPassword, "FINANCE_USER", "Finance", "FinanceUser");
         }
 
-        System.out.println("Seeded 2 users into finance_raez.db");
-        System.out.println();
-        System.out.println("ADMIN login (Role Selection -> Super Admin FinanceLogin):");
-        System.out.println("  username/email: " + adminEmail + "  (or username: " + adminUsername + ")");
-        System.out.println("  password: " + adminPassword);
-        System.out.println("  role: ADMIN");
-        System.out.println();
-        System.out.println("FINANCE login (Role Selection -> Finance Admin FinanceLogin):");
-        System.out.println("  username/email: " + finEmail + " (or username: " + finUsername + ")");
-        System.out.println("  password: " + finPassword);
-        System.out.println("  role: FINANCE_USER");
+        log.info("{}", "Seeded 2 users into finance_raez.db");
+        log.info("");
+        log.info("{}", "ADMIN login (Role Selection -> Super Admin FinanceLogin):");
+        log.info("{}", "  username/email: " + adminEmail + "  (or username: " + adminUsername + ")");
+        log.info("{}", "  password: " + adminPassword);
+        log.info("{}", "  role: ADMIN");
+        log.info("");
+        log.info("{}", "FINANCE login (Role Selection -> Finance Admin FinanceLogin):");
+        log.info("{}", "  username/email: " + finEmail + " (or username: " + finUsername + ")");
+        log.info("{}", "  password: " + finPassword);
+        log.info("{}", "  role: FINANCE_USER");
     }
 
     private static void ensureFUserTable(Connection conn) throws Exception {

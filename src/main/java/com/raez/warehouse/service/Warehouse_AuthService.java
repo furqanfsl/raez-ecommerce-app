@@ -2,10 +2,15 @@ package com.raez.warehouse.service;
 
 import com.raez.db.DBConnection;
 import com.raez.warehouse.util.Warehouse_ValidationUtil;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Warehouse_AuthService {
+    private static final Logger log = LoggerFactory.getLogger(Warehouse_AuthService.class);
+
 
     public AuthResult authenticateStaff(String email, String password) {
         if (email == null || email.isBlank())
@@ -15,28 +20,9 @@ public class Warehouse_AuthService {
         if (!Warehouse_ValidationUtil.isValidStaffEmail(email))
             return AuthResult.fail("Access denied: Only staff email accounts (@raez.org.uk) are allowed.");
 
-        String hashedPassword = DBConnection.hashPassword(password);
-        String sql = "SELECT u.userID, r.roleName " +
-                     "FROM users u " +
-                     "JOIN user_roles ur ON ur.userID = u.userID " +
-                     "JOIN roles r ON r.roleID = ur.roleID " +
-                     "WHERE u.email = ? AND u.passwordHash = ? AND u.isActive = 1 " +
-                     "AND r.roleName IN ('warehouse_admin', 'super_admin')";
-
-        try (PreparedStatement stmt = DBConnection.getInstance().getConnection().prepareStatement(sql)) {
-            stmt.setString(1, email.trim());
-            stmt.setString(2, hashedPassword);
-            ResultSet rs = stmt.executeQuery();
-
-            if (!rs.next())
-                return AuthResult.fail("Invalid email or password.");
-
-            return AuthResult.success(email.trim(), rs.getString("roleName"), rs.getInt("userID"));
-
-        } catch (SQLException e) {
-            System.err.println("AuthService.authenticateStaff error: " + e.getMessage());
-            return AuthResult.fail("Database error. Please try again.");
-        }
+        return verify(email, password,
+            "AND r.roleName IN ('warehouse_admin', 'super_admin')",
+            "Invalid email or password.");
     }
 
     public AuthResult authenticateUser(String email, String password) {
@@ -49,27 +35,35 @@ public class Warehouse_AuthService {
         if (!emailCheck.isSuccess())
             return AuthResult.fail(emailCheck.getMessage());
 
-        String hashedPassword = DBConnection.hashPassword(password);
-        String sql = "SELECT u.userID, r.roleName " +
+        return verify(email, password,
+            "AND r.roleName IN ('warehouse_user', 'warehouse_admin', 'super_admin')",
+            "Invalid email or password. Only authorised warehouse users can access this portal.");
+    }
+
+    private AuthResult verify(String email, String password, String roleClause, String failMessage) {
+        String sql = "SELECT u.userID, u.passwordHash, r.roleName " +
                      "FROM users u " +
                      "JOIN user_roles ur ON ur.userID = u.userID " +
                      "JOIN roles r ON r.roleID = ur.roleID " +
-                     "WHERE u.email = ? AND u.passwordHash = ? AND u.isActive = 1 " +
-                     "AND r.roleName IN ('warehouse_user', 'warehouse_admin', 'super_admin')";
+                     "WHERE u.email = ? AND u.isActive = 1 " + roleClause;
 
         try (PreparedStatement stmt = DBConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, email.trim());
-            stmt.setString(2, hashedPassword);
             ResultSet rs = stmt.executeQuery();
+            if (!rs.next()) return AuthResult.fail(failMessage);
 
-            if (!rs.next())
-                return AuthResult.fail("Invalid email or password. " +
-                        "Only authorised warehouse users can access this portal.");
+            String storedHash = rs.getString("passwordHash");
+            if (storedHash == null || storedHash.isBlank()) return AuthResult.fail(failMessage);
 
+            try {
+                if (!BCrypt.checkpw(password, storedHash)) return AuthResult.fail(failMessage);
+            } catch (IllegalArgumentException e) {
+                return AuthResult.fail(failMessage);
+            }
             return AuthResult.success(email.trim(), rs.getString("roleName"), rs.getInt("userID"));
 
         } catch (SQLException e) {
-            System.err.println("AuthService.authenticateUser error: " + e.getMessage());
+            log.error("{}", "Warehouse_AuthService.verify error: " + e.getMessage());
             return AuthResult.fail("Database error. Please try again.");
         }
     }

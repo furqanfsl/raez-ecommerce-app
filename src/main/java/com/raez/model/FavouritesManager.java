@@ -1,5 +1,7 @@
 package com.raez.model;
 
+import com.raez.dao.FavouritesDAO;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -8,17 +10,17 @@ import java.util.function.Consumer;
 
 /**
  * Singleton that holds the user's favourited products.
- * Controllers subscribe to changes via addListener().
+ * In-memory for guests; DB-backed when a customer is logged in.
  */
 public class FavouritesManager {
 
     private static FavouritesManager instance;
 
-    // productId → Product (LinkedHashMap keeps insertion order)
-    private final Map<Integer, Product> favourites = new LinkedHashMap<>();
+    private final Map<Integer, Product>            favourites = new LinkedHashMap<>();
+    private final List<Consumer<List<Product>>>    listeners  = new ArrayList<>();
+    private final FavouritesDAO                    dao        = new FavouritesDAO();
 
-    // Listeners notified whenever favourites change
-    private final List<Consumer<List<Product>>> listeners = new ArrayList<>();
+    private int currentCustomerId = -1;
 
     private FavouritesManager() {}
 
@@ -27,50 +29,68 @@ public class FavouritesManager {
         return instance;
     }
 
-    /** Add a product to favourites */
+    // ── Session management ─────────────────────────────────────────────────
+
+    /** Called when a customer logs in. Loads their saved favourites from the DB. */
+    public void loadForCustomer(int customerID) {
+        this.currentCustomerId = customerID;
+        favourites.clear();
+        List<Product> saved = dao.loadFavouriteProducts(customerID);
+        for (Product p : saved) favourites.put(p.productID, p);
+        notifyListeners();
+    }
+
+    /** Called on logout — clears in-memory state without touching the DB. */
+    public void clearUser() {
+        this.currentCustomerId = -1;
+        favourites.clear();
+        notifyListeners();
+    }
+
+    // ── Core operations ────────────────────────────────────────────────────
+
     public void add(Product p) {
         favourites.put(p.productID, p);
         notifyListeners();
     }
 
-    /** Remove a product from favourites */
     public void remove(int productId) {
         favourites.remove(productId);
         notifyListeners();
     }
 
-    /** Toggle — add if not present, remove if present */
+    /** Toggle — returns true if product is now favourited, false if removed. */
     public boolean toggle(Product p) {
+        boolean nowFav;
         if (favourites.containsKey(p.productID)) {
             remove(p.productID);
-            return false; // now not favourited
+            nowFav = false;
         } else {
             add(p);
-            return true; // now favourited
+            nowFav = true;
         }
+        // Persist to DB when customer is logged in
+        if (currentCustomerId >= 0) {
+            if (nowFav) dao.add(currentCustomerId, p.productID);
+            else        dao.remove(currentCustomerId, p.productID);
+        }
+        return nowFav;
     }
 
-    /** Check if a product is favourited */
     public boolean isFavourite(int productId) {
         return favourites.containsKey(productId);
     }
 
-    /** Get all favourited products */
     public List<Product> getAll() {
         return new ArrayList<>(favourites.values());
     }
 
-    /** Get count of favourites */
-    public int getCount() {
-        return favourites.size();
-    }
+    public int getCount() { return favourites.size(); }
 
-    /** Subscribe to changes */
     public void addListener(Consumer<List<Product>> listener) {
         listeners.add(listener);
     }
 
-    /** Unsubscribe */
     public void removeListener(Consumer<List<Product>> listener) {
         listeners.remove(listener);
     }
