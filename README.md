@@ -2,10 +2,10 @@
 
 > Native JavaFX desktop e-commerce and back-office for a next-generation robotics company.
 
-demo
+![demo](docs/demo.gif)
 
-[CI](https://github.com/AnassNadeem/raez-ecommerce-app/actions/workflows/ci.yml)
-[License: MIT](LICENSE)
+[![CI](https://github.com/AnassNadeem/raez-ecommerce-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AnassNadeem/raez-ecommerce-app/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## What it is
 
@@ -20,7 +20,7 @@ The project is the integrated output of a 7-person team — each module was owne
 - **Security pass** — PreparedStatements end-to-end, BCrypt cost-12 password hashing, idempotent password-migration utility with CSV backup.
 - **Background JavaFX `Task` workers** for login + checkout so the UI thread never blocks.
 - **19 JUnit 5 tests** across auth, products, orders, and DAOs, run on every push by GitHub Actions.
-- `**jpackage` Windows installer** — clone, `mvn -Pinstaller package`, double-click the `.exe`.
+- **`jpackage` Windows installer** — clone, `mvn -Pinstaller package`, double-click the `.exe`.
 
 ## Features by module
 
@@ -125,14 +125,12 @@ A pre-built Windows installer is attached to the latest [GitHub Release](https:/
 
 
 | Launcher | Storefront hero |
-| -------- | --------------- |
-| launcher | hero            |
-
-
+| --- | --- |
+| ![launcher](docs/screen-launcher.png) | ![hero](docs/screen-hero.png) |
 
 | Product grid | My account | Super-admin |
-| ------------ | ---------- | ----------- |
-| main         | account    | admin       |
+| --- | --- | --- |
+| ![main](docs/screen-main.png) | ![account](docs/screen-account.png) | ![admin](docs/screen-admin.png) |
 
 
 ## What I'd build next
@@ -144,27 +142,29 @@ A pre-built Windows installer is attached to the latest [GitHub Release](https:/
 
 ## Troubleshooting
 
-Cloudinary upload fails / "ImageStorage = Local" in logs
+<details>
+<summary>Cloudinary upload fails / "ImageStorage = Local" in logs</summary>
 
 Expected when `~/.raez/config.properties` is missing or the network probe times out. The app falls back to `LocalImageStorage` automatically; uploads land in `~/.raez/images/`. Add valid Cloudinary credentials and restart to switch.
+</details>
 
-
-
-JDK 21 not found
+<details>
+<summary>JDK 21 not found</summary>
 
 Install [Eclipse Temurin 21](https://adoptium.net/temurin/releases/?version=21). On Windows make sure `JAVA_HOME` points to the Temurin 21 install and `%JAVA_HOME%\bin` is on `PATH`.
+</details>
 
-
-
-`./mvnw javafx:run` hangs on Windows
+<details>
+<summary><code>./mvnw javafx:run</code> hangs on Windows</summary>
 
 Most often a Cloudinary probe stalling. Use the demo profile to skip it: `./mvnw -Pdemo javafx:run`.
+</details>
 
-
-
-`jpackage` fails with "WiX Toolset not found"
+<details>
+<summary><code>jpackage</code> fails with "WiX Toolset not found"</summary>
 
 Install [WiX Toolset 3.x](https://wixtoolset.org/releases/) and add its `bin` directory to `PATH`, or switch `--type exe` to `--type app-image` in the `installer` profile to get an unpacked directory instead.
+</details>
 
 
 
