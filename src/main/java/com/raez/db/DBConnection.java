@@ -438,20 +438,49 @@ public class DBConnection {
     }
 
     /**
-     * Strips single-line SQL comments, splits on semicolons, and executes each statement.
-     * Handles the BEGIN TRANSACTION / COMMIT wrapping in the seed file correctly.
+     * Strips single-line SQL comments and splits on semicolons, both string-literal aware
+     * so that semicolons or `--` sequences inside `'...'` text don't terminate a statement.
      */
     private void executeSqlScript(String script) throws SQLException {
-        // Strip single-line comments (-- to end of line)
-        String[] lines = script.split("\n");
-        StringBuilder stripped = new StringBuilder();
-        for (String line : lines) {
-            int commentIdx = line.indexOf("--");
-            stripped.append(commentIdx >= 0 ? line.substring(0, commentIdx) : line);
-            stripped.append('\n');
+        java.util.List<String> statements = new java.util.ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inString = false;
+        int len = script.length();
+        for (int i = 0; i < len; i++) {
+            char c = script.charAt(i);
+            if (inString) {
+                current.append(c);
+                if (c == '\'') {
+                    if (i + 1 < len && script.charAt(i + 1) == '\'') {
+                        current.append('\'');
+                        i++;
+                    } else {
+                        inString = false;
+                    }
+                }
+                continue;
+            }
+            if (c == '\'') {
+                inString = true;
+                current.append(c);
+                continue;
+            }
+            if (c == '-' && i + 1 < len && script.charAt(i + 1) == '-') {
+                while (i < len && script.charAt(i) != '\n') i++;
+                if (i < len) current.append('\n');
+                continue;
+            }
+            if (c == ';') {
+                statements.add(current.toString());
+                current.setLength(0);
+                continue;
+            }
+            current.append(c);
+        }
+        if (current.toString().trim().length() > 0) {
+            statements.add(current.toString());
         }
 
-        String[] statements = stripped.toString().split(";");
         try (Statement stmt = connection.createStatement()) {
             for (String s : statements) {
                 String trimmed = s.trim();
@@ -459,7 +488,6 @@ public class DBConnection {
                     try {
                         stmt.execute(trimmed);
                     } catch (SQLException e) {
-                        // Log but continue — e.g. duplicate inserts on reconnect
                         log.error("{}", "SQL warning (skipped): " + e.getMessage()
                             + " | " + trimmed.substring(0, Math.min(80, trimmed.length())));
                     }
