@@ -77,9 +77,13 @@ Requires WiX Toolset 3.x on `PATH` for the `.exe` type; otherwise switch `--type
 
 ## Screenshots
 
-| Storefront | Cart | Admin |
+| Launcher | Storefront hero |
+| --- | --- |
+| ![launcher](docs/screen-launcher.png) | ![hero](docs/screen-hero.png) |
+
+| Product grid | My account | Super-admin |
 | --- | --- | --- |
-| ![storefront](docs/screen-products.png) | ![cart](docs/screen-cart.png) | ![admin](docs/screen-admin.png) |
+| ![main](docs/screen-main.png) | ![account](docs/screen-account.png) | ![admin](docs/screen-admin.png) |
 
 ## Engineering case study
 
