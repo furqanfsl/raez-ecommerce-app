@@ -44,3 +44,11 @@ config.properties
 
 # jpackage staging
 /jpackage-input/
+
+# IDE and AI tooling
+.claude/
+CLAUDE.md
+PLAN.md
+.classpath
+.project
+.settings/
