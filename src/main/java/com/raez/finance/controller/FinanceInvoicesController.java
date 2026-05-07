@@ -29,6 +29,8 @@ import javafx.scene.shape.SVGPath;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -39,6 +41,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class FinanceInvoicesController implements FinanceUiAutoRefreshable {
+
+    private static final Logger log = LoggerFactory.getLogger(FinanceInvoicesController.class);
 
     private FinanceMainLayoutController mainLayoutController;
 
@@ -506,7 +510,10 @@ public class FinanceInvoicesController implements FinanceUiAutoRefreshable {
         task.setOnFailed(ev -> {
             items.clear();
             setLoading(false);
-            toast("error", "Failed to load invoices.");
+            Throwable ex = task.getException();
+            if (ex != null) log.error("loadInvoices failed", ex);
+            toast("error", "Failed to load invoices: "
+                + (ex != null && ex.getMessage() != null ? ex.getMessage() : "unknown error"));
         });
         executor.execute(task);
 
@@ -522,6 +529,10 @@ public class FinanceInvoicesController implements FinanceUiAutoRefreshable {
             if (lblKpiPaid        != null) lblKpiPaid.setText(FinanceCurrencyUtil.formatCurrency(k.totalPaid()));
             if (lblKpiOutstanding != null) lblKpiOutstanding.setText(FinanceCurrencyUtil.formatCurrency(k.outstanding()));
             if (lblKpiOverdue     != null) lblKpiOverdue.setText(String.valueOf(k.overdueCount()));
+        });
+        kpiTask.setOnFailed(ev -> {
+            Throwable ex = kpiTask.getException();
+            if (ex != null) log.error("loadInvoices KPI failed", ex);
         });
         executor.execute(kpiTask);
     }
