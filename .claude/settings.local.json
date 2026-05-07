@@ -92,7 +92,25 @@
       "Bash(mvn exec:java -Dexec.mainClass=com.raez.util.RestoreImagesFromCloud)",
       "Bash(mvn exec:java -Dexec.mainClass=com.raez.util.RestoreImagesFromCloud -Dexec.args=\"--dry-run\" -q)",
       "Bash(mvn test *)",
-      "Bash(echo \"EXIT=$?\")"
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(./mvnw -q -DskipTests compile)",
+      "Bash(./mvnw -DskipTests compile)",
+      "Bash(./mvnw -DskipTests clean compile)",
+      "Bash(./mvnw test *)",
+      "Bash(./mvnw -DskipTests -q clean compile)",
+      "Bash(sqlite3 *)",
+      "PowerShell(& \"C:\\\\Program Files\\\\SQLite\\\\sqlite3.exe\" \"raez.db\" \"SELECT settingID, host, port, username, fromAddress, useTls, isEnabled FROM smtp_settings;\" 2>&1; & \"C:\\\\Program Files\\\\SQLite\\\\sqlite3.exe\" \"raez.db\" \".schema smtp_settings\" 2>&1)",
+      "Bash(ls src/main/java/com/raez)",
+      "Bash(dir src\\\\main\\\\java\\\\com\\\\raez)",
+      "Bash(./mvnw -q test -Dtest=OrderDaoTest)",
+      "Bash(./mvnw -q test)",
+      "Bash(./mvnw javafx:run)",
+      "Bash(tee /tmp/raez_run.log)",
+      "Bash(./mvnw clean *)",
+      "Bash(cd /tmp)",
+      "Bash(javac inspect.java)",
+      "Bash(java -cp \".;C:/Users/anass/.m2/repository/org/xerial/sqlite-jdbc/3.42.0.0/sqlite-jdbc-3.42.0.0.jar;C:/Users/anass/.m2/repository/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar\" inspect)",
+      "Bash(./mvnw -DskipTests compile -o)"
     ]
   }
 }
