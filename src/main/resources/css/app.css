@@ -499,13 +499,21 @@
     -fx-background-color: -bg-hover;
     -fx-cursor: hand;
 }
-.reports-table .table-row-cell:selected,
-.table-view .table-row-cell:selected {
+.reports-table .table-row-cell:filled:selected,
+.reports-table .table-row-cell:filled:selected:hover,
+.table-view .table-row-cell:filled:selected,
+.table-view .table-row-cell:filled:selected:hover {
     -fx-background-color: #DBEAFE;
+    -fx-table-cell-border-color: transparent;
+    -fx-text-background-color: -text-primary;
 }
-.reports-table .table-row-cell:selected .table-cell,
-.table-view .table-row-cell:selected .table-cell {
+.reports-table .table-row-cell:filled:selected .table-cell,
+.reports-table .table-row-cell:filled:selected:hover .table-cell,
+.table-view .table-row-cell:filled:selected .table-cell,
+.table-view .table-row-cell:filled:selected:hover .table-cell {
     -fx-text-fill: -text-primary;
+    -fx-text-background-color: -text-primary;
+    -fx-fill: -text-primary;
 }
 
 /* Remove blue focus ring */

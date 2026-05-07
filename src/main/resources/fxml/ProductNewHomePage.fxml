@@ -44,7 +44,7 @@
             <!-- Left: headline + CTAs -->
             <VBox fx:id="heroTextBox" spacing="0" maxWidth="640" HBox.hgrow="NEVER">
                 <!-- Headline (largest) -->
-                <Label text="RAEZ: THE AGENTIC ROBOTICS REVOLUTION"
+                <Label text="BUILT TO THINK.&#10;ENGINEERED TO MOVE."
                        wrapText="true" maxWidth="620"
                        style="-fx-font-family: 'Inter','Segoe UI','Montserrat',sans-serif;
                               -fx-font-size: 54; -fx-font-weight: 900;
