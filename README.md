@@ -186,4 +186,4 @@ This project was built by a 7-person team. Each contributor owned one or more mo
 
 ---
 
-Built by **Anass Nadeem** — [LinkedIn](https://www.linkedin.com/in/anass-nadeem/) · [GitHub](https://github.com/AnassNadeem) Integrated/Debugged by: **Furqan Faisel** — [LinkedIn](www.linkedin.com/in/furqan-faisel-490b59312) · [GitHub](https://github.com/furqanfsl)
+Built by **Anass Nadeem** — [LinkedIn](https://www.linkedin.com/in/anass-nadeem/) · [GitHub](https://github.com/AnassNadeem) Integrated/Debugged by: **Furqan Faisel** — [LinkedIn](https://www.linkedin.com/in/furqan-faisel/) · [GitHub](https://github.com/furqanfsl)
