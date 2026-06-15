@@ -176,7 +176,7 @@ This project was built by a 7-person team. Each contributor owned one or more mo
 | Contributor                                           | Modules                            |
 | ----------------------------------------------------- | ---------------------------------- |
 | **[Anass Nadeem](https://github.com/AnassNadeem)**    | Integration · Storefront · Finance |
-| *[Furqan Faisal](https://github.com/furqanfsl)*       | Warehouse                          |
+| *[Furqan Faisel](https://github.com/furqanfsl)*       | Warehouse                          |
 | *[Musaab Rasheed](https://github.com/musab202-tech)*  | Customer                           |
 | *[Mohammed Huzaifa](https://github.com/huzayfa24ldn)* | Products                           |
 | *[Meesam Hisbani](https://github.com/meesqm)*         | Delivery                           |
