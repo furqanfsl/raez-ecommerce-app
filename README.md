@@ -1,10 +1,12 @@
-# Raez
+# RAEZ
 
-> Native JavaFX desktop e-commerce and back-office for a next-generation robotics company.
+JavaFX desktop storefront and back-office for a robotics retailer.
 
-![demo](docs/demo.gif)
+This is a fork of the [team project](https://github.com/AnassNadeem/raez-ecommerce-app). My primary contribution was the Warehouse module, with additional integration and debugging work. Module ownership is listed under [Contributors](#contributors).
 
-[![CI](https://github.com/AnassNadeem/raez-ecommerce-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AnassNadeem/raez-ecommerce-app/actions/workflows/ci.yml)
+![RAEZ storefront demonstration](docs/demo.gif)
+
+Upstream smoke test: [![Upstream CI](https://github.com/AnassNadeem/raez-ecommerce-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AnassNadeem/raez-ecommerce-app/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## What it is
@@ -15,12 +17,12 @@ The project is the integrated output of a 7-person team — each module was owne
 
 ## Highlights
 
-- **Coded JavaFX launcher** — hand-animated wordmark + sweep underline, replacing a stock MP4 splash.
-- **Cloudinary image pipeline** with on-the-fly transforms and a transparent local fallback.
-- **Security pass** — PreparedStatements end-to-end, BCrypt cost-12 password hashing, idempotent password-migration utility with CSV backup.
-- **Background JavaFX `Task` workers** for login + checkout so the UI thread never blocks.
-- **19 JUnit 5 tests** across auth, products, orders, and DAOs, run on every push by GitHub Actions.
-- **`jpackage` Windows installer** — clone, `mvn -Pinstaller package`, double-click the `.exe`.
+- **JavaFX launcher** with an animated wordmark and underline.
+- **Optional Cloudinary image storage** with local upload storage when credentials or connectivity are unavailable.
+- **Authentication utilities** with BCrypt password hashing and a password-migration tool. Legacy seed accounts also support SHA-256 verification.
+- **Background JavaFX `Task` workers** for login and checkout.
+- **19 JUnit 5 tests** across authentication, products, orders, and DAOs. The CI workflow currently runs the smoke test only.
+- **Windows installer build** using `jpackage` and the Maven `installer` profile.
 
 ## Features by module
 
@@ -28,7 +30,7 @@ The project is the integrated output of a 7-person team — each module was owne
 | Module             | What it does                                                                                                                                                       |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Storefront**     | Dark-themed product browsing, collection pages, product detail with reviews, cart and checkout, order history, customer account.                                   |
-| **Auth**           | Email + BCrypt sign-up and login, role-based routing for staff (Admin / Finance / Warehouse / Delivery / Reviews / Customer-admin), two-stage SMTP password reset. |
+| **Auth**           | Email sign-up and login, role-based staff routing, BCrypt support with legacy seed-password compatibility, and SMTP password reset. |
 | **Finance**        | Invoices, customer/order/product reports with PDFBox export, revenue + VAT aggregations, financial-anomaly detection, audit log, SMTP settings.                    |
 | **Warehouse**      | Stock and supplier management, low-stock alerts, PDF stock reports via iText.                                                                                      |
 | **Delivery**       | Driver and delivery-order dashboards, status transitions.                                                                                                          |
@@ -45,15 +47,15 @@ The project is the integrated output of a 7-person team — each module was owne
 | --------- | --------------------------- | -------------------------------------------------------------------- |
 | UI        | JavaFX 21 (Controls + FXML) | Native desktop, zero web-runtime dependency, fluent CSS theming.     |
 | DB        | SQLite + WAL                | Zero-config single-user data store; WAL gives concurrent reads.      |
-| Auth      | jBCrypt 0.4                 | Industry-standard adaptive password hashing.                         |
-| Images    | Cloudinary + local fallback | CDN delivery and resize-on-URL; works offline without credentials.   |
+| Auth      | jBCrypt 0.4                 | BCrypt hashing, with SHA-256 compatibility for legacy seed accounts. |
+| Images    | Cloudinary + local fallback | Optional cloud uploads; local storage does not require credentials. Some catalog images still use remote URLs. |
 | Email     | Jakarta Mail (Angus 2.0.3)  | SMTP for password-reset and invoice notifications.                   |
 | PDF       | iText 5 + PDFBox 3          | iText for warehouse stock reports, PDFBox for finance exports.       |
 | Stats     | Apache Commons Math 3       | Linear-regression revenue prediction in Finance.                     |
 | Logging   | SLF4J 2 + Logback 1.4       | Structured, configurable, rolling-file output under `~/.raez/logs/`. |
 | Build     | Maven (with wrapper)        | Standard, CI-friendly, profile-driven (`demo`, `installer`).         |
 | Tests     | JUnit 5                     | 19 tests across auth, products, orders, DAOs.                        |
-| CI        | GitHub Actions              | Runs `mvn -B test` on every push and PR.                             |
+| CI        | GitHub Actions              | Runs `./mvnw -B -Dtest=SmokeTest test` on configured pushes and pull requests. |
 | Installer | `jpackage` (JDK 21)         | Native Windows `.exe` with bundled runtime.                          |
 
 
@@ -67,73 +69,84 @@ The project is the integrated output of a 7-person team — each module was owne
 
 ## How to use
 
-Requires **JDK 21** (Temurin recommended). The Maven wrapper (`mvnw`) is bundled — no global Maven install needed.
+Requires **JDK 21**. The Maven wrapper is bundled, so a global Maven installation is not required. The first build needs internet access to download Maven and dependencies.
+
+Commands below use **Windows PowerShell**. For development on macOS or Linux, replace `.\mvnw.cmd` with `./mvnw`.
 
 ### 1. Clone
 
-```bash
-git clone https://github.com/AnassNadeem/raez-ecommerce-app.git
+```powershell
+git clone https://github.com/furqanfsl/raez-ecommerce-app.git
 cd raez-ecommerce-app
 ```
 
-### 2. Run (offline demo mode)
+### 2. Run the local demo
 
-No Cloudinary account, no SMTP creds — just runs.
+No Cloudinary account or SMTP credentials are required to start the demo. The demo profile uses local upload storage, but some catalog images still need internet access. Email features require separate SMTP configuration.
 
-```bash
-./mvnw -Pdemo javafx:run
+```powershell
+.\mvnw.cmd -Pdemo javafx:run
 ```
 
-The first launch creates a fresh SQLite DB from the bundled seed data with demo users, products, and orders.
+The first launch creates a SQLite database from the bundled seed data with demo users, products, and orders. An existing database is preserved. This is a desktop application, not a hosted website; no browser address is needed.
 
-### 3. Run (full mode with Cloudinary)
+### 3. Configure optional Cloudinary uploads
 
-```bash
-# Linux / macOS
-cp config.properties.example ~/.raez/config.properties
+Windows PowerShell:
 
-# Windows (PowerShell)
+```powershell
+New-Item -ItemType Directory -Path "$env:USERPROFILE\.raez" -Force | Out-Null
 Copy-Item config.properties.example "$env:USERPROFILE\.raez\config.properties"
 ```
 
-Fill in `cloudinary.cloud_name`, `cloudinary.api_key`, `cloudinary.api_secret`, then:
+macOS or Linux:
 
-```bash
-./mvnw javafx:run
+```sh
+mkdir -p ~/.raez
+cp config.properties.example ~/.raez/config.properties
+```
+
+Edit the copied file and set `cloudinary.cloud_name`, `cloudinary.api_key`, and `cloudinary.api_secret`. Keep this file private and do not commit credentials. Then run without the demo profile:
+
+```powershell
+.\mvnw.cmd javafx:run
 ```
 
 ### 4. Run the tests
 
-```bash
-./mvnw test
+```powershell
+.\mvnw.cmd test
 ```
+
+This runs the full test suite. The GitHub Actions workflow currently selects only `SmokeTest`, so its badge is not a full-suite test result.
 
 ### 5. Build the Windows installer
 
-```bash
-./mvnw -Pinstaller package
-# → target/installer/Raez-1.0.0.exe
+```powershell
+.\mvnw.cmd -Pinstaller package
+# Output: target/installer/Raez-1.0.0.exe
 ```
 
-Requires WiX Toolset 3.x on `PATH`. To skip WiX, switch `--type exe` to `--type app-image` in the `installer` profile to get an unpacked directory.
+Requires [WiX Toolset 3.x](https://github.com/wixtoolset/wix3/releases) on `PATH`. To skip WiX, switch `--type exe` to `--type app-image` in the `installer` profile to get an unpacked directory.
 
 ## Download
 
-A pre-built Windows installer is attached to the latest [GitHub Release](https://github.com/AnassNadeem/raez-ecommerce-app/releases).
+The [upstream releases](https://github.com/AnassNadeem/raez-ecommerce-app/releases) include a pre-built Windows installer. This is an upstream download, not a separate release of this fork.
 
 ## Screenshots
 
+Select an image to view it at full size.
 
 | Launcher | Storefront hero |
 | --- | --- |
-| ![launcher](docs/screen-launcher.png) | ![hero](docs/screen-hero.png) |
+| ![Animated RAEZ launcher](docs/screen-launcher.png) | ![Storefront hero](docs/screen-hero.png) |
 
 | Product grid | My account | Super-admin |
 | --- | --- | --- |
-| ![main](docs/screen-main.png) | ![account](docs/screen-account.png) | ![admin](docs/screen-admin.png) |
+| ![Product catalog](docs/screen-main.png) | ![Customer account](docs/screen-account.png) | ![Super-admin dashboard](docs/screen-admin.png) |
 
 
-## What I'd build next
+## Possible future work
 
 - **Postgres swap** — port `DBConnection` to a driver-agnostic shim and run multi-user against managed Postgres.
 - **Stripe checkout** — replace the in-app payment placeholder with hosted Stripe checkout + webhook-driven finalization.
@@ -155,15 +168,15 @@ Install [Eclipse Temurin 21](https://adoptium.net/temurin/releases/?version=21).
 </details>
 
 <details>
-<summary><code>./mvnw javafx:run</code> hangs on Windows</summary>
+<summary>The app takes time to start on Windows</summary>
 
-Most often a Cloudinary probe stalling. Use the demo profile to skip it: `./mvnw -Pdemo javafx:run`.
+A configured Cloudinary connection performs a network check during startup. Use `.\mvnw.cmd -Pdemo javafx:run` to skip that check and use local upload storage. The first build can also take longer while Maven downloads dependencies.
 </details>
 
 <details>
 <summary><code>jpackage</code> fails with "WiX Toolset not found"</summary>
 
-Install [WiX Toolset 3.x](https://wixtoolset.org/releases/) and add its `bin` directory to `PATH`, or switch `--type exe` to `--type app-image` in the `installer` profile to get an unpacked directory instead.
+Install [WiX Toolset 3.x](https://github.com/wixtoolset/wix3/releases) and add its `bin` directory to `PATH`, or switch `--type exe` to `--type app-image` in the `installer` profile to get an unpacked directory instead.
 </details>
 
 
@@ -186,4 +199,6 @@ This project was built by a 7-person team. Each contributor owned one or more mo
 
 ---
 
-Built by **Anass Nadeem** — [LinkedIn](https://www.linkedin.com/in/anass-nadeem/) · [GitHub](https://github.com/AnassNadeem) Integrated/Debugged by: **Furqan Faisel** — [LinkedIn](https://www.linkedin.com/in/furqan-faisel-490b59312/) · [GitHub](https://github.com/furqanfsl) 
+Team integration, storefront, and Finance: **[Anass Nadeem](https://github.com/AnassNadeem)** · [LinkedIn](https://www.linkedin.com/in/anass-nadeem/).
+
+Warehouse, additional integration, and debugging: **[Furqan Faisel](https://github.com/furqanfsl)** · [LinkedIn](https://www.linkedin.com/in/furqan-faisel-490b59312/).
